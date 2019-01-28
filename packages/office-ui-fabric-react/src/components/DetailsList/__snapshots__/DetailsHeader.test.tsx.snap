@@ -735,6 +735,7 @@ exports[`DetailsHeader can render 1`] = `
           }
     >
       <span
+        aria-expanded={false}
         aria-haspopup={true}
         aria-labelledby="header0-c-name "
         className=
@@ -1628,6 +1629,7 @@ exports[`DetailsHeader renders accessible labels 1`] = `
     >
       <span
         aria-describedby="header4-c-tooltip"
+        aria-expanded={false}
         aria-haspopup={true}
         aria-labelledby="header4-c-name "
         className=
