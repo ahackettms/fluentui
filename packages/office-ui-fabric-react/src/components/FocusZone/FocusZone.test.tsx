@@ -1,14 +1,15 @@
 import * as React from 'react';
-
 import * as ReactDOM from 'react-dom';
 import * as ReactTestUtils from 'react-dom/test-utils';
 import { setRTL, KeyCodes } from '../../Utilities';
-
 import { FocusZone } from './FocusZone';
 import { FocusZoneDirection, FocusZoneTabbableElements } from './FocusZone.types';
 
+// tslint:disable:typedef
+
 describe('FocusZone', () => {
   let lastFocusedElement: HTMLElement | undefined;
+
   function _onFocus(ev: any): void {
     lastFocusedElement = ev.target;
   }
@@ -142,6 +143,180 @@ describe('FocusZone', () => {
     ReactTestUtils.Simulate.keyDown(focusZone, { which: KeyCodes.end });
     expect(lastFocusedElement).toBe(buttonC);
   });
+
+  it('can restore focus to the following item when item removed', done => {
+    const host = document.createElement('div');
+
+    // Render component.
+    ReactDOM.render(
+      <FocusZone>
+        <button key="a" id="a">
+          button a
+        </button>
+        <button key="b" id="b">
+          button b
+        </button>
+        <button key="c" id="c">
+          button c
+        </button>
+      </FocusZone>,
+      host
+    );
+
+    const buttonB = host.querySelector('#b') as HTMLElement;
+
+    buttonB.focus();
+
+    // Simulate a blur to body.
+    buttonB.blur();
+
+    // Render component without button A.
+    ReactDOM.render(
+      <FocusZone>
+        <button key="a" id="a">
+          button a
+        </button>
+        <button key="c" id="c">
+          button c
+        </button>
+      </FocusZone>,
+      host
+    );
+
+    // Async evaluate that focus has been moved to b.
+    setTimeout(() => {
+      expect(document.activeElement).toBe(host.querySelector('#c'));
+      done();
+    }, 20);
+  });
+
+  it('can restore focus to the previous item when end item removed', done => {
+    const host = document.createElement('div');
+
+    // Render component.
+    ReactDOM.render(
+      <FocusZone>
+        <button key="a" id="a">
+          button a
+        </button>
+        <button key="b" id="b">
+          button b
+        </button>
+        <button key="c" id="c">
+          button c
+        </button>
+      </FocusZone>,
+      host
+    );
+
+    const buttonC = host.querySelector('#c') as HTMLElement;
+
+    buttonC.focus();
+
+    // Simulate a blur to body.
+    buttonC.blur();
+
+    // Render component without button A.
+    ReactDOM.render(
+      <FocusZone>
+        <button key="a" id="a">
+          button a
+        </button>
+        <button key="b" id="b">
+          button b
+        </button>
+      </FocusZone>,
+      host
+    );
+
+    // Async evaluate that focus has been moved to b.
+    setTimeout(() => {
+      expect(document.activeElement).toBe(host.querySelector('#b'));
+      done();
+    }, 20);
+  });
+
+  describe('parking and unparking', () => {
+    let host: HTMLElement;
+    let buttonA: HTMLElement;
+
+    beforeEach(done => {
+      host = document.createElement('div');
+
+      // Render component.
+      ReactDOM.render(
+        <div>
+          <button key="z" id="z" />
+          <FocusZone id="fz">
+            <button key="a" id="a">
+              button a
+            </button>
+          </FocusZone>
+        </div>,
+        host
+      );
+      buttonA = host.querySelector('#a') as HTMLElement;
+      buttonA.focus();
+      buttonA.blur();
+
+      // Render component without button A.
+      ReactDOM.render(
+        <div>
+          <button key="z" id="z" />
+          <FocusZone id="fz" />
+        </div>,
+        host
+      );
+
+      // Async evaluate that focus has been moved to b.
+      setTimeout(done, 20);
+    });
+
+    it('can move focus to container when last item removed', () => {
+      expect(document.activeElement).toBe(host.querySelector('#fz'));
+    });
+
+    it('can move focus from container to first item when added', () => {
+      ReactDOM.render(
+        <div>
+          <button key="z" id="z" />
+          <FocusZone id="fz">
+            <button key="a" id="a" data-is-visible="true">
+              button a
+            </button>
+          </FocusZone>
+        </div>,
+        host
+      );
+      expect(document.activeElement).toBe(host.querySelector('#a'));
+    });
+
+    it('removes focusability when moving from focused container', () => {
+      expect(host.querySelector('#fz')!.getAttribute('tabindex')).toEqual('-1');
+      (host.querySelector('#z') as HTMLElement).focus();
+      expect(host.querySelector('#fz')!.getAttribute('tabindex')).toBeNull();
+    });
+
+    it('does not move focus when items added without container focus', () => {
+      expect(host.querySelector('#fz')!.getAttribute('tabindex')).toEqual('-1');
+      (host.querySelector('#z') as HTMLElement).focus();
+
+      ReactDOM.render(
+        <div>
+          <button key="z" id="z" />
+          <FocusZone id="fz">
+            <button key="a" id="a" data-is-visible="true">
+              button a
+            </button>
+          </FocusZone>
+        </div>,
+        host
+      );
+      expect(document.activeElement).toBe(host.querySelector('#z'));
+    });
+  });
+
+  //
 
   it('can ignore arrowing if default is prevented', () => {
     const component = ReactTestUtils.renderIntoDocument(
