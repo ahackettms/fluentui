@@ -3,8 +3,14 @@ import { IRefObject, IStyleFunctionOrObject } from '../../Utilities';
 import { IStyle } from '../../Styling';
 import { IKeytipTransitionKey } from '../../utilities/keytips/IKeytipTransitionKey';
 
+/**
+ * {@docCategory Keytips}
+ */
 export interface IKeytipLayer {}
 
+/**
+ * {@docCategory Keytips}
+ */
 export interface IKeytipLayerProps extends React.ClassAttributes<IKeytipLayer> {
   /**
    * Optional callback to access the KeytipLayer component. Use this instead of ref for accessing
@@ -24,7 +30,8 @@ export interface IKeytipLayerProps extends React.ClassAttributes<IKeytipLayer> {
   keytipStartSequences?: IKeytipTransitionKey[];
 
   /**
-   * List of key sequences that execute the return functionality in keytips (going back to the previous level of keytips)
+   * List of key sequences that execute the return functionality in keytips
+   * (going back to the previous level of keytips)
    */
   keytipReturnSequences?: IKeytipTransitionKey[];
 
@@ -50,8 +57,14 @@ export interface IKeytipLayerProps extends React.ClassAttributes<IKeytipLayer> {
   styles?: IStyleFunctionOrObject<IKeytipLayerStyleProps, IKeytipLayerStyles>;
 }
 
+/**
+ * {@docCategory Keytips}
+ */
 export interface IKeytipLayerStyles {
   innerContent: IStyle;
 }
 
+/**
+ * {@docCategory Keytips}
+ */
 export interface IKeytipLayerStyleProps {}

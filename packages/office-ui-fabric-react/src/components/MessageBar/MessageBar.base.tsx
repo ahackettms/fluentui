@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { BaseComponent, DelayedRender, getId, classNamesFunction } from '../../Utilities';
+import {
+  DelayedRender,
+  getId,
+  classNamesFunction,
+  getNativeProps,
+  htmlElementProperties,
+  css,
+  initializeComponentRef,
+} from '../../Utilities';
 import { IconButton } from '../../Button';
 import { Icon } from '../../Icon';
 import { IMessageBarProps, IMessageBarStyleProps, IMessageBarStyles, MessageBarType } from './MessageBar.types';
@@ -12,11 +20,11 @@ export interface IMessageBarState {
   expandSingleLine?: boolean;
 }
 
-export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarState> {
+export class MessageBarBase extends React.Component<IMessageBarProps, IMessageBarState> {
   public static defaultProps: IMessageBarProps = {
     messageBarType: MessageBarType.info,
     onDismiss: undefined,
-    isMultiline: true
+    isMultiline: true,
   };
 
   private ICON_MAP = {
@@ -24,9 +32,8 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
     [MessageBarType.warning]: 'Info',
     [MessageBarType.error]: 'ErrorBadge',
     [MessageBarType.blocked]: 'Blocked2',
-    [MessageBarType.remove]: 'Blocked', // TODO remove deprecated value at >= 1.0.0
     [MessageBarType.severeWarning]: 'Warning',
-    [MessageBarType.success]: 'Completed'
+    [MessageBarType.success]: 'Completed',
   };
 
   private _classNames: { [key in keyof IMessageBarStyles]: string };
@@ -34,10 +41,11 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
   constructor(props: IMessageBarProps) {
     super(props);
 
+    initializeComponentRef(this);
     this.state = {
       labelId: getId('MessageBar'),
       showContent: false,
-      expandSingleLine: false
+      expandSingleLine: false,
     };
   }
 
@@ -57,13 +65,15 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
   }
 
   private _getDismissDiv(): JSX.Element | null {
-    if (this.props.onDismiss) {
+    const { onDismiss, dismissIconProps } = this.props;
+    if (onDismiss) {
       return (
         <IconButton
           disabled={false}
           className={this._classNames.dismissal}
-          onClick={this.props.onDismiss}
-          iconProps={{ iconName: 'Clear' }}
+          onClick={onDismiss}
+          iconProps={dismissIconProps ? dismissIconProps : { iconName: 'Clear' }}
+          title={this.props.dismissButtonAriaLabel}
           ariaLabel={this.props.dismissButtonAriaLabel}
         />
       );
@@ -89,7 +99,6 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
             iconProps={{ iconName: this.state.expandSingleLine ? 'DoubleChevronUp' : 'DoubleChevronDown' }}
             ariaLabel={this.props.overflowButtonAriaLabel}
             aria-expanded={this.state.expandSingleLine}
-            aria-controls={this.state.labelId}
           />
         </div>
       );
@@ -98,16 +107,21 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
   }
 
   private _getIconSpan(): JSX.Element {
+    const { messageBarIconProps } = this.props;
     return (
-      <div className={this._classNames.iconContainer}>
-        <Icon iconName={this.ICON_MAP[this.props.messageBarType!]} className={this._classNames.icon} />
+      <div className={this._classNames.iconContainer} aria-hidden>
+        {messageBarIconProps ? (
+          <Icon {...messageBarIconProps} className={css(this._classNames.icon, messageBarIconProps.className)} />
+        ) : (
+          <Icon iconName={this.ICON_MAP[this.props.messageBarType!]} className={this._classNames.icon} />
+        )}
       </div>
     );
   }
 
   private _renderMultiLine(): React.ReactElement<React.HTMLAttributes<HTMLAreaElement>> {
     return (
-      <div className={this._classNames.root} aria-live={this._getAnnouncementPriority()}>
+      <div className={this._classNames.root} {...this._getRegionProps()}>
         <div className={this._classNames.content}>
           {this._getIconSpan()}
           {this._renderInnerText()}
@@ -120,7 +134,7 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
 
   private _renderSingleLine(): React.ReactElement<React.HTMLAttributes<HTMLAreaElement>> {
     return (
-      <div className={this._classNames.root}>
+      <div className={this._classNames.root} {...this._getRegionProps()}>
         <div className={this._classNames.content}>
           {this._getIconSpan()}
           {this._renderInnerText()}
@@ -133,9 +147,18 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
   }
 
   private _renderInnerText(): JSX.Element {
+    const nativeProps = getNativeProps<React.HTMLAttributes<HTMLSpanElement>>(this.props, htmlElementProperties, [
+      'className',
+    ]);
+
     return (
-      <div className={this._classNames.text} id={this.state.labelId}>
-        <span className={this._classNames.innerText} role="status" aria-live={this._getAnnouncementPriority()}>
+      <div
+        className={this._classNames.text}
+        id={this.state.labelId}
+        role="status"
+        aria-live={this._getAnnouncementPriority()}
+      >
+        <span className={this._classNames.innerText} {...nativeProps}>
           <DelayedRender>
             <span>{this.props.children}</span>
           </DelayedRender>
@@ -143,6 +166,16 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
       </div>
     );
   }
+
+  private _getRegionProps = () => {
+    const hasActions = !!this._getActionsDiv() || !!this._getDismissDiv();
+    const regionProps = {
+      'aria-describedby': this.state.labelId,
+      role: 'region',
+    };
+
+    return hasActions ? regionProps : {};
+  };
 
   private _getClassNames(): { [key in keyof IMessageBarStyles]: string } {
     const { theme, className, messageBarType, onDismiss, actions, truncated, isMultiline } = this.props;
@@ -156,7 +189,7 @@ export class MessageBarBase extends BaseComponent<IMessageBarProps, IMessageBarS
       truncated: truncated,
       isMultiline: isMultiline,
       expandSingleLine: expandSingleLine,
-      className
+      className,
     });
   }
 

@@ -2,9 +2,14 @@ import * as React from 'react';
 import { ITheme, IStyle } from '../../Styling';
 import { IRefObject, IStyleFunctionOrObject } from '../../Utilities';
 
+/**
+ * {@docCategory Spinner}
+ */
 export interface ISpinner {}
+
 /**
  * Spinner component props.
+ * {@docCategory Spinner}
  */
 export interface ISpinnerProps extends React.HTMLAttributes<HTMLElement> {
   /**
@@ -17,6 +22,7 @@ export interface ISpinnerProps extends React.HTMLAttributes<HTMLElement> {
    * Deprecated and will be removed at \>= 2.0.0. Use `SpinnerSize` instead.
    * @deprecated Use `SpinnerSize` instead.
    */
+  // tslint:disable-next-line:deprecation
   type?: SpinnerType;
 
   /**
@@ -66,6 +72,7 @@ export interface ISpinnerProps extends React.HTMLAttributes<HTMLElement> {
 
 /**
  * Possible variations of the spinner circle size.
+ * {@docCategory Spinner}
  */
 export enum SpinnerSize {
   /**
@@ -86,18 +93,20 @@ export enum SpinnerSize {
   /**
    * 28px Spinner diameter
    */
-  large = 3
+  large = 3,
 }
 
 /**
  * Possible locations of the label in regards to the spinner
  * @defaultvalue bottom
+ * {@docCategory Spinner}
  */
 export type SpinnerLabelPosition = 'top' | 'right' | 'bottom' | 'left';
 
 /**
  * Deprecated at v2.0.0, use `SpinnerSize` instead.
  * @deprecated Use `SpinnerSize` instead.
+ * {@docCategory Spinner}
  */
 export enum SpinnerType {
   /**
@@ -110,11 +119,13 @@ export enum SpinnerType {
    * Deprecated and will be removed at \>= 2.0.0. Use `SpinnerSize.large` instead.
    * @deprecated Use `SpinnerSize.large` instead.
    */
-  large = 1
+  large = 1,
 }
 
 /**
- * The props needed to construct styles. This represents the simplified set of immutable things which control the class names.
+ * The props needed to construct styles.
+ * This represents the simplified set of immutable things which control the class names.
+ * {@docCategory Spinner}
  */
 export interface ISpinnerStyleProps {
   /** Theme provided by High-Order Component. */
@@ -132,6 +143,7 @@ export interface ISpinnerStyleProps {
 
 /**
  * Represents the stylable areas of the control.
+ * {@docCategory Spinner}
  */
 export interface ISpinnerStyles {
   /** Styles for the root element. Refers to the wrapper containing both the circle and the label. */

@@ -11,15 +11,21 @@ import { IGroupHeaderProps } from './GroupHeader.types';
 import { IGroupShowAllProps } from './GroupShowAll.types';
 import { IGroupFooterProps } from './GroupFooter.types';
 
+/**
+ * {@docCategory GroupedList}
+ */
 export enum CollapseAllVisibility {
   hidden = 0,
-  visible = 1
+  visible = 1,
 }
 
+/**
+ * {@docCategory GroupedList}
+ */
 export interface IGroupedList extends IList {
   /**
-   * Ensures that the list content is updated. Call this in cases where the list prop updates don't change, but the list
-   * still needs to be re-evaluated. For example, if a sizer bar is adjusted and causes the list width to change, you can
+   * Ensures that the list content is updated. Call this in cases where the list props don't change, but the list still
+   * needs to be re-evaluated. For example, if a sizer bar is adjusted and causes the list width to change, you can
    * call this to force a re-evaluation. Be aware that this can be an expensive operation and should be done sparingly.
    */
   forceUpdate: () => void;
@@ -30,6 +36,9 @@ export interface IGroupedList extends IList {
   toggleCollapseAll: (allCollapsed: boolean) => void;
 }
 
+/**
+ * {@docCategory GroupedList}
+ */
 export interface IGroupedListProps extends React.ClassAttributes<GroupedListBase> {
   /**
    * Theme that is passed in from Higher Order Component
@@ -98,23 +107,21 @@ export interface IGroupedListProps extends React.ClassAttributes<GroupedListBase
   /**
    * Optional callback to determine whether the list should be rendered in full, or virtualized.
    * Virtualization will add and remove pages of items as the user scrolls them into the visible range.
-   * This benefits larger list scenarios by reducing the DOM on the screen, but can negatively affect performance for smaller lists.
+   * This benefits larger list scenarios by reducing the DOM on the screen, but can negatively affect performance for
+   * smaller lists.
    * The default implementation will virtualize when this callback is not provided.
    */
   onShouldVirtualize?: (props: IListProps) => boolean;
 
   /**
-   * Optional function which will be called to estimate the height (in pixels) of the given group.
-   *
-   * By default, scrolling through a large virtualized GroupedList will often "jump" due to the order
-   * in which heights are calculated. For more details, see https://github.com/OfficeDev/office-ui-fabric-react/issues/5094
-   *
-   * Pass this prop to ensure the list uses the computed height rather than cached DOM measurements,
-   * avoiding the scroll jumping issue.
+   * Optional function to override default group height calculation used by list virtualization.
    */
   getGroupHeight?: (group: IGroup, groupIndex: number) => number;
 }
 
+/**
+ * {@docCategory GroupedList}
+ */
 export interface IGroup {
   /**
    * Unique identifier for the group.
@@ -185,6 +192,9 @@ export interface IGroup {
   hasMoreData?: boolean;
 }
 
+/**
+ * {@docCategory GroupedList}
+ */
 export interface IGroupRenderProps {
   /** Boolean indicating if all groups are in collapsed state. */
   isAllGroupsCollapsed?: boolean;
@@ -221,7 +231,7 @@ export interface IGroupRenderProps {
 
   /**
    * Flag to indicate whether to ignore the collapsing icon on header.
-   * @defaultvalue CheckboxVisibility.visible
+   * @defaultvalue CollapseAllVisibility.visible
    */
   collapseAllVisibility?: CollapseAllVisibility;
 
@@ -230,8 +240,16 @@ export interface IGroupRenderProps {
    * @defaultvalue false
    */
   showEmptyGroups?: boolean;
+
+  /**
+   * Override which allows the caller to provide a custom aria role
+   */
+  role?: string;
 }
 
+/**
+ * {@docCategory GroupedList}
+ */
 export interface IGroupDividerProps {
   componentRef?: IRefObject<{}>;
 
@@ -253,7 +271,10 @@ export interface IGroupDividerProps {
   /** The indent level of the group. */
   groupLevel?: number;
 
-  /** Width corresponding to a single level. This is multiplied by the groupLevel to get the full spacer width for the group. */
+  /**
+   * Width corresponding to a single level.
+   * This is multiplied by the groupLevel to get the full spacer width for the group.
+   */
   indentWidth?: number;
 
   /** If all items in the group are selected. */
@@ -295,7 +316,9 @@ export interface IGroupDividerProps {
   /** Override which allows the caller to provider a custom renderer for the GroupHeader title. */
   onRenderTitle?: IRenderFunction<IGroupHeaderProps>;
 
-  /** Props for expand/collapse button */
+  /** Props for expand/collapse button
+   * @deprecated Use {@link IGroupHeaderProps.expandButtonProps} instead.
+   */
   expandButtonProps?: React.HTMLAttributes<HTMLButtonElement>;
 
   /** Stores parent group's children. */
@@ -308,6 +331,9 @@ export interface IGroupDividerProps {
   theme?: ITheme;
 }
 
+/**
+ * {@docCategory GroupedList}
+ */
 export type IGroupedListStyleProps = Required<Pick<IGroupedListProps, 'theme'>> &
   Pick<IGroupedListProps, 'className'> & {
     /** whether or not the group is collapsed */
@@ -317,6 +343,9 @@ export type IGroupedListStyleProps = Required<Pick<IGroupedListProps, 'theme'>> 
     compact?: boolean;
   };
 
+/**
+ * {@docCategory GroupedList}
+ */
 export interface IGroupedListStyles {
   root: IStyle;
   group: IStyle;

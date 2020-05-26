@@ -1,4 +1,4 @@
-const { logger } = require('just-task');
+const { logger } = require('just-scripts');
 
 module.exports = function checkForModifiedFiles() {
   const EOL = require('os').EOL;
@@ -14,7 +14,7 @@ module.exports = function checkForModifiedFiles() {
     logger.error('Most likely you committed your files with --no-verify');
     logger.error(gitStatusOutput);
 
-    logger.error(execSync('git diff').toString('utf8'));
+    execSync('git diff', { stdio: 'inherit' });
 
     throw new Error('change file is required');
   }

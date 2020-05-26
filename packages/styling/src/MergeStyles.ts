@@ -6,11 +6,13 @@ export {
   IStyleSet,
   IProcessedStyleSet,
   IStyleSheetConfig,
+  ICSPSettings,
   InjectionMode,
   Stylesheet,
   concatStyleSets,
+  concatStyleSetsWithProps,
   fontFace,
   keyframes,
   mergeStyleSets,
-  mergeStyles
+  mergeStyles,
 } from '@uifabric/merge-styles';

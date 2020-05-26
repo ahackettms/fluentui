@@ -3,7 +3,6 @@ import { VerticalDividerBasicExample } from './examples/VerticalDivider.Basic.Ex
 
 import { IDocPageProps } from '../../common/DocPage.types';
 import { VerticalDividerCustomExample } from './examples/VerticalDivider.Custom.Example';
-import { DividerStatus } from './Divider.checklist';
 
 const VerticalDividerBasicExampleCode = require('!raw-loader!office-ui-fabric-react/src/components/Divider/examples/VerticalDivider.Basic.Example.tsx') as string;
 
@@ -12,25 +11,26 @@ const VerticalDividerCustomExampleCode = require('!raw-loader!office-ui-fabric-r
 export const DividerPageProps: IDocPageProps = {
   title: 'Divider',
   componentName: 'Divider',
-  componentUrl: 'https://github.com/OfficeDev/office-ui-fabric-react/tree/master/packages/office-ui-fabric-react/src/components/Divider',
-  componentStatus: DividerStatus,
+  componentUrl:
+    'https://github.com/microsoft/fluentui/tree/master/packages/office-ui-fabric-react/src/components/Divider',
   examples: [
     {
       title: 'Vertical Divider',
       code: VerticalDividerBasicExampleCode,
-      view: <VerticalDividerBasicExample />
+      view: <VerticalDividerBasicExample />,
     },
     {
       title: 'Custom Vertical Divider',
       code: VerticalDividerCustomExampleCode,
-      view: <VerticalDividerCustomExample />
-    }
+      view: <VerticalDividerCustomExample />,
+    },
   ],
-  propertiesTablesSources: [require<string>('!raw-loader!office-ui-fabric-react/src/components/Divider/VerticalDivider.types.ts')],
   overview: require<string>('!raw-loader!office-ui-fabric-react/src/components/Divider/docs/DividerOverview.md'),
-  bestPractices: require<string>('!raw-loader!office-ui-fabric-react/src/components/Divider/docs/DividerBestPractices.md'),
+  bestPractices: require<
+    string
+  >('!raw-loader!office-ui-fabric-react/src/components/Divider/docs/DividerBestPractices.md'),
   dos: require<string>('!raw-loader!office-ui-fabric-react/src/components/Divider/docs/DividerDos.md'),
   donts: require<string>('!raw-loader!office-ui-fabric-react/src/components/Divider/docs/DividerDonts.md'),
   isHeaderVisible: true,
-  isFeedbackVisible: true
+  isFeedbackVisible: true,
 };

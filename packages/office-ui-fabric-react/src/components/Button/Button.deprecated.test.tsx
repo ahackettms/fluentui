@@ -3,16 +3,19 @@ import * as ReactDOM from 'react-dom';
 
 import * as ReactTestUtils from 'react-dom/test-utils';
 import * as renderer from 'react-test-renderer';
-import * as WarnUtil from '@uifabric/utilities/lib-commonjs/warn';
 import { CompoundButton } from './CompoundButton/CompoundButton';
-import { resetIds } from '@uifabric/utilities';
+import { resetIds, setWarningCallback } from '@uifabric/utilities';
 
 describe('Button', () => {
   beforeAll(() => {
     // Prevent warn deprecations from failing test
-    jest.spyOn(WarnUtil, 'warnDeprecations').mockImplementation(() => {
-      /** no impl **/
+    setWarningCallback(() => {
+      /* no-op */
     });
+  });
+
+  afterAll(() => {
+    setWarningCallback();
   });
 
   beforeEach(() => {
@@ -24,7 +27,9 @@ describe('Button', () => {
   });
 
   it('renders CompoundButton correctly', () => {
-    const component = renderer.create(<CompoundButton description="You can create a new account here.">Create account</CompoundButton>);
+    const component = renderer.create(
+      <CompoundButton description="You can create a new account here.">Create account</CompoundButton>,
+    );
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   });
@@ -37,7 +42,7 @@ describe('Button', () => {
       button = ReactTestUtils.renderIntoDocument<any>(
         <CompoundButton description="Some awesome description" ariaDescription="Description on icon button">
           And this is the label
-        </CompoundButton>
+        </CompoundButton>,
       );
       renderedDOM = ReactDOM.findDOMNode(button as React.ReactInstance);
       expect(renderedDOM.getAttribute('aria-label') === null);

@@ -1,11 +1,11 @@
 import * as React from 'react';
 
-import { classNamesFunction, styled } from '../../../../Utilities';
-import { Persona, PersonaSize } from '../../../../Persona';
+import { classNamesFunction, styled, IStyleFunctionOrObject } from '../../../../Utilities';
+import { Persona, PersonaSize, IPersonaStyleProps, IPersonaStyles } from '../../../../Persona';
 import {
   IPeoplePickerItemSuggestionProps,
   IPeoplePickerItemSuggestionStyleProps,
-  IPeoplePickerItemSuggestionStyles
+  IPeoplePickerItemSuggestionStyles,
 } from './PeoplePickerItem.types';
 import { getStyles } from './PeoplePickerItemSuggestion.styles';
 
@@ -16,12 +16,23 @@ export const PeoplePickerItemSuggestionBase = (props: IPeoplePickerItemSuggestio
 
   const classNames = getClassNames(styles, {
     theme: theme!,
-    className: (suggestionsProps && suggestionsProps.suggestionsItemClassName) || className
+    className: (suggestionsProps && suggestionsProps.suggestionsItemClassName) || className,
   });
+
+  const personaStyles =
+    classNames.subComponentStyles && classNames.subComponentStyles.persona
+      ? (classNames.subComponentStyles.persona as IStyleFunctionOrObject<IPersonaStyleProps, IPersonaStyles>)
+      : undefined;
 
   return (
     <div className={classNames.root}>
-      <Persona size={PersonaSize.size24} className={classNames.personaWrapper} showSecondaryText={!compact} {...personaProps} />
+      <Persona
+        size={PersonaSize.size24}
+        styles={personaStyles}
+        className={classNames.personaWrapper}
+        showSecondaryText={!compact}
+        {...personaProps}
+      />
     </div>
   );
 };

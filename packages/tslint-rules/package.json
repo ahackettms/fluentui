@@ -1,17 +1,22 @@
 {
   "name": "@uifabric/tslint-rules",
-  "version": "1.0.0",
-  "description": "Shared tslint rules",
+  "version": "7.2.1",
+  "description": "Shared TSLint rules for Fluent UI projects",
   "main": "tslint.json",
-  "scripts": {
-    "clean": "",
-    "build": "node -v",
-    "code-style": "node -v"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/fluentui"
   },
-  "disabledTasks": [
-    "verify-api-extractor"
-  ],
-  "devDependencies": {
+  "license": "MIT",
+  "scripts": {
+    "build": "just-scripts build"
+  },
+  "dependencies": {
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-microsoft-contrib": "^5.0.1",
     "tslint-react": "^3.2.0"
+  },
+  "peerDependencies": {
+    "tslint": "*"
   }
 }

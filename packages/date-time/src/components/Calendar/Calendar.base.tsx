@@ -6,15 +6,25 @@ import {
   ICalendarIconStrings,
   ICalendarFormatDateCallbacks,
   ICalendarStyleProps,
-  ICalendarStyles
+  ICalendarStyles,
 } from './Calendar.types';
-import { DayOfWeek, FirstWeekOfYear, DateRangeType } from '../../utilities/dateValues/DateValues';
+import { DayOfWeek, FirstWeekOfYear, DateRangeType } from 'office-ui-fabric-react/lib/utilities/dateValues/DateValues';
 import { CalendarDay } from './CalendarDay/CalendarDay';
 import { CalendarMonth } from './CalendarMonth/CalendarMonth';
 import { ICalendarDay } from './CalendarDay/CalendarDay.types';
 import { ICalendarMonth } from './CalendarMonth/CalendarMonth.types';
-import { css, BaseComponent, KeyCodes, classNamesFunction } from '@uifabric/utilities';
+import {
+  css,
+  KeyCodes,
+  classNamesFunction,
+  focusAsync,
+  format,
+  initializeComponentRef,
+  FocusRects,
+} from '@uifabric/utilities';
 import { IProcessedStyleSet } from '@uifabric/styling';
+import { DayPickerStrings } from './defaults';
+import { addMonths, addYears } from 'office-ui-fabric-react/lib/utilities/dateMath/DateMath';
 
 const getClassNames = classNamesFunction<ICalendarStyleProps, ICalendarStyles>();
 
@@ -24,7 +34,7 @@ const closeIcon = 'CalculatorMultiply';
 export const defaultIconStrings: ICalendarIconStrings = {
   leftNavigation: leftArrow,
   rightNavigation: rightArrow,
-  closeIcon: closeIcon
+  closeIcon: closeIcon,
 };
 
 export const defaultWorkWeekDays: DayOfWeek[] = [
@@ -32,15 +42,16 @@ export const defaultWorkWeekDays: DayOfWeek[] = [
   DayOfWeek.Tuesday,
   DayOfWeek.Wednesday,
   DayOfWeek.Thursday,
-  DayOfWeek.Friday
+  DayOfWeek.Friday,
 ];
 
 export const defaultDateTimeFormatterCallbacks: ICalendarFormatDateCallbacks = {
   formatMonthDayYear: (date: Date, strings: ICalendarStrings) =>
     strings.months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear(),
-  formatMonthYear: (date: Date, strings: ICalendarStrings) => strings.months[date.getMonth()] + ' ' + date.getFullYear(),
+  formatMonthYear: (date: Date, strings: ICalendarStrings) =>
+    strings.months[date.getMonth()] + ' ' + date.getFullYear(),
   formatDay: (date: Date) => date.getDate().toString(),
-  formatYear: (date: Date) => date.getFullYear().toString()
+  formatYear: (date: Date) => date.getFullYear().toString(),
 };
 
 export interface ICalendarState {
@@ -60,7 +71,7 @@ export interface ICalendarState {
   isDayPickerVisible?: boolean;
 }
 
-export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> implements ICalendar {
+export class CalendarBase extends React.Component<ICalendarProps, ICalendarState> implements ICalendar {
   public static defaultProps: ICalendarProps = {
     onSelectDate: undefined,
     onDismiss: undefined,
@@ -72,7 +83,7 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
     firstDayOfWeek: DayOfWeek.Sunday,
     dateRangeType: DateRangeType.Day,
     showGoToToday: true,
-    strings: null,
+    strings: DayPickerStrings,
     highlightCurrentMonth: false,
     highlightSelectedMonth: false,
     navigationIcons: defaultIconStrings,
@@ -82,7 +93,7 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
     showSixWeeksByDefault: false,
     workWeekDays: defaultWorkWeekDays,
     showCloseButton: false,
-    allFocusable: false
+    allFocusable: false,
   };
 
   private _dayPicker = React.createRef<ICalendarDay>();
@@ -92,6 +103,8 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
 
   constructor(props: ICalendarProps) {
     super(props);
+
+    initializeComponentRef(this);
     const currentDate = props.value && !isNaN(props.value.getTime()) ? props.value : props.today || new Date();
 
     this.state = {
@@ -102,19 +115,20 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
       /** When showMonthPickerAsOverlay is active it overrides isMonthPickerVisible/isDayPickerVisible props
        (These props permanently set the visibility of their respective calendars). */
       isMonthPickerVisible: this.props.showMonthPickerAsOverlay ? false : this.props.isMonthPickerVisible,
-      isDayPickerVisible: this.props.showMonthPickerAsOverlay ? true : this.props.isDayPickerVisible
+      isDayPickerVisible: this.props.showMonthPickerAsOverlay ? true : this.props.isDayPickerVisible,
     };
 
     this._focusOnUpdate = false;
   }
 
-  public componentWillReceiveProps(nextProps: ICalendarProps): void {
+  // tslint:disable-next-line function-name
+  public UNSAFE_componentWillReceiveProps(nextProps: ICalendarProps): void {
     const { value, today = new Date() } = nextProps;
 
     this.setState({
       selectedDate: value || today,
       navigatedDayDate: value || today,
-      navigatedMonthDate: value || today
+      navigatedMonthDate: value || today,
     });
   }
 
@@ -138,12 +152,17 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
       navigationIcons,
       minDate,
       maxDate,
+      restrictedDates,
       className,
       showCloseButton,
       allFocusable,
       styles,
       showWeekNumbers,
-      theme
+      theme,
+      calendarDayProps,
+      calendarMonthProps,
+      dateTimeFormatter,
+      today,
     } = this.props;
     const { selectedDate, navigatedDayDate, navigatedMonthDate, isMonthPickerVisible, isDayPickerVisible } = this.state;
     const onHeaderSelect = showMonthPickerAsOverlay ? this._onHeaderSelect : undefined;
@@ -159,11 +178,31 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
       showMonthPickerAsOverlay: showMonthPickerAsOverlay,
       overlayedWithButton: overlayedWithButton,
       showGoToToday: showGoToToday,
-      showWeekNumbers: showWeekNumbers
+      showWeekNumbers: showWeekNumbers,
     });
 
+    let todayDateString: string = '';
+    let selectedDateString: string = '';
+    if (dateTimeFormatter && strings!.todayDateFormatString) {
+      todayDateString = format(strings!.todayDateFormatString, dateTimeFormatter.formatMonthDayYear(today!, strings!));
+    }
+    if (dateTimeFormatter && strings!.selectedDateFormatString) {
+      selectedDateString = format(
+        strings!.selectedDateFormatString,
+        dateTimeFormatter.formatMonthDayYear(selectedDate!, strings!),
+      );
+    }
+    const selectionAndTodayString = selectedDateString + ', ' + todayDateString;
+
     return (
-      <div className={css(rootClass, classes.root, className, 'ms-slideDownIn10')} onKeyDown={this._onDatePickerPopupKeyDown}>
+      <div
+        aria-label={selectionAndTodayString}
+        className={css(rootClass, classes.root, className, 'ms-slideDownIn10')}
+        onKeyDown={this._onDatePickerPopupKeyDown}
+      >
+        <div className={classes.liveRegion} aria-live="polite" aria-atomic="true">
+          <span>{selectedDateString}</span>
+        </div>
         {isDayPickerVisible && (
           <CalendarDay
             selectedDate={selectedDate!}
@@ -183,10 +222,12 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
             showSixWeeksByDefault={this.props.showSixWeeksByDefault}
             minDate={minDate}
             maxDate={maxDate}
+            restrictedDates={restrictedDates}
             workWeekDays={this.props.workWeekDays}
             componentRef={this._dayPicker}
             showCloseButton={showCloseButton}
             allFocusable={allFocusable}
+            {...calendarDayProps} // at end of list so consumer's custom functions take precedence
           />
         )}
         {isDayPickerVisible && isMonthPickerVisible && <div className={classes.divider} />}
@@ -200,38 +241,53 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
               today={this.props.today}
               highlightCurrentMonth={highlightCurrentMonth!}
               highlightSelectedMonth={highlightSelectedMonth!}
-              onHeaderSelect={this._onHeaderSelect}
+              onHeaderSelect={onHeaderSelect}
               navigationIcons={navigationIcons!}
               dateTimeFormatter={this.props.dateTimeFormatter!}
               minDate={minDate}
               maxDate={maxDate}
               componentRef={this._monthPicker}
+              {...calendarMonthProps} // at end of list so consumer's custom functions take precedence
             />
             {this._renderGoToTodayButton(classes)}
           </div>
         ) : (
           this._renderGoToTodayButton(classes)
         )}
+        <FocusRects />
       </div>
     );
   }
 
   public focus(): void {
     if (this.state.isDayPickerVisible && this._dayPicker.current) {
-      this._dayPicker.current.focus();
+      focusAsync(this._dayPicker.current);
     } else if (this.state.isMonthPickerVisible && this._monthPicker.current) {
-      this._monthPicker.current.focus();
+      focusAsync(this._monthPicker.current);
     }
   }
 
   private _renderGoToTodayButton = (classes: IProcessedStyleSet<ICalendarStyles>) => {
-    const { showGoToToday, strings } = this.props;
+    const { showGoToToday, strings, today } = this.props;
+    const { navigatedDayDate, navigatedMonthDate } = this.state;
+    let goTodayEnabled = showGoToToday;
+
+    if (goTodayEnabled && navigatedDayDate && navigatedMonthDate && today) {
+      goTodayEnabled =
+        navigatedDayDate.getFullYear() !== today.getFullYear() ||
+        navigatedDayDate.getMonth() !== today.getMonth() ||
+        navigatedMonthDate.getFullYear() !== today.getFullYear() ||
+        navigatedMonthDate.getMonth() !== today.getMonth();
+    }
+
     return (
       showGoToToday && (
         <button
           className={css('js-goToday', classes.goTodayButton)}
           onClick={this._onGotoToday}
           onKeyDown={this._onButtonKeyDown(this._onGotoToday)}
+          type="button"
+          disabled={!goTodayEnabled}
         >
           {strings!.goToToday}
         </button>
@@ -242,13 +298,13 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
   private _navigateDayPickerDay = (date: Date): void => {
     this.setState({
       navigatedDayDate: date,
-      navigatedMonthDate: date
+      navigatedMonthDate: date,
     });
   };
 
   private _navigateMonthPickerDay = (date: Date): void => {
     this.setState({
-      navigatedMonthDate: date
+      navigatedMonthDate: date,
     });
   };
 
@@ -258,9 +314,10 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
   };
 
   private _onNavigateMonthDate = (date: Date, focusOnNavigatedDay: boolean): void => {
+    this._focusOnUpdate = focusOnNavigatedDay;
+
     if (!focusOnNavigatedDay) {
       this._navigateMonthPickerDay(date);
-      this._focusOnUpdate = focusOnNavigatedDay;
       return;
     }
 
@@ -279,7 +336,7 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
     this.setState({
       selectedDate: date,
       navigatedDayDate: date,
-      navigatedMonthDate: date
+      navigatedMonthDate: date,
     });
 
     if (onSelectDate) {
@@ -291,7 +348,7 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
     const { showMonthPickerAsOverlay } = this.props;
     this.setState({
       isDayPickerVisible: !(showMonthPickerAsOverlay && this.state.isDayPickerVisible),
-      isMonthPickerVisible: !(showMonthPickerAsOverlay && this.state.isMonthPickerVisible)
+      isMonthPickerVisible: !(showMonthPickerAsOverlay && this.state.isMonthPickerVisible),
     });
 
     this._focusOnUpdate = true;
@@ -300,6 +357,7 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
   private _onGotoToday = (): void => {
     const { today } = this.props;
     this._navigateDayPickerDay(today!);
+    this.focus();
   };
 
   private _onButtonKeyDown = (callback: () => void): ((ev: React.KeyboardEvent<HTMLButtonElement>) => void) => {
@@ -327,6 +385,26 @@ export class CalendarBase extends BaseComponent<ICalendarProps, ICalendarState> 
         this._handleEscKey(ev);
         break;
 
+      case KeyCodes.pageUp:
+        if (ev.ctrlKey) {
+          // go to next year
+          this._navigateDayPickerDay(addYears(this.state.navigatedDayDate!, 1));
+        } else {
+          // go to next month
+          this._navigateDayPickerDay(addMonths(this.state.navigatedDayDate!, 1));
+        }
+        ev.preventDefault();
+        break;
+      case KeyCodes.pageDown:
+        if (ev.ctrlKey) {
+          // go to previous year
+          this._navigateDayPickerDay(addYears(this.state.navigatedDayDate!, -1));
+        } else {
+          // go to previous month
+          this._navigateDayPickerDay(addMonths(this.state.navigatedDayDate!, -1));
+        }
+        ev.preventDefault();
+        break;
       default:
         break;
     }

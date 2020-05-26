@@ -1,8 +1,11 @@
 import * as React from 'react';
 import { IStyle } from '../../Styling';
-import { IRefObject, IRenderFunction } from '../../Utilities';
+import { IRenderFunction } from '../../Utilities';
 import { IPersonaSharedProps } from '../../Persona';
 
+/**
+ * {@docCategory ActivityItem}
+ */
 export interface IActivityItemProps extends React.AllHTMLAttributes<HTMLElement> {
   /**
    * An element describing the activity that took place. If no activityDescription, activityDescriptionText, or
@@ -23,7 +26,7 @@ export interface IActivityItemProps extends React.AllHTMLAttributes<HTMLElement>
   activityIcon?: React.ReactNode;
 
   /**
-   * If activityIcon is not set, then the persona props in this array will be used as the icon for the this activity item.
+   * If activityIcon is not set, then the persona props in this array will be used as the icon for this activity item.
    */
   activityPersonas?: Array<IPersonaSharedProps>;
 
@@ -39,11 +42,6 @@ export interface IActivityItemProps extends React.AllHTMLAttributes<HTMLElement>
    * @deprecated Use `comments` instead.
    */
   commentText?: string;
-
-  /**
-   * Gets ref to component interface.
-   */
-  componentRef?: IRefObject<{}>;
 
   /**
    * Indicated if the compact styling should be used.
@@ -98,6 +96,9 @@ export interface IActivityItemProps extends React.AllHTMLAttributes<HTMLElement>
   animateBeaconSignal?: boolean;
 }
 
+/**
+ * {@docCategory ActivityItem}
+ */
 export interface IActivityItemStyles {
   /**
    * Styles applied to the root activity item container.

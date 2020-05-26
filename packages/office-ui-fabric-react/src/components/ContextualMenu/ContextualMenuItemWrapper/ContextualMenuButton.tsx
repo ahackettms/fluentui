@@ -1,12 +1,21 @@
 import * as React from 'react';
-import { buttonProperties, getNativeProps } from '../../../Utilities';
+import { buttonProperties, getNativeProps, memoizeFunction } from '../../../Utilities';
 import { ContextualMenuItemWrapper } from './ContextualMenuItemWrapper';
 import { KeytipData } from '../../../KeytipData';
-import { getIsChecked, isItemDisabled, hasSubmenu } from '../../../utilities/contextualMenu/index';
+import { getIsChecked, isItemDisabled, hasSubmenu, getMenuItemAriaRole } from '../../../utilities/contextualMenu/index';
 import { ContextualMenuItem } from '../ContextualMenuItem';
+import { IKeytipDataProps } from '../../KeytipData/KeytipData.types';
+import { IKeytipProps } from '../../Keytip/Keytip.types';
 
 export class ContextualMenuButton extends ContextualMenuItemWrapper {
   private _btn = React.createRef<HTMLButtonElement>();
+
+  private _getMemoizedMenuButtonKeytipProps = memoizeFunction((keytipProps: IKeytipProps) => {
+    return {
+      ...keytipProps,
+      hasMenu: true,
+    };
+  });
 
   public render() {
     const {
@@ -23,28 +32,34 @@ export class ContextualMenuButton extends ContextualMenuItemWrapper {
       onItemClick,
       openSubMenu,
       dismissSubMenu,
-      dismissMenu
+      dismissMenu,
     } = this.props;
 
     const subMenuId = this._getSubMenuId(item);
 
     const isChecked: boolean | null | undefined = getIsChecked(item);
     const canCheck: boolean = isChecked !== null;
-    const defaultRole = canCheck ? 'menuitemcheckbox' : 'menuitem';
+    const defaultRole = getMenuItemAriaRole(item);
     const itemHasSubmenu = hasSubmenu(item);
     const { itemProps, ariaLabel } = item;
 
-    const buttonNativeProperties = getNativeProps(item, buttonProperties);
+    const buttonNativeProperties = getNativeProps<React.ButtonHTMLAttributes<HTMLButtonElement>>(
+      item,
+      buttonProperties,
+    );
     // Do not add the disabled attribute to the button so that it is focusable
-    delete (buttonNativeProperties as any).disabled;
+    delete buttonNativeProperties.disabled;
+
+    const itemRole = item.role || defaultRole;
 
     const itemButtonProperties = {
       className: classNames.root,
       onClick: this._onItemClick,
-      onKeyDown: itemHasSubmenu ? this._onItemKeyDown : null,
+      onKeyDown: itemHasSubmenu ? this._onItemKeyDown : undefined,
       onMouseEnter: this._onItemMouseEnter,
       onMouseLeave: this._onItemMouseLeave,
-      onMouseDown: (ev: any) => (onItemMouseDown ? onItemMouseDown(item, ev) : undefined),
+      onMouseDown: (ev: React.MouseEvent<HTMLButtonElement>) =>
+        onItemMouseDown ? onItemMouseDown(item, ev) : undefined,
       onMouseMove: this._onItemMouseMove,
       href: item.href,
       title: item.title,
@@ -52,35 +67,29 @@ export class ContextualMenuButton extends ContextualMenuItemWrapper {
       'aria-haspopup': itemHasSubmenu || undefined,
       'aria-owns': item.key === expandedMenuItemKey ? subMenuId : undefined,
       'aria-expanded': itemHasSubmenu ? item.key === expandedMenuItemKey : undefined,
-      'aria-checked': canCheck ? !!isChecked : undefined,
       'aria-posinset': focusableElementIndex + 1,
       'aria-setsize': totalItemCount,
       'aria-disabled': isItemDisabled(item),
-      role: item.role || defaultRole,
-      style: item.style
+      'aria-checked': itemRole === 'menuitemcheckbox' && canCheck ? !!isChecked : undefined,
+      'aria-selected': itemRole === 'menuitem' && canCheck ? !!isChecked : undefined,
+      role: itemRole,
+      // tslint:disable-next-line:deprecation
+      style: item.style,
     };
 
     let { keytipProps } = item;
     if (keytipProps && itemHasSubmenu) {
-      keytipProps = {
-        ...keytipProps,
-        hasMenu: true
-      };
+      keytipProps = this._getMemoizedMenuButtonKeytipProps(keytipProps);
     }
 
     return (
       <KeytipData
         keytipProps={keytipProps}
-        ariaDescribedBy={(buttonNativeProperties as any)['aria-describedby']}
+        ariaDescribedBy={buttonNativeProperties['aria-describedby']}
         disabled={isItemDisabled(item)}
       >
-        {(keytipAttributes: any): JSX.Element => (
-          <button
-            ref={this._btn}
-            {...buttonNativeProperties as React.ButtonHTMLAttributes<HTMLButtonElement>}
-            {...itemButtonProperties as React.ButtonHTMLAttributes<HTMLButtonElement>}
-            {...keytipAttributes}
-          >
+        {(keytipAttributes: IKeytipDataProps): JSX.Element => (
+          <button ref={this._btn} {...buttonNativeProperties} {...itemButtonProperties} {...keytipAttributes}>
             <ChildrenRenderer
               componentRef={item.componentRef}
               item={item}

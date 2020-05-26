@@ -4,40 +4,41 @@ import {
   IFolderCoverProps,
   getFolderCoverLayout,
   renderFolderCoverWithLayout,
-  SharedSignal
+  SharedSignal,
 } from '@uifabric/experiments';
 import Screener from 'screener-storybook/src/screener';
 import { storiesOf } from '@storybook/react';
-import { ISize, fitContentToBounds } from 'office-ui-fabric-react';
+import { ISize, fitContentToBounds, Fabric } from 'office-ui-fabric-react';
 import { FabricDecorator } from '../utilities';
 
 interface IFolderCoverWithImageProps extends IFolderCoverProps {
   originalImageSize: ISize;
 }
 
-const FolderCoverWithImage: React.StatelessComponent<IFolderCoverWithImageProps> = (
-  props: IFolderCoverWithImageProps
+const FolderCoverWithImage: React.FunctionComponent<IFolderCoverWithImageProps> = (
+  props: IFolderCoverWithImageProps,
 ): JSX.Element => {
   const { originalImageSize, ...folderCoverProps } = props;
 
-  const folderCover = <FolderCover style={{ fontFamily: 'Segoe UI' }} {...folderCoverProps} />;
+  const folderCover = <FolderCover {...folderCoverProps} />;
 
   const { contentSize } = getFolderCoverLayout(folderCover);
 
   const imageSize = fitContentToBounds({
     contentSize: originalImageSize,
     boundsSize: contentSize,
-    mode: 'cover'
+    mode: 'cover',
   });
 
   return renderFolderCoverWithLayout(folderCover, {
     children: (
       <img src={`//placehold.it/${Math.round(imageSize.width)}x${Math.round(imageSize.height)}`} />
-    )
+    ),
   });
 };
 
 storiesOf('FolderCover', module)
+  .addDecorator(story => <Fabric>{story()}</Fabric>)
   .addDecorator(FabricDecorator)
   .addDecorator(story =>
     // prettier-ignore
@@ -47,13 +48,13 @@ storiesOf('FolderCover', module)
         .end()}
     >
       {story()}
-    </Screener>
+    </Screener>,
   )
   .addStory('Large Default Cover', () => (
     <FolderCoverWithImage
       originalImageSize={{
         width: 200,
-        height: 150
+        height: 150,
       }}
       folderCoverSize="large"
       metadata={20}
@@ -64,7 +65,7 @@ storiesOf('FolderCover', module)
     <FolderCoverWithImage
       originalImageSize={{
         width: 200,
-        height: 150
+        height: 150,
       }}
       folderCoverSize="small"
       metadata={15}
@@ -74,7 +75,7 @@ storiesOf('FolderCover', module)
     <FolderCoverWithImage
       originalImageSize={{
         width: 200,
-        height: 150
+        height: 150,
       }}
       folderCoverSize="large"
       folderCoverType="media"
@@ -86,7 +87,7 @@ storiesOf('FolderCover', module)
     <FolderCoverWithImage
       originalImageSize={{
         width: 200,
-        height: 150
+        height: 150,
       }}
       folderCoverSize="small"
       folderCoverType="media"
@@ -97,7 +98,7 @@ storiesOf('FolderCover', module)
     <FolderCoverWithImage
       originalImageSize={{
         width: 200,
-        height: 150
+        height: 150,
       }}
       folderCoverSize="small"
       folderCoverType="media"

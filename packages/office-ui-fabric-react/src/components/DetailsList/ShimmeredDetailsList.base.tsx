@@ -1,17 +1,19 @@
 import * as React from 'react';
 
-import { BaseComponent, css, classNamesFunction } from '../../Utilities';
+import { classNamesFunction, css } from '../../Utilities';
+import { IProcessedStyleSet } from '../../Styling';
 import { SelectionMode } from '../../utilities/selection/interfaces';
 import { DetailsList } from './DetailsList';
-import { IDetailsRowProps } from './DetailsRow';
+import { IDetailsRowProps } from './DetailsRow.types';
 import { Shimmer, ShimmerElementsGroup, ShimmerElementType, IShimmerElement } from '../../Shimmer';
-import { IShimmeredDetailsListProps, IShimmeredDetailsListStyleProps, IShimmeredDetailsListStyles } from './ShimmeredDetailsList.types';
+import {
+  IShimmeredDetailsListProps,
+  IShimmeredDetailsListStyleProps,
+  IShimmeredDetailsListStyles,
+} from './ShimmeredDetailsList.types';
 import { CheckboxVisibility } from './DetailsList.types';
 
-import { IDetailsRowStyleProps, IDetailsRowStyles } from './DetailsRow.types';
-import { DEFAULT_CELL_STYLE_PROPS, DEFAULT_ROW_HEIGHTS, getStyles as getRowStyles } from './DetailsRow.styles';
-
-const getRowClassNames = classNamesFunction<IDetailsRowStyleProps, IDetailsRowStyles>();
+import { DEFAULT_CELL_STYLE_PROPS, DEFAULT_ROW_HEIGHTS } from './DetailsRow.styles';
 
 const getClassNames = classNamesFunction<IShimmeredDetailsListStyleProps, IShimmeredDetailsListStyles>();
 
@@ -19,8 +21,9 @@ const SHIMMER_INITIAL_ITEMS = 10;
 const DEFAULT_SHIMMER_HEIGHT = 7;
 const SHIMMER_LINE_VS_CELL_WIDTH_RATIO = 0.95;
 
-export class ShimmeredDetailsListBase extends BaseComponent<IShimmeredDetailsListProps, {}> {
+export class ShimmeredDetailsListBase extends React.Component<IShimmeredDetailsListProps, {}> {
   private _shimmerItems: null[];
+  private _classNames: IProcessedStyleSet<IShimmeredDetailsListStyles>;
 
   constructor(props: IShimmeredDetailsListProps) {
     super(props);
@@ -29,22 +32,41 @@ export class ShimmeredDetailsListBase extends BaseComponent<IShimmeredDetailsLis
   }
 
   public render(): JSX.Element {
-    const { items, listProps, styles, theme, shimmerLines, onRenderCustomPlaceholder, enableShimmer, ...detailsListProps } = this.props;
+    const {
+      detailsListStyles,
+      enableShimmer,
+      items,
+      listProps,
+      onRenderCustomPlaceholder,
+      removeFadingOverlay,
+      shimmerLines,
+      styles,
+      theme,
+      ariaLabelForGrid,
+      ariaLabelForShimmer,
+      ...restProps
+    } = this.props;
 
-    // Adds to the optional listProp classname a fading out overlay classname only when shimmer enabled.
-    const classNames = getClassNames(styles, {
+    const listClassName = listProps && listProps.className;
+
+    this._classNames = getClassNames(styles, {
       theme: theme!,
-      className: listProps && listProps.className,
-      enableShimmer
     });
 
-    const newListProps = { ...listProps, className: classNames.root };
+    const newListProps = {
+      ...listProps,
+      // Adds to the optional listProp className a fading out overlay className only when `enableShimmer` toggled on
+      // and the overlay is not disabled by `removeFadingOverlay` prop.
+      className: enableShimmer && !removeFadingOverlay ? css(this._classNames.root, listClassName) : listClassName,
+    };
 
     return (
       <DetailsList
-        {...detailsListProps}
-        enableShimmer={enableShimmer}
+        {...restProps}
+        styles={detailsListStyles}
         items={enableShimmer ? this._shimmerItems : items}
+        isPlaceholderData={enableShimmer}
+        ariaLabelForGrid={(enableShimmer && ariaLabelForShimmer) || ariaLabelForGrid}
         onRenderMissingItem={this._onRenderShimmerPlaceholder}
         listProps={newListProps}
       />
@@ -52,38 +74,34 @@ export class ShimmeredDetailsListBase extends BaseComponent<IShimmeredDetailsLis
   }
 
   private _onRenderShimmerPlaceholder = (index: number, rowProps: IDetailsRowProps): React.ReactNode => {
-    const { onRenderCustomPlaceholder, compact } = this.props;
-    const { selectionMode, checkboxVisibility } = rowProps;
-
-    const theme = this.props.theme!;
-
-    const showCheckbox = selectionMode !== SelectionMode.none && checkboxVisibility !== CheckboxVisibility.hidden;
-
-    const rowStyleProps = {
-      ...rowProps,
-      theme: theme
-    };
-
-    const rowClassNames = getRowClassNames(getRowStyles(rowStyleProps), {
-      theme: theme
-    });
+    const { onRenderCustomPlaceholder } = this.props;
 
     const placeholderElements: React.ReactNode = onRenderCustomPlaceholder
-      ? onRenderCustomPlaceholder()
+      ? onRenderCustomPlaceholder(rowProps, index, this._renderDefaultShimmerPlaceholder)
       : this._renderDefaultShimmerPlaceholder(rowProps);
 
-    return (
-      <div className={css(showCheckbox && rowClassNames.shimmerLeftBorder, !compact && rowClassNames.shimmerBottomBorder)}>
-        <Shimmer customElementsGroup={placeholderElements} />
-      </div>
-    );
+    return <Shimmer customElementsGroup={placeholderElements} />;
   };
 
   private _renderDefaultShimmerPlaceholder = (rowProps: IDetailsRowProps): React.ReactNode => {
-    const { columns, compact, cellStyleProps = DEFAULT_CELL_STYLE_PROPS } = rowProps;
-    const shimmerElementsRow: JSX.Element[] = [];
+    const { columns, compact, selectionMode, checkboxVisibility, cellStyleProps = DEFAULT_CELL_STYLE_PROPS } = rowProps;
+
     const { rowHeight, compactRowHeight } = DEFAULT_ROW_HEIGHTS;
-    const gapHeight: number = compact ? compactRowHeight : rowHeight;
+    // 1px to take into account the border-bottom of DetailsRow.
+    const gapHeight: number = compact ? compactRowHeight : rowHeight + 1;
+
+    const shimmerElementsRow: JSX.Element[] = [];
+
+    const showCheckbox = selectionMode !== SelectionMode.none && checkboxVisibility !== CheckboxVisibility.hidden;
+
+    if (showCheckbox) {
+      shimmerElementsRow.push(
+        <ShimmerElementsGroup
+          key={'checkboxGap'}
+          shimmerElements={[{ type: ShimmerElementType.gap, width: '40px', height: gapHeight }]}
+        />,
+      );
+    }
 
     columns.map((column, columnIdx) => {
       const shimmerElements: IShimmerElement[] = [];
@@ -96,25 +114,25 @@ export class ShimmeredDetailsListBase extends BaseComponent<IShimmeredDetailsLis
       shimmerElements.push({
         type: ShimmerElementType.gap,
         width: cellStyleProps.cellLeftPadding,
-        height: gapHeight
+        height: gapHeight,
       });
 
       if (column.isIconOnly) {
         shimmerElements.push({
           type: ShimmerElementType.line,
           width: column.calculatedWidth!,
-          height: column.calculatedWidth!
+          height: column.calculatedWidth!,
         });
         shimmerElements.push({
           type: ShimmerElementType.gap,
           width: cellStyleProps.cellRightPadding,
-          height: gapHeight
+          height: gapHeight,
         });
       } else {
         shimmerElements.push({
           type: ShimmerElementType.line,
           width: column.calculatedWidth! * SHIMMER_LINE_VS_CELL_WIDTH_RATIO,
-          height: DEFAULT_SHIMMER_HEIGHT
+          height: DEFAULT_SHIMMER_HEIGHT,
         });
         shimmerElements.push({
           type: ShimmerElementType.gap,
@@ -122,18 +140,21 @@ export class ShimmeredDetailsListBase extends BaseComponent<IShimmeredDetailsLis
             cellStyleProps.cellRightPadding +
             (column.calculatedWidth! - column.calculatedWidth! * SHIMMER_LINE_VS_CELL_WIDTH_RATIO) +
             (column.isPadded ? cellStyleProps.cellExtraRightPadding : 0),
-          height: gapHeight
+          height: gapHeight,
         });
       }
-      shimmerElementsRow.push(<ShimmerElementsGroup key={columnIdx} width={`${groupWidth}px`} shimmerElements={shimmerElements} />);
+      shimmerElementsRow.push(
+        <ShimmerElementsGroup key={columnIdx} width={`${groupWidth}px`} shimmerElements={shimmerElements} />,
+      );
     });
-    // When resizing the window from narrow to wider, we need to cover the exposed Shimmer wave until the column resizing logic is done.
+    // When resizing the window from narrow to wider, we need to cover the exposed Shimmer wave
+    // until the column resizing logic is done.
     shimmerElementsRow.push(
       <ShimmerElementsGroup
         key={'endGap'}
         width={'100%'}
         shimmerElements={[{ type: ShimmerElementType.gap, width: '100%', height: gapHeight }]}
-      />
+      />,
     );
     return <div style={{ display: 'flex' }}>{shimmerElementsRow}</div>;
   };

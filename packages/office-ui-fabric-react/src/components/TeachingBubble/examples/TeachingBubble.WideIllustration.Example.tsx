@@ -1,68 +1,54 @@
 import * as React from 'react';
-
 import { IImageProps } from 'office-ui-fabric-react/lib/Image';
 import { DefaultButton, IButtonProps } from 'office-ui-fabric-react/lib/Button';
 import { TeachingBubble } from 'office-ui-fabric-react/lib/TeachingBubble';
-import { DirectionalHint } from 'office-ui-fabric-react/lib/common/DirectionalHint';
+import { DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
+import { useBoolean } from '@uifabric/react-hooks';
 
-export interface ITeachingBubbleWideIllustrationExampleState {
-  isTeachingBubbleVisible?: boolean;
-}
+const examplePrimaryButtonProps: IButtonProps = {
+  children: 'Try it out',
+};
 
-export class TeachingBubbleWideIllustrationExample extends React.Component<{}, ITeachingBubbleWideIllustrationExampleState> {
-  private _menuButtonElement: HTMLElement;
+const exampleImageProps: IImageProps = { src: 'http://placehold.it/154x220', alt: 'Example placeholder image' };
 
-  constructor(props: {}) {
-    super(props);
+const CalloutProps = { directionalHint: DirectionalHint.bottomCenter };
 
-    this._onDismiss = this._onDismiss.bind(this);
+export const TeachingBubbleWideIllustrationExample: React.FunctionComponent = () => {
+  const [teachingBubbleVisible, { toggle: toggleTeachingBubbleVisible }] = useBoolean(false);
+  const exampleSecondaryButtonProps: IButtonProps = React.useMemo(
+    () => ({
+      children: 'Maybe later',
+      onClick: toggleTeachingBubbleVisible,
+    }),
+    [toggleTeachingBubbleVisible],
+  );
 
-    this.state = {
-      isTeachingBubbleVisible: false
-    };
-  }
+  return (
+    <div>
+      <DefaultButton
+        id="targetButton"
+        onClick={toggleTeachingBubbleVisible}
+        text={teachingBubbleVisible ? 'Hide TeachingBubble' : 'Show TeachingBubble'}
+      />
 
-  public render(): JSX.Element {
-    const { isTeachingBubbleVisible } = this.state;
-    const exampleImageProps: IImageProps = { src: 'http://placehold.it/154x140' };
-    const examplePrimaryButton: IButtonProps = {
-      children: 'Try it out'
-    };
-    const exampleSecondaryButtonProps: IButtonProps = {
-      children: 'May be later',
-      onClick: this._onDismiss
-    };
-
-    return (
-      <div className="ms-TeachingBubbleExample">
-        <span className="ms-TeachingBubbleBasicExample-buttonArea" ref={menuButton => (this._menuButtonElement = menuButton!)}>
-          <DefaultButton onClick={this._onDismiss} text={isTeachingBubbleVisible ? 'Hide TeachingBubble' : 'Show TeachingBubble'} />
-        </span>
-        {isTeachingBubbleVisible ? (
-          <div>
-            <TeachingBubble
-              illustrationImage={exampleImageProps}
-              calloutProps={{ directionalHint: DirectionalHint.bottomCenter }}
-              isWide={true}
-              hasSmallHeadline={true}
-              hasCloseIcon={true}
-              targetElement={this._menuButtonElement}
-              primaryButtonProps={examplePrimaryButton}
-              secondaryButtonProps={exampleSecondaryButtonProps}
-              onDismiss={this._onDismiss}
-              headline="Discover what’s trending around you"
-            >
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere, nulla, ipsum? Molestiae quis aliquam magni harum non?
-            </TeachingBubble>
-          </div>
-        ) : null}
-      </div>
-    );
-  }
-
-  private _onDismiss(ev: any): void {
-    this.setState({
-      isTeachingBubbleVisible: !this.state.isTeachingBubbleVisible
-    });
-  }
-}
+      {teachingBubbleVisible && (
+        <TeachingBubble
+          illustrationImage={exampleImageProps}
+          calloutProps={CalloutProps}
+          isWide={true}
+          hasSmallHeadline={true}
+          hasCloseButton={true}
+          closeButtonAriaLabel="Close"
+          target="#targetButton"
+          primaryButtonProps={examplePrimaryButtonProps}
+          secondaryButtonProps={exampleSecondaryButtonProps}
+          onDismiss={toggleTeachingBubbleVisible}
+          headline="Discover what’s trending around you"
+        >
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere, nulla, ipsum? Molestiae quis aliquam magni
+          harum non?
+        </TeachingBubble>
+      )}
+    </div>
+  );
+};

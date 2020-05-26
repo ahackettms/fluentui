@@ -1,8 +1,10 @@
+import { BasePickerStyles } from './styles/BasePicker.styles';
 import { BreadcrumbStyles } from './styles/Breadcrumb.styles';
 import { CheckStyles, DetailsRowStyles } from './styles/DetailsList.styles';
 import { CalloutContentStyles } from './styles/Callout.styles';
 import { CheckboxStyles } from './styles/Checkbox.styles';
 import { ChoiceGroupOptionStyles } from './styles/ChoiceGroupOption.styles';
+import { ColorPickerGridCellStyles } from './styles/ColorPickerGridCell.styles';
 import { ColorPickerStyles, ColorRectangleStyles, ColorSliderStyles } from './styles/ColorPicker.styles';
 import { ComboBoxStyles } from './styles/ComboBox.styles';
 import { CommandBarStyles } from './styles/CommandBar.styles';
@@ -11,6 +13,7 @@ import { CompoundButtonStyles } from './styles/CompoundButton.styles';
 import { ContextualMenuStyles } from './styles/ContextualMenu.styles';
 import { DatePickerStyles } from './styles/DatePicker.styles';
 import { DefaultButtonStyles } from './styles/DefaultButton.styles';
+import { DetailsColumnStyles } from './styles/DetailsColumn.styles';
 import { DialogContentStyles, DialogFooterStyles } from './styles/Dialog.styles';
 import { DropdownStyles } from './styles/Dropdown.styles';
 import { ExpandingCardStyles, PlainCardStyles } from './styles/HoverCard.styles';
@@ -19,16 +22,21 @@ import { IconButtonStyles } from './styles/IconButton.styles';
 import { LabelStyles } from './styles/Label.styles';
 import { LinkStyles } from './styles/Link.styles';
 import { ModalStyles } from './styles/Modal.styles';
+import { NavStyles } from './styles/Nav.styles';
+import { PanelStyles } from './styles/Panel.styles';
+import { PeoplePickerItemStyles } from './styles/PeoplePicker.styles';
 import { PersonaStyles } from './styles/Persona.styles';
 import { PivotStyles } from './styles/Pivot.styles';
 import { PrimaryButtonStyles } from './styles/PrimaryButton.styles';
 import { RatingStyles } from './styles/Rating.styles';
+import { SearchBoxStyles } from './styles/SearchBox.styles';
 import { SliderStyles } from './styles/Slider.styles';
 import { SpinButtonStyles } from './styles/SpinButton.styles';
-import { TeachingBubbleStyles, TeachingBubbleContentStyles } from './styles/TeachingBubble.styles';
+import { SuggestionItemStyles, SuggestionsStyles } from './styles/PickerSuggestions.styles';
+import { TagItemStyles } from './styles/TagPicker.styles';
+import { TeachingBubbleStyles } from './styles/TeachingBubble.styles';
 import { TextFieldStyles } from './styles/TextField.styles';
 import { ToggleStyles } from './styles/Toggle.styles';
-import { ColorPickerGridCellStyles } from './styles/ColorPickerGridCell.styles';
 
 // Roll up all style overrides in a single "Fluent theme" object
 
@@ -37,114 +45,150 @@ import { ColorPickerGridCellStyles } from './styles/ColorPickerGridCell.styles';
 // tslint:disable-next-line:no-any
 export const FluentStyles: any = {
   Breadcrumb: {
-    styles: BreadcrumbStyles
+    styles: BreadcrumbStyles,
   },
   CalloutContent: {
-    styles: CalloutContentStyles
+    styles: CalloutContentStyles,
   },
   ColorPicker: {
-    styles: ColorPickerStyles
+    styles: ColorPickerStyles,
   },
   ColorRectangle: {
-    styles: ColorRectangleStyles
+    styles: ColorRectangleStyles,
   },
   ColorSlider: {
-    styles: ColorSliderStyles
+    styles: ColorSliderStyles,
   },
   CommandBar: {
-    styles: CommandBarStyles
+    styles: CommandBarStyles,
   },
   CommandBarButton: {
-    styles: CommandBarButtonStyles
+    styles: CommandBarButtonStyles,
   },
   CompoundButton: {
-    styles: CompoundButtonStyles
+    styles: CompoundButtonStyles,
   },
   Check: {
-    styles: CheckStyles
+    styles: CheckStyles,
   },
   Checkbox: {
-    styles: CheckboxStyles
+    styles: CheckboxStyles,
   },
   ChoiceGroupOption: {
-    styles: ChoiceGroupOptionStyles
+    styles: ChoiceGroupOptionStyles,
   },
   ColorPickerGridCell: {
-    styles: ColorPickerGridCellStyles
+    styles: ColorPickerGridCellStyles,
   },
   ComboBox: {
-    styles: ComboBoxStyles
+    styles: ComboBoxStyles,
+  },
+  CompactPeoplePicker: {
+    styles: BasePickerStyles,
   },
   ContextualMenu: {
-    styles: ContextualMenuStyles
+    styles: ContextualMenuStyles,
   },
   DatePicker: {
-    styles: DatePickerStyles
+    styles: DatePickerStyles,
   },
   DefaultButton: {
-    styles: DefaultButtonStyles
+    styles: DefaultButtonStyles,
+  },
+  DetailsColumn: {
+    styles: DetailsColumnStyles,
   },
   DetailsRow: {
-    styles: DetailsRowStyles
+    styles: DetailsRowStyles,
   },
   DialogContent: {
-    styles: DialogContentStyles
+    styles: DialogContentStyles,
   },
   DialogFooter: {
-    styles: DialogFooterStyles
+    styles: DialogFooterStyles,
   },
   Dropdown: {
-    styles: DropdownStyles
+    styles: DropdownStyles,
   },
   ExpandingCard: {
-    styles: ExpandingCardStyles
+    styles: ExpandingCardStyles,
   },
   Facepile: {
-    styles: FacepileStyles
+    styles: FacepileStyles,
   },
   IconButton: {
-    styles: IconButtonStyles
+    styles: IconButtonStyles,
   },
   Label: {
-    styles: LabelStyles
+    styles: LabelStyles,
   },
   Link: {
-    styles: LinkStyles
+    styles: LinkStyles,
+  },
+  ListPeoplePickerBase: {
+    styles: BasePickerStyles,
   },
   Modal: {
-    styles: ModalStyles
+    styles: ModalStyles,
+  },
+  Nav: {
+    styles: NavStyles,
+  },
+  Panel: {
+    styles: PanelStyles,
+  },
+  NormalPeoplePicker: {
+    styles: BasePickerStyles,
+  },
+  PeoplePickerItem: {
+    styles: PeoplePickerItemStyles,
   },
   Persona: {
-    styles: PersonaStyles
+    styles: PersonaStyles,
   },
   Pivot: {
-    styles: PivotStyles
+    styles: PivotStyles,
   },
   PlainCard: {
-    styles: PlainCardStyles
+    styles: PlainCardStyles,
   },
   PrimaryButton: {
-    styles: PrimaryButtonStyles
+    styles: PrimaryButtonStyles,
   },
   Rating: {
-    styles: RatingStyles
+    styles: RatingStyles,
+  },
+  SearchBox: {
+    styles: SearchBoxStyles,
   },
   Slider: {
-    styles: SliderStyles
+    styles: SliderStyles,
   },
   SpinButton: {
-    styles: SpinButtonStyles
+    styles: SpinButtonStyles,
+  },
+  Suggestions: {
+    styles: SuggestionsStyles,
+  },
+  SuggestionItem: {
+    styles: SuggestionItemStyles,
+  },
+  TagItem: {
+    styles: TagItemStyles,
+  },
+  TagPicker: {
+    styles: BasePickerStyles,
   },
   TeachingBubble: {
-    styles: TeachingBubbleStyles
+    styles: TeachingBubbleStyles,
   },
   TeachingBubbleContent: {
-    styles: TeachingBubbleContentStyles
+    styles: TeachingBubbleStyles,
   },
   TextField: {
-    styles: TextFieldStyles
+    styles: TextFieldStyles,
   },
   Toggle: {
-    styles: ToggleStyles
-  }
+    styles: ToggleStyles,
+  },
 };

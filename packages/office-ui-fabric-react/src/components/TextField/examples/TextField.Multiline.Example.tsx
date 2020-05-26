@@ -1,42 +1,41 @@
 import * as React from 'react';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import './TextField.Examples.scss';
-import { lorem } from 'office-ui-fabric-react/lib/utilities/exampleData';
+import { useBoolean } from '@uifabric/react-hooks';
+import { lorem } from '@uifabric/example-data';
+import { Stack, IStackProps, IStackStyles } from 'office-ui-fabric-react/lib/Stack';
 
-export interface IState {
-  multiline: boolean;
-}
+const stackStyles: Partial<IStackStyles> = { root: { width: 650 } };
+const stackTokens = { childrenGap: 50 };
+const dummyText: string = lorem(100);
+const columnProps: Partial<IStackProps> = {
+  tokens: { childrenGap: 15 },
+  styles: { root: { width: 300 } },
+};
 
-export class TextFieldMultilineExample extends React.Component<any, IState> {
-  private _lorem: string;
-  constructor(props: any) {
-    super(props);
-    this.state = { multiline: false };
-    this._lorem = lorem(100);
-  }
-
-  public render(): JSX.Element {
-    return (
-      <div className="docs-TextFieldExample">
-        <TextField label="Standard" multiline rows={4} />
-        <TextField label="Disabled" multiline rows={4} disabled={true} value={this._lorem} />
-        <TextField label="Required" multiline rows={4} required={true} />
-        <TextField label="With error message" multiline rows={4} errorMessage="This is an error message." />
+export const TextFieldMultilineExample: React.FunctionComponent = () => {
+  const [multiline, { toggle: toggleMultiline }] = useBoolean(false);
+  const onChange = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newText: string): void => {
+    const newMultiline = newText.length > 50;
+    if (newMultiline !== multiline) {
+      toggleMultiline();
+    }
+  };
+  return (
+    <Stack horizontal tokens={stackTokens} styles={stackStyles}>
+      <Stack {...columnProps}>
+        <TextField label="Standard" multiline rows={3} />
+        <TextField label="Disabled" multiline rows={3} disabled defaultValue={dummyText} />
         <TextField label="Non-resizable" multiline resizable={false} />
+      </Stack>
+
+      <Stack {...columnProps}>
         <TextField label="With auto adjusting height" multiline autoAdjustHeight />
         <TextField
           label="Switches from single to multiline if more than 50 characters are entered"
-          multiline={this.state.multiline}
-          onChange={this._onChange}
+          multiline={multiline}
+          onChange={onChange}
         />
-      </div>
-    );
-  }
-
-  private _onChange = (ev: any, newText: string): void => {
-    const newMultiline = newText.length > 50;
-    if (newMultiline !== this.state.multiline) {
-      this.setState({ multiline: newMultiline });
-    }
-  };
-}
+      </Stack>
+    </Stack>
+  );
+};

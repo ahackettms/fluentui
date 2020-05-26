@@ -1,10 +1,10 @@
-import { DayOfWeek, FirstWeekOfYear, DateRangeType } from '../../utilities/dateValues/DateValues';
+import { DayOfWeek, FirstWeekOfYear, DateRangeType } from 'office-ui-fabric-react/lib/utilities/dateValues/DateValues';
 import { IRefObject, IBaseProps, IStyleFunctionOrObject } from '@uifabric/utilities';
 import { IStyle, ITheme } from '@uifabric/styling';
-import { ICalendarDayProps } from './CalendarDay/CalendarDay.types';
+import { ICalendarDayProps, ICalendarDayGridStyles } from './CalendarDay/CalendarDay.types';
 import { ICalendarMonthProps } from './CalendarMonth/CalendarMonth.types';
 
-export { DayOfWeek, DateRangeType, FirstWeekOfYear };
+export { DayOfWeek, DateRangeType, FirstWeekOfYear, ICalendarDayProps, ICalendarDayGridStyles, ICalendarMonthProps };
 
 export interface ICalendar {
   /** Sets focus to the selected date. */
@@ -26,12 +26,12 @@ export interface ICalendarProps extends IBaseProps<ICalendar> {
   /**
    * Customized props for the calendar day
    */
-  calendarDayProps?: ICalendarDayProps;
+  calendarDayProps?: Partial<ICalendarDayProps>;
 
   /**
    * Customized props for the calendar month
    */
-  calendarMonthProps?: ICalendarMonthProps;
+  calendarMonthProps?: Partial<ICalendarMonthProps>;
 
   /**
    * Theme provided by High-Order Component.
@@ -46,7 +46,8 @@ export interface ICalendarProps extends IBaseProps<ICalendar> {
   /**
    * Callback issued when a date is selected
    * @param date - The date the user selected
-   * @param selectedDateRangeArray - The resultant list of dates that are selected based on the date range type set for the component.
+   * @param selectedDateRangeArray - The resultant list of dates that are selected based on the date range type set
+   * for the component.
    */
   onSelectDate?: (date: Date, selectedDateRangeArray?: Date[]) => void;
 
@@ -117,7 +118,7 @@ export interface ICalendarProps extends IBaseProps<ICalendar> {
   /**
    * Localized strings to use in the Calendar
    */
-  strings: ICalendarStrings | null;
+  strings?: ICalendarStrings;
 
   /**
    * Customize navigation icons using ICalendarIconStrings
@@ -140,13 +141,19 @@ export interface ICalendarProps extends IBaseProps<ICalendar> {
   maxDate?: Date;
 
   /**
+   * If set the Calendar will not allow selection of dates in this array.
+   */
+  restrictedDates?: Date[];
+
+  /**
    * Whether the calendar should show 6 weeks by default.
    * @defaultvalue false
    */
   showSixWeeksByDefault?: boolean;
 
   /**
-   * The days that are selectable when dateRangeType is WorkWeek. If dateRangeType is not WorkWeek this property does nothing.
+   * The days that are selectable when dateRangeType is WorkWeek.
+   * If dateRangeType is not WorkWeek this property does nothing.
    * @defaultvalue [Monday,Tuesday,Wednesday,Thursday,Friday]
    */
   workWeekDays?: DayOfWeek[];
@@ -207,24 +214,47 @@ export interface ICalendarStrings {
   goToToday: string;
 
   /**
-   * Aria-label for the "previous month" button.
+   * Aria-label for the "previous month" button in day picker.
    */
   prevMonthAriaLabel?: string;
 
   /**
-   * Aria-label for the "next month" button.
+   * Aria-label for the "next month" button in day picker.
    */
   nextMonthAriaLabel?: string;
 
   /**
-   * Aria-label for the "previous year" button.
+   * Aria-label for the "previous year" button in month picker.
    */
   prevYearAriaLabel?: string;
 
   /**
-   * Aria-label for the "next year" button.
+   * Aria-label for the "next year" button in month picker.
    */
   nextYearAriaLabel?: string;
+
+  /**
+   * Aria-label for the "previous year range" button in year picker.
+   */
+  prevYearRangeAriaLabel?: string;
+
+  /**
+   * Aria-label for the "next year range" button in year picker.
+   */
+  nextYearRangeAriaLabel?: string;
+
+  /**
+   * Aria-label format string for the header button in the month picker. Should have 1 string param, e.g. "`{0}`,
+   * select to change the year". This aria-label will only be applied if the year picker is enabled; otherwise
+   * the label will default to the header string, e.g. "2019".
+   */
+  monthPickerHeaderAriaLabel?: string;
+
+  /**
+   * Aria-label format string for the header button in the year picker.
+   * Should have 1 string param, e.g. "`{0}`, select to change the month"
+   */
+  yearPickerHeaderAriaLabel?: string;
 
   /**
    * Aria-label for the "close" button.
@@ -232,9 +262,19 @@ export interface ICalendarStrings {
   closeButtonAriaLabel?: string;
 
   /**
-   * Aria-label format string for the week number header. Should have 1 string param e.g. "week number {0}"
+   * Aria-label format string for the week number header. Should have 1 string param, e.g. "week number `{0}`"
    */
   weekNumberFormatString?: string;
+
+  /**
+   * Aria-label format string for the currently selected date. Should have 1 string param, e.g. "Selected date `{0}`"
+   */
+  selectedDateFormatString?: string;
+
+  /**
+   * Aria-label format string for today's date. Should have 1 string param, e.g. "Today's date `{0}`"
+   */
+  todayDateFormatString?: string;
 }
 
 export interface ICalendarIconStrings {
@@ -338,4 +378,18 @@ export interface ICalendarStyles {
   goTodayButton: IStyle;
 
   monthPickerWrapper: IStyle;
+
+  liveRegion: IStyle;
+}
+
+export enum AnimationDirection {
+  /**
+   * Grid will transition out and in horizontally
+   */
+  Horizontal,
+
+  /**
+   * Grid will transition out and in vertically
+   */
+  Vertical,
 }

@@ -1,13 +1,12 @@
 import * as React from 'react';
-import { Toggle } from '../index';
-import { IToggleComponent, IToggleTokenReturnType } from '../Toggle.types';
+import { IToggleComponent, IToggleTokenReturnType, Toggle } from '@uifabric/experiments';
 
 const toggleTokens: IToggleComponent['tokens'] = (props): IToggleTokenReturnType => {
   return {
     ...(props.checked ? { textColor: 'green' } : { textColor: 'red' }),
     ...(props.disabled
       ? { ...{ pillBackground: 'gainsboro' }, ...(props.checked ? { pillBackground: 'slategrey' } : {}) }
-      : { ...{ pillBackground: 'turquoise' }, ...(props.checked ? { pillBackground: 'navy' } : {}) })
+      : { ...{ pillBackground: 'turquoise' }, ...(props.checked ? { pillBackground: 'navy' } : {}) }),
   };
 };
 
@@ -31,8 +30,22 @@ export class ToggleTokensFunctionExample extends React.Component<{}, {}> {
           onChange={this._onChange}
           tokens={toggleTokens}
         />
-        <Toggle defaultChecked={true} disabled={true} label="Disabled and checked" onText="On" offText="Off" tokens={toggleTokens} />
-        <Toggle defaultChecked={false} disabled={true} label="Disabled and unchecked" onText="On" offText="Off" tokens={toggleTokens} />
+        <Toggle
+          defaultChecked={true}
+          disabled={true}
+          label="Disabled and checked"
+          onText="On"
+          offText="Off"
+          tokens={toggleTokens}
+        />
+        <Toggle
+          defaultChecked={false}
+          disabled={true}
+          label="Disabled and unchecked"
+          onText="On"
+          offText="Off"
+          tokens={toggleTokens}
+        />
       </div>
     );
   }

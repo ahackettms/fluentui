@@ -1,6 +1,8 @@
-/* tslint:disable:no-string-literal */
-
-import { elementContainsAttribute, elementContains, getDocument, getWindow } from './dom';
+import { elementContainsAttribute } from './dom/elementContainsAttribute';
+import { elementContains } from './dom/elementContains';
+import { getParent } from './dom/getParent';
+import { getWindow } from './dom/getWindow';
+import { getDocument } from './dom/getDocument';
 
 const IS_FOCUSABLE_ATTRIBUTE = 'data-is-focusable';
 const IS_VISIBLE_ATTRIBUTE = 'data-is-visible';
@@ -15,7 +17,7 @@ const FOCUSZONE_SUB_ATTRIBUTE = 'data-is-sub-focuszone';
 export function getFirstFocusable(
   rootElement: HTMLElement,
   currentElement: HTMLElement,
-  includeElementsInFocusZones?: boolean
+  includeElementsInFocusZones?: boolean,
 ): HTMLElement | null {
   return getNextElement(
     rootElement,
@@ -23,7 +25,7 @@ export function getFirstFocusable(
     true /*checkNode*/,
     false /*suppressParentTraversal*/,
     false /*suppressChildTraversal*/,
-    includeElementsInFocusZones
+    includeElementsInFocusZones,
   );
 }
 
@@ -35,7 +37,7 @@ export function getFirstFocusable(
 export function getLastFocusable(
   rootElement: HTMLElement,
   currentElement: HTMLElement,
-  includeElementsInFocusZones?: boolean
+  includeElementsInFocusZones?: boolean,
 ): HTMLElement | null {
   return getPreviousElement(
     rootElement,
@@ -43,59 +45,63 @@ export function getLastFocusable(
     true /*checkNode*/,
     false /*suppressParentTraversal*/,
     true /*traverseChildren*/,
-    includeElementsInFocusZones
+    includeElementsInFocusZones,
   );
 }
 
 /**
- * Gets the first tabbable element.
- * The difference between focusable and tabbable is that tabbable elements are focusable elements that also have tabIndex != -1.
+ * Gets the first tabbable element. (The difference between focusable and tabbable is that tabbable elements are
+ * focusable elements that also have tabIndex != -1.)
  * @param rootElement - The parent element to search beneath.
  * @param currentElement - The descendant of rootElement to start the search at.  This element is the first one checked,
  * and iteration continues forward.  Typical use passes rootElement.firstChild.
  * @param includeElementsInFocusZones - true if traversal should go into FocusZone descendants.
+ * @param checkNode - Include currentElement in search when true. Defaults to true.
  * @public
  */
 export function getFirstTabbable(
   rootElement: HTMLElement,
   currentElement: HTMLElement,
-  includeElementsInFocusZones?: boolean
+  includeElementsInFocusZones?: boolean,
+  checkNode: boolean = true,
 ): HTMLElement | null {
   return getNextElement(
     rootElement,
     currentElement,
-    true /*checkNode*/,
+    checkNode,
     false /*suppressParentTraversal*/,
     false /*suppressChildTraversal*/,
     includeElementsInFocusZones,
     false /*allowFocusRoot*/,
-    true /*tabbable*/
+    true /*tabbable*/,
   );
 }
 
 /**
- * Gets the last tabbable element.
- * The difference between focusable and tabbable is that tabbable elements are focusable elements that also have tabIndex != -1.
+ * Gets the last tabbable element. (The difference between focusable and tabbable is that tabbable elements are
+ * focusable elements that also have tabIndex != -1.)
  * @param rootElement - The parent element to search beneath.
  * @param currentElement - The descendant of rootElement to start the search at.  This element is the first one checked,
  * and iteration continues in reverse.  Typical use passes rootElement.lastChild.
  * @param includeElementsInFocusZones - true if traversal should go into FocusZone descendants.
+ * @param checkNode - Include currentElement in search when true. Defaults to true.
  * @public
  */
 export function getLastTabbable(
   rootElement: HTMLElement,
   currentElement: HTMLElement,
-  includeElementsInFocusZones?: boolean
+  includeElementsInFocusZones?: boolean,
+  checkNode: boolean = true,
 ): HTMLElement | null {
   return getPreviousElement(
     rootElement,
     currentElement,
-    true /*checkNode*/,
+    checkNode,
     false /*suppressParentTraversal*/,
     true /*traverseChildren*/,
     includeElementsInFocusZones,
     false /*allowFocusRoot*/,
-    true /*tabbable*/
+    true /*tabbable*/,
   );
 }
 
@@ -130,7 +136,7 @@ export function getPreviousElement(
   traverseChildren?: boolean,
   includeElementsInFocusZones?: boolean,
   allowFocusRoot?: boolean,
-  tabbable?: boolean
+  tabbable?: boolean,
 ): HTMLElement | null {
   if (!currentElement || (!allowFocusRoot && currentElement === rootElement)) {
     return null;
@@ -152,7 +158,7 @@ export function getPreviousElement(
       true,
       includeElementsInFocusZones,
       allowFocusRoot,
-      tabbable
+      tabbable,
     );
 
     if (childMatch) {
@@ -168,7 +174,7 @@ export function getPreviousElement(
         true,
         includeElementsInFocusZones,
         allowFocusRoot,
-        tabbable
+        tabbable,
       );
       if (childMatchSiblingMatch) {
         return childMatchSiblingMatch;
@@ -189,7 +195,7 @@ export function getPreviousElement(
           true,
           includeElementsInFocusZones,
           allowFocusRoot,
-          tabbable
+          tabbable,
         );
 
         if (childMatchParentMatch) {
@@ -202,7 +208,7 @@ export function getPreviousElement(
   }
 
   // Check the current node, if it's not the first traversal.
-  if (checkNode && isCurrentElementVisible && isElementTabbable(currentElement)) {
+  if (checkNode && isCurrentElementVisible && isElementTabbable(currentElement, tabbable)) {
     return currentElement;
   }
 
@@ -215,7 +221,7 @@ export function getPreviousElement(
     true,
     includeElementsInFocusZones,
     allowFocusRoot,
-    tabbable
+    tabbable,
   );
 
   if (siblingMatch) {
@@ -232,7 +238,7 @@ export function getPreviousElement(
       false,
       includeElementsInFocusZones,
       allowFocusRoot,
-      tabbable
+      tabbable,
     );
   }
 
@@ -244,6 +250,7 @@ export function getPreviousElement(
  * If tabbable is true, the element must have tabIndex != -1.
  *
  * @public
+ * @param checkNode - Include currentElement in search when true.
  */
 export function getNextElement(
   rootElement: HTMLElement,
@@ -253,7 +260,7 @@ export function getNextElement(
   suppressChildTraversal?: boolean,
   includeElementsInFocusZones?: boolean,
   allowFocusRoot?: boolean,
-  tabbable?: boolean
+  tabbable?: boolean,
 ): HTMLElement | null {
   if (!currentElement || (currentElement === rootElement && suppressChildTraversal && !allowFocusRoot)) {
     return null;
@@ -280,7 +287,7 @@ export function getNextElement(
       false,
       includeElementsInFocusZones,
       allowFocusRoot,
-      tabbable
+      tabbable,
     );
 
     if (childMatch) {
@@ -301,7 +308,7 @@ export function getNextElement(
     false,
     includeElementsInFocusZones,
     allowFocusRoot,
-    tabbable
+    tabbable,
   );
 
   if (siblingMatch) {
@@ -317,7 +324,7 @@ export function getNextElement(
       true,
       includeElementsInFocusZones,
       allowFocusRoot,
-      tabbable
+      tabbable,
     );
   }
 
@@ -353,7 +360,8 @@ export function isElementVisible(element: HTMLElement | undefined | null): boole
 
 /**
  * Determines if an element can receive focus programmatically or via a mouse click.
- * If checkTabIndex is true, additionally checks to ensure the element can be focused with the tab key, meaning tabIndex != -1.
+ * If checkTabIndex is true, additionally checks to ensure the element can be focused with the tab key,
+ * meaning tabIndex != -1.
  *
  * @public
  */
@@ -384,9 +392,9 @@ export function isElementTabbable(element: HTMLElement, checkTabIndex?: boolean)
       element.tagName === 'BUTTON' ||
       element.tagName === 'INPUT' ||
       element.tagName === 'TEXTAREA' ||
+      element.tagName === 'SELECT' ||
       isFocusableAttribute === 'true' ||
-      isTabIndexSet ||
-      (element.getAttribute && element.getAttribute('role') === 'button'));
+      isTabIndexSet);
 
   return checkTabIndex ? tabIndex !== -1 && result : result;
 }
@@ -429,7 +437,10 @@ export function doesElementContainFocus(element: HTMLElement): boolean {
  * @param noWrapDataAttribute - the no wrap data attribute to match (either)
  * @returns true if focus should wrap, false otherwise
  */
-export function shouldWrapFocus(element: HTMLElement, noWrapDataAttribute: 'data-no-vertical-wrap' | 'data-no-horizontal-wrap'): boolean {
+export function shouldWrapFocus(
+  element: HTMLElement,
+  noWrapDataAttribute: 'data-no-vertical-wrap' | 'data-no-horizontal-wrap',
+): boolean {
   return elementContainsAttribute(element, noWrapDataAttribute) === 'true' ? false : true;
 }
 
@@ -463,4 +474,51 @@ export function focusAsync(element: HTMLElement | { focus: () => void } | undefi
       });
     }
   }
+}
+
+/**
+ * Finds the closest focusable element via an index path from a parent. See
+ * `getElementIndexPath` for getting an index path from an element to a child.
+ */
+export function getFocusableByIndexPath(parent: HTMLElement, path: number[]): HTMLElement | undefined {
+  let element = parent;
+
+  for (const index of path) {
+    const nextChild = element.children[Math.min(index, element.children.length - 1)] as HTMLElement;
+
+    if (!nextChild) {
+      break;
+    }
+    element = nextChild;
+  }
+
+  element =
+    isElementTabbable(element) && isElementVisible(element)
+      ? element
+      : getNextElement(parent, element, true) || getPreviousElement(parent, element)!;
+
+  return element as HTMLElement;
+}
+
+/**
+ * Finds the element index path from a parent element to a child element.
+ *
+ * If you had this node structure: "A has children [B, C] and C has child D",
+ * the index path from A to D would be [1, 0], or `parent.chidren[1].children[0]`.
+ */
+export function getElementIndexPath(fromElement: HTMLElement, toElement: HTMLElement): number[] {
+  const path: number[] = [];
+
+  while (toElement && fromElement && toElement !== fromElement) {
+    const parent = getParent(toElement, true);
+
+    if (parent === null) {
+      return [];
+    }
+
+    path.unshift(Array.prototype.indexOf.call(parent.children, toElement));
+    toElement = parent;
+  }
+
+  return path;
 }

@@ -18,12 +18,12 @@ import {
   ReadOnlySignal,
   SharedSignal,
   EmailedSignal,
-  RecordSignal
-} from '../Signals';
-import { ChoiceGroup, IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
-import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
-import { css } from 'office-ui-fabric-react/lib/Utilities';
-import { lorem } from '@uifabric/example-app-base';
+  RecordSignal,
+  NeedsRepublishingSignal,
+  ItemScheduledSignal,
+} from '@uifabric/experiments';
+import { Checkbox, ChoiceGroup, IChoiceGroupOption, css } from 'office-ui-fabric-react';
+import { lorem } from '@uifabric/example-data';
 import * as SignalStylesModule from '../Signal.scss';
 import * as SignalsExampleStylesModule from './Signals.Example.scss';
 
@@ -38,7 +38,7 @@ interface ISignalExampleProps {
   text?: string;
 }
 
-const SignalExample: React.StatelessComponent<ISignalExampleProps> = (props: ISignalExampleProps): JSX.Element => {
+const SignalExample: React.FunctionComponent<ISignalExampleProps> = (props: ISignalExampleProps): JSX.Element => {
   const { text = lorem(4) } = props;
 
   return (
@@ -60,7 +60,7 @@ export class SignalsBasicExample extends React.Component<{}, ISignalsBasicExampl
 
     this.state = {
       fontSize: 'small',
-      isDark: false
+      isDark: false,
     };
   }
 
@@ -77,16 +77,16 @@ export class SignalsBasicExample extends React.Component<{}, ISignalsBasicExampl
             options={[
               {
                 key: 'small',
-                text: 'Small'
+                text: 'Small',
               },
               {
                 key: 'medium',
-                text: 'Medium'
+                text: 'Medium',
               },
               {
                 key: 'large',
-                text: 'Large'
-              }
+                text: 'Large',
+              },
             ]}
           />
         </p>
@@ -98,7 +98,7 @@ export class SignalsBasicExample extends React.Component<{}, ISignalsBasicExampl
             [SignalsExampleStyles.small]: fontSize === 'small',
             [SignalsExampleStyles.medium]: fontSize === 'medium',
             [SignalsExampleStyles.large]: fontSize === 'large',
-            [`${SignalsExampleStyles.dark} ${SignalStyles.dark}`]: isDark
+            [`${SignalsExampleStyles.dark} ${SignalStyles.dark}`]: isDark,
           })}
         >
           <SignalExample name="You checked out" signal={<YouCheckedOutSignal />} />
@@ -121,6 +121,8 @@ export class SignalsBasicExample extends React.Component<{}, ISignalsBasicExampl
           <SignalExample name="Record" signal={<RecordSignal />} />
           <SignalExample name="Read-only" signal={<ReadOnlySignal />} />
           <SignalExample name="Shared" signal={<SharedSignal />} />
+          <SignalExample name="Needs Republishing" signal={<NeedsRepublishingSignal />} />
+          <SignalExample name="Page Scheduled" signal={<ItemScheduledSignal />} />
         </div>
       </div>
     );
@@ -128,13 +130,13 @@ export class SignalsBasicExample extends React.Component<{}, ISignalsBasicExampl
 
   private _onFontSizeChoiceChanged = (option: IChoiceGroupOption): void => {
     this.setState({
-      fontSize: option.key as ISignalsBasicExampleState['fontSize']
+      fontSize: option.key as ISignalsBasicExampleState['fontSize'],
     });
   };
 
   private _onIsDarkChanged = (ev: React.FormEvent<HTMLElement>, checked: boolean): void => {
     this.setState({
-      isDark: checked
+      isDark: checked,
     });
   };
 }

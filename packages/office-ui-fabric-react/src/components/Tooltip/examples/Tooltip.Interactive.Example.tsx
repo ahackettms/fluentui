@@ -1,16 +1,28 @@
 import * as React from 'react';
-import { BaseComponent } from 'office-ui-fabric-react/lib/Utilities';
 import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
-import { TooltipHost } from 'office-ui-fabric-react/lib/Tooltip';
+import { TooltipHost, ITooltipHostStyles } from 'office-ui-fabric-react/lib/Tooltip';
+import { useId } from '@uifabric/react-hooks';
 
-export class TooltipInteractiveExample extends BaseComponent<any, any> {
-  public render() {
-    return (
-      <div>
-        <TooltipHost content="This is the tooltip" id="myID" calloutProps={{ gapSpace: 0 }} closeDelay={500}>
-          <DefaultButton aria-describedby="myID">Interact with my tooltip</DefaultButton>
-        </TooltipHost>
-      </div>
-    );
-  }
-}
+const styles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block' } };
+const calloutProps = { gapSpace: 0 };
+
+export const TooltipInteractiveExample: React.FunctionComponent = () => {
+  // Use useId() to ensure that the ID is unique on the page.
+  // (It's also okay to use a plain string and manually ensure uniqueness.)
+  const tooltipId = useId('tooltip');
+
+  return (
+    <div>
+      <TooltipHost
+        content="This is the tooltip"
+        // Give the user more time to interact with the tooltip before it closes
+        closeDelay={500}
+        id={tooltipId}
+        calloutProps={calloutProps}
+        styles={styles}
+      >
+        <DefaultButton aria-describedby={tooltipId}>Interact with my tooltip</DefaultButton>
+      </TooltipHost>
+    </div>
+  );
+};

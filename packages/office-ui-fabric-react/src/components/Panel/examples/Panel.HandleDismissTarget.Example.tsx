@@ -1,66 +1,55 @@
-import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
-import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
 import * as React from 'react';
+import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
+import { Panel } from 'office-ui-fabric-react/lib/Panel';
+import { useConstCallback } from '@uifabric/react-hooks';
 
-export class PanelHandleDismissTargetExample extends React.Component<
-  {},
-  {
-    showPanel: boolean;
-  }
-> {
-  constructor(props: {}) {
-    super(props);
-    this.state = { showPanel: false };
-    this._onClosePanel = this._onClosePanel.bind(this);
-  }
+const explanation =
+  'This example demonstrates detecting whether a panel was dismissed using the close button ' +
+  'or using "light dismiss" (a click outside the panel area).';
 
-  public render(): JSX.Element {
-    return (
-      <div>
-        <DefaultButton
-          secondaryText="Opens the Sample Panel"
-          // tslint:disable-next-line:jsx-no-lambda
-          onClick={() => this.setState({ showPanel: true })}
-          text="Open Panel"
-        />
-        <Panel
-          headerText="Panel - Handle close button clicks or light dismissal"
-          isOpen={this.state.showPanel}
-          type={PanelType.smallFixedNear}
-          isFooterAtBottom={true}
-          // tslint:disable-next-line:jsx-no-lambda
-          onDismiss={ev => {
-            if (!ev) {
-              console.log('Panel dismissed.');
-              return;
-            }
+export const PanelHandleDismissTargetExample: React.FunctionComponent = () => {
+  const [isOpen, setIsOpen] = React.useState(false);
 
-            console.log('Close button clicked or light dismissed.');
-            if (ev.nativeEvent.srcElement && ev.nativeEvent.srcElement.className.indexOf('ms-Button-icon') !== -1) {
-              console.log('Close button clicked.');
-            }
-            if (ev.nativeEvent.srcElement && ev.nativeEvent.srcElement.className.indexOf('ms-Overlay') !== -1) {
-              console.log('Light dismissed.');
-            }
-          }}
-          onRenderFooterContent={this._onRenderFooterContent}
-          isLightDismiss={true}
-        >
-          <span>Content goes here.</span>
-        </Panel>
-      </div>
-    );
-  }
+  const openPanel = useConstCallback(() => setIsOpen(true));
+  const dismissPanel = useConstCallback(() => setIsOpen(false));
 
-  private _onRenderFooterContent = (): JSX.Element => {
-    return (
-      <div>
-        <DefaultButton onClick={this._onClosePanel}>Dismiss</DefaultButton>
-      </div>
-    );
-  };
+  const onDismiss = useConstCallback((ev?: React.SyntheticEvent<HTMLElement>) => {
+    if (!ev) {
+      console.log('Panel dismissed.');
+      return;
+    }
 
-  private _onClosePanel = () => {
-    this.setState({ showPanel: false });
-  };
-}
+    // Demonstrates how to do different things depending on how which element dismissed the panel
+    console.log('Close button clicked or light dismissed.');
+    // tslint:disable-next-line:deprecation
+    const srcElement = ev.nativeEvent.srcElement as Element | null;
+    if (srcElement && srcElement.className.indexOf('ms-Button-icon') !== -1) {
+      console.log('Close button clicked.');
+    }
+    if (srcElement && srcElement.className.indexOf('ms-Overlay') !== -1) {
+      console.log('Light dismissed.');
+    }
+    dismissPanel();
+  });
+
+  return (
+    <div>
+      {explanation}
+      <br />
+      <br />
+      <DefaultButton text="Open panel" onClick={openPanel} />
+      <Panel
+        isOpen={isOpen}
+        onDismiss={onDismiss}
+        headerText="Panel - Handle close button clicks or light dismissal"
+        closeButtonAriaLabel="Close"
+        isLightDismiss={true}
+      >
+        <div>
+          <p>{explanation}</p>
+          <p>(Check the debug console for results after dismissing the panel.)</p>
+        </div>
+      </Panel>
+    </div>
+  );
+};

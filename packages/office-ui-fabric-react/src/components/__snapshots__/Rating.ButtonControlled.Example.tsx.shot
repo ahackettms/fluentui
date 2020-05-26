@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctly 1`] = `
-<div
-  className="ms-RatingButtonControlledExample"
->
+<div>
   <div
     aria-label=""
     className=
@@ -23,12 +21,33 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
     id="Rating0"
   >
     <div
+      aria-label="Rating value is 5 of 5"
+      aria-readonly={true}
       className=
           ms-FocusZone
           ms-Rating-focuszone
           ms-RatingStar-root--small
+          &:focus {
+            outline: none;
+          }
           {
             display: inline-block;
+            outline: transparent;
+            position: relative;
+          }
+          &::-moz-focus-inner {
+            border: 0;
+          }
+          .ms-Fabric--isFocusVisible &:focus:after {
+            border: 1px solid #ffffff;
+            bottom: 1px;
+            content: "";
+            left: 1px;
+            outline: 1px solid #605e5c;
+            position: absolute;
+            right: 1px;
+            top: 1px;
+            z-index: 1;
           }
           {
             height: 32px;
@@ -38,7 +57,6 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
       onFocus={[Function]}
       onKeyDown={[Function]}
       onMouseDownCapture={[Function]}
-      role="presentation"
       tabIndex={0}
     >
       <button
@@ -69,7 +87,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               bottom: 1px;
               content: "";
               left: 1px;
-              outline: 1px solid #666666;
+              outline: 1px solid #605e5c;
               position: absolute;
               right: 1px;
               top: 1px;
@@ -113,7 +131,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
           id="RatingLabel1-1"
         >
-          
+          Select 1 of 5 stars
         </span>
         <div
           className=
@@ -125,12 +143,13 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
         >
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-back
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #a6a6a6;
+                  color: #605e5c;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -139,17 +158,17 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   width: 100%;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
           >
             
           </i>
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-front
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #000000;
+                  color: #323130;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -167,10 +186,9 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   color: Highlight;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
             style={
               Object {
-                "width": "0%",
+                "width": "100%",
               }
             }
           >
@@ -206,7 +224,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               bottom: 1px;
               content: "";
               left: 1px;
-              outline: 1px solid #666666;
+              outline: 1px solid #605e5c;
               position: absolute;
               right: 1px;
               top: 1px;
@@ -250,7 +268,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
           id="RatingLabel1-2"
         >
-          
+          Select 2 of 5 stars
         </span>
         <div
           className=
@@ -262,12 +280,13 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
         >
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-back
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #a6a6a6;
+                  color: #605e5c;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -276,17 +295,17 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   width: 100%;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
           >
             
           </i>
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-front
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #000000;
+                  color: #323130;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -304,10 +323,9 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   color: Highlight;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
             style={
               Object {
-                "width": "0%",
+                "width": "100%",
               }
             }
           >
@@ -343,7 +361,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               bottom: 1px;
               content: "";
               left: 1px;
-              outline: 1px solid #666666;
+              outline: 1px solid #605e5c;
               position: absolute;
               right: 1px;
               top: 1px;
@@ -387,7 +405,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
           id="RatingLabel1-3"
         >
-          
+          Select 3 of 5 stars
         </span>
         <div
           className=
@@ -399,12 +417,13 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
         >
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-back
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #a6a6a6;
+                  color: #605e5c;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -413,17 +432,17 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   width: 100%;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
           >
             
           </i>
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-front
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #000000;
+                  color: #323130;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -441,10 +460,9 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   color: Highlight;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
             style={
               Object {
-                "width": "0%",
+                "width": "100%",
               }
             }
           >
@@ -480,7 +498,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               bottom: 1px;
               content: "";
               left: 1px;
-              outline: 1px solid #666666;
+              outline: 1px solid #605e5c;
               position: absolute;
               right: 1px;
               top: 1px;
@@ -524,7 +542,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
           id="RatingLabel1-4"
         >
-          
+          Select 4 of 5 stars
         </span>
         <div
           className=
@@ -536,12 +554,13 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
         >
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-back
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #a6a6a6;
+                  color: #605e5c;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -550,17 +569,17 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   width: 100%;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
           >
             
           </i>
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-front
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #000000;
+                  color: #323130;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -578,10 +597,9 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   color: Highlight;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
             style={
               Object {
-                "width": "0%",
+                "width": "100%",
               }
             }
           >
@@ -617,7 +635,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               bottom: 1px;
               content: "";
               left: 1px;
-              outline: 1px solid #666666;
+              outline: 1px solid #605e5c;
               position: absolute;
               right: 1px;
               top: 1px;
@@ -634,6 +652,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               height: 16px;
               line-height: 16px;
             }
+        data-is-current={true}
         disabled={true}
         id="Rating0-star-4"
         onClick={[Function]}
@@ -661,7 +680,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
           id="RatingLabel1-5"
         >
-          
+          Select 5 of 5 stars
         </span>
         <div
           className=
@@ -673,12 +692,13 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
         >
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-back
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #a6a6a6;
+                  color: #605e5c;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -687,17 +707,17 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   width: 100%;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
           >
             
           </i>
           <i
+            aria-hidden={true}
             className=
                 ms-RatingStar-front
                 {
                   -moz-osx-font-smoothing: grayscale;
                   -webkit-font-smoothing: antialiased;
-                  color: #000000;
+                  color: #323130;
                   display: inline-block;
                   font-family: "FabricMDL2Icons";
                   font-style: normal;
@@ -715,10 +735,9 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
                   color: Highlight;
                 }
             data-icon-name="FavoriteStarFill"
-            role="presentation"
             style={
               Object {
-                "width": "0%",
+                "width": "100%",
               }
             }
           >
@@ -736,8 +755,8 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
           -moz-osx-font-smoothing: grayscale;
           -webkit-font-smoothing: antialiased;
           background-color: #0078d4;
-          border-radius: 0px;
-          border: 1px solid transparent;
+          border-radius: 2px;
+          border: 1px solid #0078d4;
           box-sizing: border-box;
           color: #ffffff;
           cursor: pointer;
@@ -756,20 +775,20 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
           text-align: center;
           text-decoration: none;
           user-select: none;
-          vertical-align: top;
         }
         &::-moz-focus-inner {
           border: 0;
         }
         .ms-Fabric--isFocusVisible &:focus:after {
-          border: 1px solid #ffffff;
-          bottom: 0px;
+          border: none;
+          bottom: 2px;
           content: "";
-          left: 0px;
-          outline: 1px solid #666666;
+          left: 2px;
+          outline-color: #ffffff;
+          outline: 1px solid #605e5c;
           position: absolute;
-          right: 0px;
-          top: 0px;
+          right: 2px;
+          top: 2px;
           z-index: 1;
         }
         @media screen and (-ms-high-contrast: active){.ms-Fabric--isFocusVisible &:focus:after {
@@ -788,23 +807,28 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
         @media screen and (-ms-high-contrast: active){& {
           -ms-high-contrast-adjust: none;
           background-color: WindowText;
+          border-color: WindowText;
           color: Window;
         }
         &:hover {
           background-color: #106ebe;
+          border: 1px solid #106ebe;
           color: #ffffff;
         }
         @media screen and (-ms-high-contrast: active){&:hover {
           background-color: Highlight;
+          border-color: Highlight;
           color: Window;
         }
         &:active {
           background-color: #005a9e;
+          border: 1px solid #005a9e;
           color: #ffffff;
         }
         @media screen and (-ms-high-contrast: active){&:active {
           -ms-high-contrast-adjust: none;
           background-color: WindowText;
+          border-color: WindowText;
           color: Window;
         }
     data-is-focusable={true}
@@ -816,7 +840,7 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
     onMouseUp={[Function]}
     type="button"
   >
-    <div
+    <span
       className=
           ms-Button-flexContainer
           {
@@ -826,18 +850,21 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
             height: 100%;
             justify-content: center;
           }
+      data-automationid="splitbuttonprimary"
     >
-      <div
+      <span
         className=
             ms-Button-textContainer
             {
+              display: block;
               flex-grow: 1;
             }
       >
-        <div
+        <span
           className=
               ms-Button-label
               {
+                display: block;
                 font-weight: 600;
                 line-height: 100%;
                 margin-bottom: 0;
@@ -847,10 +874,10 @@ exports[`Component Examples renders Rating.ButtonControlled.Example.tsx correctl
               }
           id="id__3"
         >
-          Click to change rating to 5
-        </div>
-      </div>
-    </div>
+          Click to change rating to 0
+        </span>
+      </span>
+    </span>
   </button>
 </div>
 `;

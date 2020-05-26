@@ -134,6 +134,7 @@ export type IMixBlendModes =
 
 /**
  * The base font style.
+ * {@docCategory IRawFontStyle}
  */
 export interface IRawFontStyle {
   /**
@@ -242,6 +243,7 @@ export interface IRawFontStyle {
  * Font face definition.
  *
  * @public
+ * {@docCategory IFontFace}
  */
 export interface IFontFace extends IRawFontStyle {
   /**
@@ -257,6 +259,12 @@ export interface IFontFace extends IRawFontStyle {
   unicodeRange?: ICSSRule | string;
 
   /**
+   * Determines how a font face is displayed based on whether and when it is downloaded
+   * and ready to use.
+   */
+  fontDisplay?: 'auto' | 'block' | 'swap' | 'fallback' | 'optional';
+
+  /**
    * Feature settings for the font.
    */
   fontFeatureSettings?: string;
@@ -266,12 +274,18 @@ export interface IFontFace extends IRawFontStyle {
  * All raw style properties.
  *
  * @public
+ * {@docCategory IRawStyleBase}
  */
 export interface IRawStyleBase extends IRawFontStyle {
   /**
    * (Ms specific) constrast adjust rule.
    */
   MsHighContrastAdjust?: ICSSRule | string;
+
+  /**
+   * (Ms specific) scrollbar behavior adjust rule.
+   */
+  MsOverflowStyle?: 'auto' | 'none' | 'scrollbar' | '-ms-autohiding-scrollbar';
 
   /**
    * (Moz specific) font smoothing directive.
@@ -287,6 +301,17 @@ export interface IRawStyleBase extends IRawFontStyle {
    * (Webkit specific) momentum scrolling on iOS devices
    */
   WebkitOverflowScrolling?: 'auto' | 'touch';
+
+  /**
+   * (Webkit specific) color of the highlight that appears overa  link while it's being tapped
+   */
+  WebkitTapHighlightColor?: string;
+
+  /**
+   * (Webkit specific) controls the text inflation algorithm used on some smartphones and tablets.
+   * Other browsers will ignore this property.
+   */
+  WebkitTextSizeAdjust?: 'none' | 'auto' | ICSSPercentageRule | ICSSRule;
 
   /**
    * Aligns a flex container's lines within the flex container when there is extra space
@@ -336,7 +361,8 @@ export interface IRawStyleBase extends IRawFontStyle {
   animation?: ICSSRule | string;
 
   /**
-   * Defines a length of time to elapse before an animation starts, allowing an animation to begin execution some time after it is applied.
+   * Defines a length of time to elapse before an animation starts, allowing an animation to begin execution
+   * some time after it is applied.
    */
   animationDelay?: ICSSRule | string;
 
@@ -429,7 +455,7 @@ export interface IRawStyleBase extends IRawFontStyle {
 
   /**
    * The background-clip CSS property specifies if an element's background, whether a
-   * <color> or an <image>, extends underneath its border.
+   * `<color>` or an `<image>`, extends underneath its border.
    *
    * \* Does not work in IE
    *
@@ -495,12 +521,12 @@ export interface IRawStyleBase extends IRawFontStyle {
   /**
    * Defines the shape of the border of the bottom-left corner.
    */
-  borderBottomLeftRadius?: ICSSRule | string;
+  borderBottomLeftRadius?: ICSSRule | ICSSPixelUnitRule;
 
   /**
    * Defines the shape of the border of the bottom-right corner.
    */
-  borderBottomRightRadius?: ICSSRule | string;
+  borderBottomRightRadius?: ICSSRule | ICSSPixelUnitRule;
 
   /**
    * Sets the line style of the bottom border of a box.
@@ -655,12 +681,12 @@ export interface IRawStyleBase extends IRawFontStyle {
   /**
    * Sets the rounding of the top-left corner of the element.
    */
-  borderTopLeftRadius?: ICSSRule | string;
+  borderTopLeftRadius?: ICSSRule | ICSSPixelUnitRule;
 
   /**
    * Sets the rounding of the top-right corner of the element.
    */
-  borderTopRightRadius?: ICSSRule | string;
+  borderTopRightRadius?: ICSSRule | ICSSPixelUnitRule;
 
   /**
    * Sets the style of an element's top border. To set all four borders, use the
@@ -949,6 +975,12 @@ export interface IRawStyleBase extends IRawFontStyle {
   flowFrom?: ICSSRule | string;
 
   /**
+   * The property which allows authors to opt particular elements out of forced colors mode,
+   * restoring full control over the colors to CSS. Currently it's only supported in Edge Chromium.
+   */
+  forcedColorAdjust?: 'auto' | 'none';
+
+  /**
    * Lays out one or more grid items bound by 4 grid lines. Shorthand for setting
    * grid-column-start, grid-column-end, grid-row-start, and grid-row-end in a single
    * declaration.
@@ -1106,7 +1138,15 @@ export interface IRawStyleBase extends IRawFontStyle {
    * See CSS justify-content property
    * https://www.w3.org/TR/css-flexbox-1/#justify-content-property
    */
-  justifyContent?: ICSSRule | 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch';
+  justifyContent?:
+    | ICSSRule
+    | 'flex-start'
+    | 'flex-end'
+    | 'center'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly'
+    | 'stretch';
 
   /**
    * Justifies the box (as the alignment subject) within its containing block (as the alignment container)
@@ -1608,8 +1648,8 @@ export interface IRawStyleBase extends IRawFontStyle {
   /**
    * A future level of CSS Shapes will define a shape-inside property, which will define
    * a shape to wrap content within the element. See Editor's Draft
-   * <http://dev.w3.org/csswg/css-shapes/> and CSSWG wiki page on next-level plans
-   * <http://wiki.csswg.org/spec/css-shapes>
+   * http://dev.w3.org/csswg/css-shapes and CSSWG wiki page on next-level plans
+   * http://wiki.csswg.org/spec/css-shapes
    */
   shapeInside?: ICSSRule | string;
 
@@ -1801,10 +1841,16 @@ export interface IRawStyleBase extends IRawFontStyle {
 
   /**
    * The CSS text-shadow property applies one or more drop shadows to the text and
-   * <text-decorations> of an element. Each shadow is specified as an offset from the
+   * `<text-decorations>` of an element. Each shadow is specified as an offset from the
    * text, along with optional color and blur radius values.
    */
   textShadow?: ICSSRule | string;
+
+  /**
+   * The text-size-adjust CSS property controls the text inflation algorithm used
+   * on some smartphones and tablets. Other browsers will ignore this property.
+   */
+  textSizeAdjust?: 'none' | 'auto' | ICSSPercentageRule | ICSSRule;
 
   /**
    * This property transforms text for styling purposes. (It has no effect on the
@@ -2057,7 +2103,7 @@ export interface IRawStyleBase extends IRawFontStyle {
   zIndex?: ICSSRule | 'auto' | number;
 
   /**
-   * Sets the initial zoom factor of a document defined by @viewport.
+   * Sets the initial zoom factor of a document defined by `@viewport`.
    * See CSS zoom descriptor https://drafts.csswg.org/css-device-adapt/#zoom-desc
    */
   zoom?: ICSSRule | 'auto' | number | ICSSPercentageRule;

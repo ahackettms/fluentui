@@ -1,10 +1,15 @@
 // Technically this should be shades and tints, but for simplicity we'll call everything a shade.
-/* This utility module is used with theming. Given a color to shade, whether the theme is inverted (i.e. is a dark color),
- * and the desired shade enum, this will return an appropriate shade of that color.
+/*
+ * This utility module is used with theming. Given a color to shade, whether the theme is inverted
+ * (i.e. is a dark color), and the desired shade enum, this will return an appropriate shade of that color.
  */
-import { IHSV, IColor, MAX_COLOR_RGBA } from './colors';
-import * as Colors from './colors';
+import { IHSV, IColor } from './interfaces';
+import { MAX_COLOR_RGB } from './consts';
 import { assign } from '../../Utilities';
+import { clamp } from './clamp';
+import { getColorFromRGBA } from './getColorFromRGBA';
+import { hsv2hsl } from './hsv2hsl';
+import { hsv2rgb } from './hsv2rgb';
 
 // Soften: to get closer to the background color's luminance
 // (softening with a white background would be lightening, with black it'd be darkening)
@@ -34,7 +39,7 @@ export enum Shade {
   Shade5 = 5,
   Shade6 = 6,
   Shade7 = 7,
-  Shade8 = 8
+  Shade8 = 8,
   // remember to update isValidShade()!
 }
 
@@ -43,7 +48,6 @@ export enum Shade {
  * @param shade - The Shade value to validate.
  */
 export function isValidShade(shade?: Shade): boolean {
-  'use strict';
   return typeof shade === 'number' && shade >= Shade.Unshaded && shade <= Shade.Shade8;
 }
 
@@ -52,31 +56,27 @@ function _isBlack(color: IColor): boolean {
 }
 
 function _isWhite(color: IColor): boolean {
-  return color.r === MAX_COLOR_RGBA && color.g === MAX_COLOR_RGBA && color.b === MAX_COLOR_RGBA;
+  return color.r === MAX_COLOR_RGB && color.g === MAX_COLOR_RGB && color.b === MAX_COLOR_RGB;
 }
 
 function _darken(hsv: IHSV, factor: number): IHSV {
   return {
     h: hsv.h,
     s: hsv.s,
-    v: _clamp(hsv.v - hsv.v * factor, 0, 100)
+    v: clamp(hsv.v - hsv.v * factor, 100, 0),
   };
 }
 
 function _lighten(hsv: IHSV, factor: number): IHSV {
   return {
     h: hsv.h,
-    s: _clamp(hsv.s - hsv.s * factor, 0, 100),
-    v: _clamp(hsv.v + (100 - hsv.v) * factor, 0, 100)
+    s: clamp(hsv.s - hsv.s * factor, 100, 0),
+    v: clamp(hsv.v + (100 - hsv.v) * factor, 100, 0),
   };
 }
 
-function _clamp(n: number, min: number, max: number) {
-  return n; // Math.max(min, Math.min(n, max));
-}
-
 export function isDark(color: IColor): boolean {
-  return Colors.hsv2hsl(color.h, color.s, color.v).l < 50;
+  return hsv2hsl(color.h, color.s, color.v).l < 50;
 }
 
 /**
@@ -97,7 +97,6 @@ export function isDark(color: IColor): boolean {
  * @param isInverted - Default false. Whether the given theme is inverted (reverse strongen/soften logic)
  */
 export function getShade(color: IColor, shade: Shade, isInverted: boolean = false): IColor | null {
-  'use strict';
   if (!color) {
     return null;
   }
@@ -106,7 +105,7 @@ export function getShade(color: IColor, shade: Shade, isInverted: boolean = fals
     return color;
   }
 
-  const hsl = Colors.hsv2hsl(color.h, color.s, color.v);
+  const hsl = hsv2hsl(color.h, color.s, color.v);
   let hsv = { h: color.h, s: color.s, v: color.v };
   const tableIndex = shade - 1;
   let _soften = _lighten;
@@ -136,14 +135,13 @@ export function getShade(color: IColor, shade: Shade, isInverted: boolean = fals
     }
   }
 
-  return Colors.getColorFromRGBA(assign(Colors.hsv2rgb(hsv.h, hsv.s, hsv.v), { a: color.a }));
+  return getColorFromRGBA(assign(hsv2rgb(hsv.h, hsv.s, hsv.v), { a: color.a }));
 }
 
 // Background shades/tints are generated differently. The provided color will be guaranteed
 //   to be the darkest or lightest one. If it is <50% luminance, it will always be the darkest,
 //   otherwise it will always be the lightest.
 export function getBackgroundShade(color: IColor, shade: Shade, isInverted: boolean = false): IColor | null {
-  'use strict';
   if (!color) {
     return null;
   }
@@ -162,7 +160,7 @@ export function getBackgroundShade(color: IColor, shade: Shade, isInverted: bool
     hsv = _lighten(hsv, BlackTintTableBG[BlackTintTable.length - 1 - tableIndex]);
   }
 
-  return Colors.getColorFromRGBA(assign(Colors.hsv2rgb(hsv.h, hsv.s, hsv.v), { a: color.a }));
+  return getColorFromRGBA(assign(hsv2rgb(hsv.h, hsv.s, hsv.v), { a: color.a }));
 }
 
 /* Calculates the contrast ratio between two colors. Used for verifying
@@ -182,15 +180,15 @@ export function getContrastRatio(color1: IColor, color2: IColor): number {
     }
   }
 
-  const r1 = _getThing(color1.r / MAX_COLOR_RGBA);
-  const g1 = _getThing(color1.g / MAX_COLOR_RGBA);
-  const b1 = _getThing(color1.b / MAX_COLOR_RGBA);
+  const r1 = _getThing(color1.r / MAX_COLOR_RGB);
+  const g1 = _getThing(color1.g / MAX_COLOR_RGB);
+  const b1 = _getThing(color1.b / MAX_COLOR_RGB);
   let L1 = 0.2126 * r1 + 0.7152 * g1 + 0.0722 * b1; // relative luminance of first color
   L1 += 0.05;
 
-  const r2 = _getThing(color2.r / MAX_COLOR_RGBA);
-  const g2 = _getThing(color2.g / MAX_COLOR_RGBA);
-  const b2 = _getThing(color2.b / MAX_COLOR_RGBA);
+  const r2 = _getThing(color2.r / MAX_COLOR_RGB);
+  const g2 = _getThing(color2.g / MAX_COLOR_RGB);
+  const b2 = _getThing(color2.b / MAX_COLOR_RGB);
   let L2 = 0.2126 * r2 + 0.7152 * g2 + 0.0722 * b2; // relative luminance of second color
   L2 += 0.05;
 

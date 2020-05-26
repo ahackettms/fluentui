@@ -11,20 +11,19 @@ import {
   IColumn,
   ConstrainMode,
   IDetailsFooterProps,
-  DetailsRow
+  DetailsRow,
 } from 'office-ui-fabric-react/lib/DetailsList';
 import { IRenderFunction } from 'office-ui-fabric-react/lib/Utilities';
 import { TooltipHost, ITooltipHostProps } from 'office-ui-fabric-react/lib/Tooltip';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
 import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
 import { MarqueeSelection } from 'office-ui-fabric-react/lib/MarqueeSelection';
-import { lorem } from 'office-ui-fabric-react/lib/utilities/exampleData';
 import { SelectionMode } from 'office-ui-fabric-react/lib/utilities/selection/index';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { getTheme, mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
 const stickyListTitleClass = mergeStyles({
-  paddingTop: '100px'
+  paddingTop: '100px',
 });
 
 const _columns: IColumn[] = [
@@ -34,7 +33,7 @@ const _columns: IColumn[] = [
     fieldName: 'test1',
     minWidth: 100,
     maxWidth: 200,
-    isResizable: true
+    isResizable: true,
   },
   {
     key: 'column2',
@@ -42,7 +41,7 @@ const _columns: IColumn[] = [
     fieldName: 'test2',
     minWidth: 100,
     maxWidth: 200,
-    isResizable: true
+    isResizable: true,
   },
   {
     key: 'column3',
@@ -50,7 +49,7 @@ const _columns: IColumn[] = [
     fieldName: 'test3',
     minWidth: 100,
     maxWidth: 200,
-    isResizable: true
+    isResizable: true,
   },
   {
     key: 'column4',
@@ -58,7 +57,7 @@ const _columns: IColumn[] = [
     fieldName: 'test4',
     minWidth: 100,
     maxWidth: 200,
-    isResizable: true
+    isResizable: true,
   },
   {
     key: 'column5',
@@ -66,7 +65,7 @@ const _columns: IColumn[] = [
     fieldName: 'test5',
     minWidth: 100,
     maxWidth: 200,
-    isResizable: true
+    isResizable: true,
   },
   {
     key: 'column6',
@@ -74,8 +73,8 @@ const _columns: IColumn[] = [
     fieldName: 'test6',
     minWidth: 100,
     maxWidth: 200,
-    isResizable: true
-  }
+    isResizable: true,
+  },
 ];
 
 interface IItem {
@@ -96,16 +95,17 @@ class ScrollablePaneDetailsListStory extends React.Component<{}, {}> {
     super(props);
 
     this._items = [];
-
+    let rowData = '';
     for (let i = 0; i < 200; i++) {
+      rowData = 'row ' + (i + 1).toString() + ', column ';
       this._items.push({
         key: i,
-        test1: i === 0 ? lorem(7) : lorem(2),
-        test2: lorem(2),
-        test3: lorem(2),
-        test4: lorem(2),
-        test5: lorem(2),
-        test6: lorem(2)
+        test1: rowData + '1',
+        test2: rowData + '2',
+        test3: rowData + '3',
+        test4: rowData + '4',
+        test5: rowData + '5',
+        test6: rowData + '6',
       });
     }
 
@@ -119,7 +119,7 @@ class ScrollablePaneDetailsListStory extends React.Component<{}, {}> {
           height: '80vh',
           position: 'relative',
           maxHeight: 'inherit',
-          width: '500px'
+          width: '500px',
         }}
       >
         <Fabric>
@@ -157,7 +157,7 @@ class ScrollablePaneDetailsListStory extends React.Component<{}, {}> {
 
 function onRenderDetailsHeader(
   props: IDetailsHeaderProps,
-  defaultRender?: IRenderFunction<IDetailsHeaderProps>
+  defaultRender?: IRenderFunction<IDetailsHeaderProps>,
 ): JSX.Element {
   return (
     <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced={true}>
@@ -165,7 +165,7 @@ function onRenderDetailsHeader(
         ...props,
         onRenderColumnHeaderTooltip: (tooltipHostProps: ITooltipHostProps) => (
           <TooltipHost {...tooltipHostProps} />
-        )
+        ),
       })}
     </Sticky>
   );
@@ -184,7 +184,7 @@ function onRenderDetailsFooter(props: IDetailsFooterProps): JSX.Element {
             test3: 'Total 3',
             test4: 'Total 4',
             test5: 'Total 5',
-            test6: 'Total 6'
+            test6: 'Total 6',
           }}
           itemIndex={-1}
           selection={props.selection}
@@ -203,17 +203,17 @@ storiesOf('ScrollablePane Details List', module)
       steps={new Screener.Steps()
         .snapshot('default', { cropTo: '.testWrapper' })
         .executeScript(
-          "document.getElementsByClassName('ms-ScrollablePane--contentContainer')[0].scrollTop = 2"
+          "document.getElementsByClassName('ms-ScrollablePane--contentContainer')[0].scrollTop = 2",
         )
         .snapshot('scroll down by a small amount so that the first row is still visible', {
-          cropTo: '.testWrapper'
+          cropTo: '.testWrapper',
         })
         .executeScript(
-          "document.getElementsByClassName('ms-ScrollablePane--contentContainer')[0].scrollTop = 99999"
+          "document.getElementsByClassName('ms-ScrollablePane--contentContainer')[0].scrollTop = 99999",
         )
         .snapshot('scroll down to the bottom', { cropTo: '.testWrapper' })
         .executeScript(
-          "document.getElementsByClassName('ms-ScrollablePane--contentContainer')[0].scrollTop = 0"
+          "document.getElementsByClassName('ms-ScrollablePane--contentContainer')[0].scrollTop = 0",
         )
         .snapshot('scroll up to the top', { cropTo: '.testWrapper' })
         .end()}

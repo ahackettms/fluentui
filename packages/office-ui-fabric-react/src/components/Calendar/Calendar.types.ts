@@ -1,12 +1,19 @@
+import * as React from 'react';
 import { DayOfWeek, FirstWeekOfYear, DateRangeType } from '../../utilities/dateValues/DateValues';
 import { IRefObject, IBaseProps } from '../../Utilities';
 export { DayOfWeek, DateRangeType, FirstWeekOfYear };
 
+/**
+ * {@docCategory Calendar}
+ */
 export interface ICalendar {
   /** Sets focus to the selected date. */
   focus: () => void;
 }
 
+/**
+ * {@docCategory Calendar}
+ */
 export interface ICalendarProps extends IBaseProps<ICalendar>, React.HTMLAttributes<HTMLElement> {
   /**
    * Optional callback to access the ICalendar interface. Use this instead of ref for accessing
@@ -22,7 +29,8 @@ export interface ICalendarProps extends IBaseProps<ICalendar>, React.HTMLAttribu
   /**
    * Callback issued when a date is selected
    * @param date - The date the user selected
-   * @param selectedDateRangeArray - The resultant list of dates that are selected based on the date range type set for the component.
+   * @param selectedDateRangeArray - The resultant list of dates that are selected based on the date range type set
+   * for the component.
    */
   onSelectDate?: (date: Date, selectedDateRangeArray?: Date[]) => void;
 
@@ -154,7 +162,8 @@ export interface ICalendarProps extends IBaseProps<ICalendar>, React.HTMLAttribu
   showSixWeeksByDefault?: boolean;
 
   /**
-   * The days that are selectable when dateRangeType is WorkWeek. If dateRangeType is not WorkWeek this property does nothing.
+   * The days that are selectable when dateRangeType is WorkWeek.
+   * If dateRangeType is not WorkWeek this property does nothing.
    * @defaultvalue [Monday,Tuesday,Wednesday,Thursday,Friday]
    */
   workWeekDays?: DayOfWeek[];
@@ -184,6 +193,9 @@ export interface ICalendarProps extends IBaseProps<ICalendar>, React.HTMLAttribu
   yearPickerHidden?: boolean;
 }
 
+/**
+ * {@docCategory Calendar}
+ */
 export interface ICalendarStrings {
   /**
    * An array of strings for the full names of months.
@@ -235,6 +247,16 @@ export interface ICalendarStrings {
   nextYearAriaLabel?: string;
 
   /**
+   * Aria-label for the "previous year range" button.
+   */
+  prevYearRangeAriaLabel?: string;
+
+  /**
+   * Aria-label for the "next year range" button.
+   */
+  nextYearRangeAriaLabel?: string;
+
+  /**
    * Aria-label for the "close" button.
    */
   closeButtonAriaLabel?: string;
@@ -245,6 +267,9 @@ export interface ICalendarStrings {
   weekNumberFormatString?: string;
 }
 
+/**
+ * {@docCategory Calendar}
+ */
 export interface ICalendarIconStrings {
   /**
    * FabricMDL2Icons name for the left navigation icon.  Previous default: ChevronLeft.
@@ -265,6 +290,9 @@ export interface ICalendarIconStrings {
   closeIcon?: string;
 }
 
+/**
+ * {@docCategory Calendar}
+ */
 export interface ICalendarFormatDateCallbacks {
   /**
    * Callback to apply formatting to mmmm d, yyyy formated dates

@@ -1,13 +1,16 @@
 import * as React from 'react';
 import { IPickerItemProps } from './PickerItem.types';
-import { IPersonaProps } from '../Persona/Persona.types';
-import { IRefObject, IRenderFunction, IStyleFunctionOrObject } from '../../Utilities';
-import { ISuggestionModel } from './Suggestions/Suggestions.types';
-import { BaseAutoFill } from './AutoFill/BaseAutoFill';
+import { IRefObject, IStyleFunctionOrObject } from '../../Utilities';
+import { ISuggestionModel, ISuggestionsProps } from './Suggestions/Suggestions.types';
+import { Autofill } from '../../Autofill';
 import { ICalloutProps } from '../../Callout';
 import { ITheme, IStyle } from '../../Styling';
+import { ISuggestionItemProps } from '../pickers/Suggestions/SuggestionsItem.types';
 
-/** BasePicker component. */
+/**
+ * BasePicker component.
+ * {@docCategory Pickers}
+ */
 export interface IBasePicker<T> {
   /** Gets the current value of the input. */
   items: T[] | undefined;
@@ -17,11 +20,23 @@ export interface IBasePicker<T> {
 
   /** Set focus to the input */
   focusInput: () => void;
+
+  /**
+   * When called, will take the currently selected suggestion and complete it.
+   * If called with forceComplete true, it will attempt to force the current suggestion
+   * to complete, must provide both createGenericSuggestion, so the text can be turned into
+   * an object in the right shape, and onValidateInput, so the object knows if it's correct or not.
+   */
+  completeSuggestion: (forceComplete?: boolean) => void;
 }
 
-// Type T is the type of the item that is displayed
-// and searched for by the picker. For example, if the picker is
-// displaying persona's then type T could either be of Persona or IPersona props
+/**
+ * Type T is the type of the item that is displayed
+ * and searched for by the picker. For example, if the picker is
+ * displaying persona's then type T could either be of Persona or IPersona props
+ * {@docCategory Pickers}
+ */
+// tslint:disable-next-line:deprecation
 export interface IBasePickerProps<T> extends React.Props<any> {
   /**
    * Optional callback to access the IBasePicker interface. Use this instead of ref for accessing
@@ -37,12 +52,12 @@ export interface IBasePickerProps<T> extends React.Props<any> {
   /**
    * Function that specifies how an individual suggestion item will appear.
    */
-  onRenderSuggestionsItem?: (props: T, itemProps: any) => JSX.Element;
+  onRenderSuggestionsItem?: (props: T, itemProps: ISuggestionItemProps<T>) => JSX.Element;
 
   /**
    * A callback for what should happen when a person types text into the input.
    * Returns the already selected items so the resolver can filter them out.
-   * If used in conjunction with resolveDelay this will ony kick off after the delay throttle.
+   * If used in conjunction with resolveDelay this will only kick off after the delay throttle.
    */
   onResolveSuggestions: (filter: string, selectedItems?: T[]) => T[] | PromiseLike<T[]>;
 
@@ -54,9 +69,19 @@ export interface IBasePickerProps<T> extends React.Props<any> {
   resolveDelay?: number;
 
   /**
-   * A callback for what should happen when a user clicks the input.
+   * A callback for what should happen when a user clicks within the input area.
+   * @deprecated Please use onEmptyResolveSuggestions instead, as the suggestions aren't about
+   * setting focus as they are about resolving suggestions when there is no input.
    */
   onEmptyInputFocus?: (selectedItems?: T[]) => T[] | PromiseLike<T[]>;
+
+  /**
+   * A callback for what should happen when suggestions are shown without
+   * input provided.
+   * Returns the already selected items so the resolver can filter them out.
+   * If used in conjunction with resolveDelay this will only kick off after the delay throttle.
+   */
+  onEmptyResolveSuggestions?: (selectedItems?: T[]) => T[] | PromiseLike<T[]>;
 
   /**
    * Initial items that have already been selected and should appear in the people picker.
@@ -70,13 +95,14 @@ export interface IBasePickerProps<T> extends React.Props<any> {
 
   /**
    * A callback for when the user put focus on the picker
+   * @deprecated Use `inputProps.onFocus` instead
    */
-  onFocus?: React.FocusEventHandler<HTMLInputElement | BaseAutoFill>;
+  onFocus?: React.FocusEventHandler<HTMLInputElement | Autofill>;
 
   /**
    * A callback for when the user moves the focus away from the picker
    */
-  onBlur?: React.FocusEventHandler<HTMLInputElement | BaseAutoFill>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement | Autofill>;
 
   /**
    * A callback to get text from an item. Used to autofill text in the pickers.
@@ -110,9 +136,9 @@ export interface IBasePickerProps<T> extends React.Props<any> {
   inputProps?: IInputProps;
 
   /**
-   * A callback for when a persona is removed from the suggestion list
+   * A callback for when an item is removed from the suggestion list
    */
-  onRemoveSuggestion?: (item: IPersonaProps) => void;
+  onRemoveSuggestion?: (item: T) => void;
 
   /**
    * A function used to validate if raw text entered into the well can be added into the selected items list
@@ -170,9 +196,9 @@ export interface IBasePickerProps<T> extends React.Props<any> {
   onDismiss?: (ev?: any, selectedItem?: T) => void;
 
   /**
-   * Adds an additional alert for the currently selected suggestion. This prop should be set to true for IE11 and below, as it
-   * enables proper screen reader behavior for each suggestion (since aria-activedescendant does not work with IE11).
-   * It should not be set for modern browsers (Edge, Chrome).
+   * Adds an additional alert for the currently selected suggestion. This prop should be set to true for IE11 and below,
+   * as it enables proper screen reader behavior for each suggestion (since aria-activedescendant does not work
+   * with IE11). It should not be set for modern browsers (Edge, Chrome).
    * @defaultvalue false
    */
   enableSelectedSuggestionAlert?: boolean;
@@ -188,94 +214,38 @@ export interface IBasePickerProps<T> extends React.Props<any> {
   theme?: ITheme;
 }
 
-export interface IBasePickerSuggestionsProps {
-  /**
-   * Function that specifies what to render when no results are found.
-   */
-  onRenderNoResultFound?: IRenderFunction<void>;
+/**
+ * Subset of picker options that may be legally passed through a picker to its
+ * internal Suggestions component.
+ * {@docCategory Pickers}
+ */
+export interface IBasePickerSuggestionsProps<T = any>
+  extends Pick<
+    ISuggestionsProps<T>,
+    | 'onRenderNoResultFound'
+    | 'suggestionsHeaderText'
+    | 'mostRecentlyUsedHeaderText'
+    | 'noResultsFoundText'
+    | 'className'
+    | 'suggestionsClassName'
+    | 'suggestionsItemClassName'
+    | 'searchForMoreText'
+    | 'forceResolveText'
+    | 'loadingText'
+    | 'searchingText'
+    | 'resultsFooterFull'
+    | 'resultsFooter'
+    | 'resultsMaximumNumber'
+    | 'showRemoveButtons'
+    | 'suggestionsAvailableAlertText'
+    | 'suggestionsContainerAriaLabel'
+    | 'showForceResolve'
+  > {}
 
-  /**
-   * The text that should appear at the top of the suggestion box.
-   */
-  suggestionsHeaderText?: string;
-
-  /**
-   * The text that should appear at the top of the most recently used box.
-   */
-  mostRecentlyUsedHeaderText?: string;
-
-  /**
-   * The text that should appear when no results are returned.
-   */
-  noResultsFoundText?: string;
-
-  /**
-   * Suggestions root className.
-   */
-  className?: string;
-
-  /**
-   * Suggestions List className.
-   */
-  suggestionsClassName?: string;
-
-  /**
-   * ClassName for suggestion items.
-   */
-  suggestionsItemClassName?: string;
-
-  /**
-   * The text that should appear on the button to search for more.
-   */
-  searchForMoreText?: string;
-
-  /**
-   * The text that appears indicating to the use to force resolve the input
-   */
-  forceResolveText?: string;
-
-  /**
-   * The text to display while the results are loading.
-   */
-  loadingText?: string;
-
-  /**
-   * The text to display while searching for more results in a limited suggestions list.
-   */
-  searchingText?: string;
-
-  /**
-   * A renderer that adds an element at the end of the suggestions list if it has more items than resultsMaximumNumber.
-   */
-  resultsFooterFull?: () => JSX.Element;
-
-  /**
-   * A renderer that adds an element at the end of the suggestions list when there are fewer than resultsMaximumNumber.
-   */
-  resultsFooter?: () => JSX.Element;
-
-  /**
-   * Maximum number of suggestions to show in the full suggestion list.
-   */
-  resultsMaximumNumber?: number;
-
-  /**
-   * Indicates whether to show a button with each suggestion to remove that suggestion.
-   */
-  showRemoveButtons?: boolean;
-
-  /**
-   * Screen reader message to read when there are suggestions available.
-   */
-  suggestionsAvailableAlertText?: string;
-
-  /**
-   * An ARIA label for the container that is the parent of the suggestions.
-   */
-  suggestionsContainerAriaLabel?: string;
-}
-
-/** Validation state of the user's input. */
+/**
+ * Validation state of the user's input.
+ * {@docCategory Pickers}
+ */
 export enum ValidationState {
   /** User input is valid. */
   valid,
@@ -284,10 +254,13 @@ export enum ValidationState {
   warning,
 
   /** User input is invalid. */
-  invalid
+  invalid,
 }
 
-/** Pickers' input props interface */
+/**
+ * Pickers' input props interface
+ * {@docCategory Pickers}
+ */
 export interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /**
    * Screen reader label to apply to an input element.
@@ -302,7 +275,10 @@ export interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement>
   defaultVisibleValue?: string;
 }
 
-/** The props needed to construct styles. */
+/**
+ * The props needed to construct styles.
+ * {@docCategory Pickers}
+ */
 export type IBasePickerStyleProps = Pick<IBasePickerProps<any>, 'theme' | 'className' | 'disabled'> & {
   /** Whether text style area is focused */
   isFocused?: boolean;
@@ -311,18 +287,24 @@ export type IBasePickerStyleProps = Pick<IBasePickerProps<any>, 'theme' | 'class
   inputClassName?: string;
 };
 
-/** Represents the stylable areas of the control. */
+/**
+ * Represents the stylable areas of the control.
+ * {@docCategory Pickers}
+ */
 export interface IBasePickerStyles {
   /** Root element of any picker extending from BasePicker (wraps all the elements). */
   root: IStyle;
 
-  /** Refers to the elements already selected(picked) wrapped by `itemsWrapper` along with the input to type new selection. */
+  /**
+   * Refers to the elements already selected (picked) wrapped by `itemsWrapper` along with the input to type
+   * a new selection.
+   */
   text: IStyle;
 
-  /** Refers to the items already selected(picked). */
+  /** Refers to the items already selected (picked). */
   itemsWrapper: IStyle;
 
-  /** Refers to the input were to type new selections(picks). */
+  /** Refers to the input were to type new selections (picks). */
   input: IStyle;
 
   /** Refers to helper element used for accessibility tools (hidden from view on screen). */

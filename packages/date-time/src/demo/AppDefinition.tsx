@@ -1,6 +1,5 @@
 // tslint:disable:no-any
-import * as React from 'react';
-import { App as AppBase, IAppDefinition, IAppProps } from '@uifabric/example-app-base';
+import { IAppDefinition } from '@uifabric/example-app-base';
 
 export const AppDefinition: IAppDefinition = {
   appTitle: 'Fabric - React',
@@ -10,28 +9,38 @@ export const AppDefinition: IAppDefinition = {
     {
       links: [
         {
-          component: require<any>('../components/pages/CalendarPage').CalendarPage,
+          component: require<any>('../components/Calendar/CalendarPage').CalendarPage,
           key: 'Calendar',
           name: 'Calendar',
-          url: '#/examples/calendar'
-        }
-      ]
-    }
+          url: '#/examples/calendar',
+        },
+        {
+          component: require<any>('../components/DatePicker/DatePickerPage').DatePickerPage,
+          key: 'DatePicker',
+          name: 'DatePicker',
+          url: '#/examples/datepicker',
+        },
+        {
+          component: require<any>('../components/WeeklyDayPicker/WeeklyDayPickerPage').WeeklyDayPickerPage,
+          key: 'WeeklyDayPicker',
+          name: 'WeeklyDayPicker',
+          url: '#/examples/weeklydaypicker',
+        },
+      ],
+    },
   ],
   headerLinks: [
     {
       name: 'Getting started',
-      url: '#/'
+      url: '#/',
     },
     {
       name: 'Fabric',
-      url: 'http://dev.office.com/fabric'
+      url: 'https://developer.microsoft.com/en-us/fluentui',
     },
     {
-      name: 'Github',
-      url: 'http://www.github.com/officedev'
-    }
-  ]
+      name: 'GitHub',
+      url: 'https://github.com/microsoft/fluentui',
+    },
+  ],
 };
-
-export const App = (props: IAppProps) => <AppBase appDefinition={AppDefinition} {...props} />;

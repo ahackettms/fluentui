@@ -1,31 +1,38 @@
 import * as React from 'react';
-import { BaseComponent } from 'office-ui-fabric-react/lib/Utilities';
 import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
-import { TooltipHost, TooltipDelay, DirectionalHint } from 'office-ui-fabric-react/lib/Tooltip';
+import {
+  TooltipHost,
+  TooltipDelay,
+  DirectionalHint,
+  ITooltipProps,
+  ITooltipHostStyles,
+} from 'office-ui-fabric-react/lib/Tooltip';
+import { useId } from '@uifabric/react-hooks';
 
-export class TooltipCustomExample extends BaseComponent<any, any> {
-  public render(): JSX.Element {
-    return (
-      <TooltipHost
-        calloutProps={{ gapSpace: 20 }}
-        tooltipProps={{
-          onRenderContent: () => {
-            return (
-              <div>
-                <ul style={{ margin: 0, padding: 0 }}>
-                  <li>1. One</li>
-                  <li>2. Two</li>
-                </ul>
-              </div>
-            );
-          }
-        }}
-        delay={TooltipDelay.zero}
-        id="customID"
-        directionalHint={DirectionalHint.bottomCenter}
-      >
-        <DefaultButton aria-describedby="customID" text="Hover Over Me" />
-      </TooltipHost>
-    );
-  }
-}
+const tooltipProps: ITooltipProps = {
+  onRenderContent: () => (
+    <ul style={{ margin: 10, padding: 0 }}>
+      <li>1. One</li>
+      <li>2. Two</li>
+    </ul>
+  ),
+};
+const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block' } };
+
+export const TooltipCustomExample: React.FunctionComponent = () => {
+  // Use useId() to ensure that the ID is unique on the page.
+  // (It's also okay to use a plain string and manually ensure uniqueness.)
+  const tooltipId = useId('tooltip');
+
+  return (
+    <TooltipHost
+      tooltipProps={tooltipProps}
+      delay={TooltipDelay.zero}
+      id={tooltipId}
+      directionalHint={DirectionalHint.bottomCenter}
+      styles={hostStyles}
+    >
+      <DefaultButton aria-describedby={tooltipId} text="Hover over me" />
+    </TooltipHost>
+  );
+};

@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { VerticalDivider, IVerticalDividerClassNames } from 'office-ui-fabric-react/lib/Divider';
-import { getDividerClassNames } from 'office-ui-fabric-react/lib/components/Divider/VerticalDivider.classNames';
-import { mergeStyleSets, ITheme } from 'office-ui-fabric-react/lib/Styling';
+import { VerticalDivider } from 'office-ui-fabric-react/lib/Divider';
+import { mergeStyleSets, getTheme } from 'office-ui-fabric-react/lib/Styling';
 import { memoizeFunction } from 'office-ui-fabric-react/lib/Utilities';
 
 interface ICustomDividerExampleClassNames {
@@ -12,11 +11,13 @@ interface ICustomDividerExampleClassNames {
 const getExampleClassNames = memoizeFunction(
   (): ICustomDividerExampleClassNames => {
     const exampleHeight = 40;
+    const theme = getTheme();
     return mergeStyleSets({
       wrapper: {
         height: 40,
-        backgroundColor: '#F4F4F4',
-        padding: '0'
+        backgroundColor: theme.semanticColors.bodyStandoutBackground,
+        color: theme.semanticColors.bodyText,
+        padding: '0',
       },
       text: {
         display: 'inline-block',
@@ -24,31 +25,32 @@ const getExampleClassNames = memoizeFunction(
         height: exampleHeight,
         lineHeight: exampleHeight,
         verticalAlign: 'top',
-        margin: 'auto'
-      }
+        margin: 'auto',
+      },
     });
-  }
+  },
 );
 
-const getVerticalDividerClassNames = memoizeFunction(
-  (theme: ITheme): IVerticalDividerClassNames => {
-    return mergeStyleSets(getDividerClassNames(theme), {
-      divider: {
-        height: 28
-      }
-    });
-  }
-);
+const VerticalDividerStyles = {
+  wrapper: {
+    height: 40,
+    backgroundColor: '#F4F4F4',
+    padding: 0,
+  },
+  divider: {
+    height: 28,
+    backgroundColor: 'pink',
+  },
+};
 
-export class VerticalDividerCustomExample extends React.Component<any, any> {
-  public render(): JSX.Element {
-    const exampleClassNames = getExampleClassNames();
-    return (
-      <div className={exampleClassNames.wrapper}>
-        <p className={exampleClassNames.text}> Some text before the divider. </p>
-        <VerticalDivider getClassNames={getVerticalDividerClassNames} />
-        <p className={exampleClassNames.text}>Some text after the divider. </p>
-      </div>
-    );
-  }
-}
+export const VerticalDividerCustomExample = () => {
+  const exampleClassNames = getExampleClassNames();
+
+  return (
+    <div className={exampleClassNames.wrapper}>
+      <p className={exampleClassNames.text}> Some text before the divider. </p>
+      <VerticalDivider styles={VerticalDividerStyles} />
+      <p className={exampleClassNames.text}>Some text after the divider. </p>
+    </div>
+  );
+};

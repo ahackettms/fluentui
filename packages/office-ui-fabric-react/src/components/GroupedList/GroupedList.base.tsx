@@ -1,11 +1,23 @@
 import * as React from 'react';
-import { BaseComponent, IRectangle, assign, classNamesFunction, IClassNames } from '../../Utilities';
-import { IGroupedList, IGroupedListProps, IGroup, IGroupedListStyleProps, IGroupedListStyles } from './GroupedList.types';
+import { IProcessedStyleSet } from '../../Styling';
+import { initializeComponentRef, classNamesFunction, FocusRects } from '../../Utilities';
+import {
+  IGroupedList,
+  IGroupedListProps,
+  IGroup,
+  IGroupedListStyleProps,
+  IGroupedListStyles,
+} from './GroupedList.types';
 import { GroupedListSection } from './GroupedListSection';
-import { List, ScrollToMode } from '../../List';
+import { List, ScrollToMode, IListProps } from '../../List';
 import { SelectionMode } from '../../utilities/selection/index';
+import { DEFAULT_ROW_HEIGHTS } from '../DetailsList/DetailsRow.styles';
+import { IGroupHeaderProps } from './GroupHeader';
+import { IGroupShowAllProps } from './GroupShowAll.styles';
+import { IGroupFooterProps } from './GroupFooter.types';
 
 const getClassNames = classNamesFunction<IGroupedListStyleProps, IGroupedListStyles>();
+const { rowHeight: ROW_HEIGHT, compactRowHeight: COMPACT_ROW_HEIGHT } = DEFAULT_ROW_HEIGHTS;
 
 export interface IGroupedListState {
   lastWidth?: number;
@@ -13,19 +25,19 @@ export interface IGroupedListState {
   groups?: IGroup[];
 }
 
-export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedListState> implements IGroupedList {
+export class GroupedListBase extends React.Component<IGroupedListProps, IGroupedListState> implements IGroupedList {
   public static defaultProps = {
     selectionMode: SelectionMode.multiple,
     isHeaderVisible: true,
     groupProps: {},
-    compact: false
+    compact: false,
   };
 
   public refs: {
     [key: string]: React.ReactInstance;
   };
 
-  private _classNames: IClassNames<IGroupedListStyles>;
+  private _classNames: IProcessedStyleSet<IGroupedListStyles>;
 
   private _list = React.createRef<List>();
 
@@ -34,11 +46,13 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
   constructor(props: IGroupedListProps) {
     super(props);
 
+    initializeComponentRef(this);
+
     this._isSomeGroupExpanded = this._computeIsSomeGroupExpanded(props.groups);
 
     this.state = {
       lastWidth: 0,
-      groups: props.groups
+      groups: props.groups,
     };
   }
 
@@ -52,7 +66,8 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
     return this._list.current!.getStartItemIndexInView() || 0;
   }
 
-  public componentWillReceiveProps(newProps: IGroupedListProps): void {
+  // tslint:disable-next-line function-name
+  public UNSAFE_componentWillReceiveProps(newProps: IGroupedListProps): void {
     const { groups, selectionMode, compact } = this.props;
     let shouldForceUpdates = false;
 
@@ -70,19 +85,35 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
     }
   }
 
+  public componentDidMount() {
+    const { groupProps, groups = [] } = this.props;
+
+    if (groupProps && groupProps.isAllGroupsCollapsed) {
+      this._setGroupsCollapsedState(groups, groupProps.isAllGroupsCollapsed);
+    }
+  }
+
   public render(): JSX.Element {
-    const { className, usePageCache, onShouldVirtualize, getGroupHeight, theme, styles, compact } = this.props;
+    const { className, usePageCache, onShouldVirtualize, theme, styles, compact, listProps = {} } = this.props;
     const { groups } = this.state;
     this._classNames = getClassNames(styles, {
       theme: theme!,
       className,
-      compact: compact
+      compact: compact,
     });
 
+    const { version } = listProps;
+
     return (
-      <div className={this._classNames.root} data-automationid="GroupedList" data-is-scrollable="false" role="presentation">
+      <div
+        className={this._classNames.root}
+        data-automationid="GroupedList"
+        data-is-scrollable="false"
+        role="presentation"
+      >
+        <FocusRects />
         {!groups ? (
-          this._renderGroup(null, 0)
+          this._renderGroup(undefined, 0)
         ) : (
           <List
             ref={this._list}
@@ -90,10 +121,11 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
             items={groups}
             onRenderCell={this._renderGroup}
             getItemCountForPage={this._returnOne}
-            getPageHeight={getGroupHeight && this._getPageHeight(getGroupHeight)}
+            getPageHeight={this._getPageHeight}
             getPageSpecification={this._getPageSpecification}
             usePageCache={usePageCache}
             onShouldVirtualize={onShouldVirtualize}
+            version={version}
           />
         )}
       </div>
@@ -106,18 +138,16 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
   }
 
   public toggleCollapseAll(allCollapsed: boolean): void {
-    const { groups } = this.state;
+    const { groups = [] } = this.state;
     const { groupProps } = this.props;
     const onToggleCollapseAll = groupProps && groupProps.onToggleCollapseAll;
 
-    if (groups) {
+    if (groups.length > 0) {
       if (onToggleCollapseAll) {
         onToggleCollapseAll(allCollapsed);
       }
 
-      for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-        groups[groupIndex].isCollapsed = allCollapsed;
-      }
+      this._setGroupsCollapsedState(groups, allCollapsed);
 
       this._updateIsSomeGroupExpanded();
 
@@ -125,7 +155,13 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
     }
   }
 
-  private _renderGroup = (group: any, groupIndex: number): JSX.Element | null => {
+  private _setGroupsCollapsedState(groups: IGroup[], isCollapsed: boolean): void {
+    for (let groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+      groups[groupIndex].isCollapsed = isCollapsed;
+    }
+  }
+
+  private _renderGroup = (group: IGroup | undefined, groupIndex: number): React.ReactNode => {
     const {
       dragDropEvents,
       dragDropHelper,
@@ -139,19 +175,19 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
       viewport,
       onShouldVirtualize,
       groups,
-      compact
+      compact,
     } = this.props;
 
     // override group header/footer props as needed
     const dividerProps = {
       onToggleSelectGroup: this._onToggleSelectGroup,
       onToggleCollapse: this._onToggleCollapse,
-      onToggleSummarize: this._onToggleSummarize
+      onToggleSummarize: this._onToggleSummarize,
     };
 
-    const headerProps = assign({}, groupProps!.headerProps, dividerProps);
-    const showAllProps = assign({}, groupProps!.showAllProps, dividerProps);
-    const footerProps = assign({}, groupProps!.footerProps, dividerProps);
+    const headerProps: IGroupHeaderProps = { ...groupProps!.headerProps, ...dividerProps };
+    const showAllProps: IGroupShowAllProps = { ...groupProps!.showAllProps, ...dividerProps };
+    const footerProps: IGroupFooterProps = { ...groupProps!.footerProps, ...dividerProps };
     const groupNestingDepth = this._getGroupNestingDepth();
 
     if (!groupProps!.showEmptyGroups && group && group.count === 0) {
@@ -194,14 +230,37 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
     return 1;
   }
 
-  private _getPageHeight = (getGroupHeight: (group?: IGroup, groupIndex?: number) => number) => (itemIndex: number) => {
-    const { groups } = this.state;
-
-    const pageGroup = groups && groups[itemIndex];
-    return getGroupHeight(pageGroup, itemIndex);
+  private _getDefaultGroupItemLimit = (group: IGroup): number => {
+    return group.count;
   };
 
-  private _getGroupKey(group: IGroup, index: number): string {
+  private _getGroupItemLimit = (group: IGroup): number => {
+    const { groupProps } = this.props;
+    const getGroupItemLimit =
+      groupProps && groupProps.getGroupItemLimit ? groupProps.getGroupItemLimit : this._getDefaultGroupItemLimit;
+
+    return getGroupItemLimit(group);
+  };
+
+  private _getGroupHeight = (group: IGroup): number => {
+    const rowHeight = this.props.compact ? COMPACT_ROW_HEIGHT : ROW_HEIGHT;
+
+    return rowHeight + (group.isCollapsed ? 0 : rowHeight * this._getGroupItemLimit(group));
+  };
+
+  private _getPageHeight: IListProps['getPageHeight'] = (itemIndex: number) => {
+    const { groups } = this.state;
+    const { getGroupHeight = this._getGroupHeight } = this.props;
+    const pageGroup = groups && groups[itemIndex];
+
+    if (pageGroup) {
+      return getGroupHeight(pageGroup, itemIndex);
+    } else {
+      return 0;
+    }
+  };
+
+  private _getGroupKey(group: IGroup | undefined, index: number): string {
     return 'group-' + (group && group.key ? group.key : String(index));
   }
 
@@ -234,8 +293,10 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
   };
 
   private _onToggleSelectGroup = (group: IGroup): void => {
-    if (group) {
-      this.props.selection!.toggleRangeSelected(group.startIndex, group.count);
+    const { selection, selectionMode } = this.props;
+
+    if (group && selection && selectionMode === SelectionMode.multiple) {
+      selection.toggleRangeSelected(group.startIndex, group.count);
     }
   };
 
@@ -278,19 +339,21 @@ export class GroupedListBase extends BaseComponent<IGroupedListProps, IGroupedLi
 
   private _getPageSpecification = (
     itemIndex: number,
-    visibleRect: IRectangle
   ): {
     key?: string;
   } => {
     const groups = this.state.groups;
     const pageGroup = groups && groups[itemIndex];
     return {
-      key: pageGroup && pageGroup.key
+      key: pageGroup && pageGroup.key,
     };
   };
 
   private _computeIsSomeGroupExpanded(groups: IGroup[] | undefined): boolean {
-    return !!(groups && groups.some(group => (group.children ? this._computeIsSomeGroupExpanded(group.children) : !group.isCollapsed)));
+    return !!(
+      groups &&
+      groups.some(group => (group.children ? this._computeIsSomeGroupExpanded(group.children) : !group.isCollapsed))
+    );
   }
 
   private _updateIsSomeGroupExpanded(): void {

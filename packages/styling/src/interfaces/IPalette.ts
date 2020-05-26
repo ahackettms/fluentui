@@ -1,5 +1,6 @@
 /**
- * UI Fabric color palette.
+ * Fluent UI color palette.
+ * {@docCategory IPalette}
  */
 export interface IPalette {
   /**
@@ -48,7 +49,8 @@ export interface IPalette {
   themeLighterAlt: string;
 
   /**
-   * Color code for the strongest color, which is black in the default theme. This is a very light color in inverted themes.
+   * Color code for the strongest color, which is black in the default theme.
+   * This is a very light color in inverted themes.
    */
   black: string;
 
@@ -132,6 +134,11 @@ export interface IPalette {
    * Color code for whiteTranslucent40
    */
   whiteTranslucent40: string;
+
+  /**
+   * Color code for yellowDark.
+   */
+  yellowDark: string;
 
   /**
    * Color code for yellow.

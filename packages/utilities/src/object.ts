@@ -1,20 +1,15 @@
 import { Stylesheet } from '@uifabric/merge-styles';
+import { getId, resetIds } from './getId';
 
-// Initialize global window id.
-const CURRENT_ID_PROPERTY = '__currentId__';
-const DEFAULT_ID_STRING = 'id__';
+export { getId, resetIds };
 
-declare const process: {};
-
+/**
+ * Compares a to b and b to a.
+ *
+ * @public
+ */
 // tslint:disable-next-line:no-any
-let _global: any = (typeof window !== 'undefined' && window) || process;
-
-if (_global[CURRENT_ID_PROPERTY] === undefined) {
-  _global[CURRENT_ID_PROPERTY] = 0;
-}
-
-// tslint:disable-next-line:no-any
-function checkProperties(a: any, b: any): boolean {
+export function shallowCompare<TA extends any, TB extends any>(a: TA, b: TB): boolean {
   for (let propName in a) {
     if (a.hasOwnProperty(propName)) {
       if (!b.hasOwnProperty(propName) || b[propName] !== a[propName]) {
@@ -22,17 +17,14 @@ function checkProperties(a: any, b: any): boolean {
       }
     }
   }
-
+  for (let propName in b) {
+    if (b.hasOwnProperty(propName)) {
+      if (!a.hasOwnProperty(propName)) {
+        return false;
+      }
+    }
+  }
   return true;
-}
-
-/**
- * Compares a to b and b to a.
- *
- * @public
- */
-export function shallowCompare<TA, TB>(a: TA, b: TB): boolean {
-  return checkProperties(a, b) && checkProperties(b, a);
 }
 
 /**
@@ -87,33 +79,16 @@ if (stylesheet && stylesheet.onReset) {
 }
 
 /**
- * Generates a unique id in the global scope (this spans across duplicate copies of the same library.)
- *
- * @public
+ * Takes an enum and iterates over each value of the enum (as a string), running the callback on each,
+ * returning a mapped array.
+ * @param theEnum - Enum to iterate over
+ * @param callback - The first parameter the name of the entry, and the second parameter is the value
+ * of that entry, which is the value you'd normally use when using the enum (usually a number).
  */
-export function getId(prefix?: string): string {
-  let index = _global[CURRENT_ID_PROPERTY]++;
-
-  return (prefix || DEFAULT_ID_STRING) + index;
-}
-
-/**
- * Resets id counter to an (optional) number.
- *
- * @public
- */
-export function resetIds(counter: number = 0): void {
-  _global[CURRENT_ID_PROPERTY] = counter;
-}
-
-/* Takes an enum and iterates over each value of the enum (as a string), running the callback on each, returning a mapped array.
- * The callback takes as a first parameter the string that represents the name of the entry, and the second parameter is the
- * value of that entry, which is the value you'd normally use when using the enum (usually a number).
- * */
 export function mapEnumByName<T>(
   // tslint:disable-next-line:no-any
   theEnum: any,
-  callback: (name?: string, value?: string | number) => T | undefined
+  callback: (name?: string, value?: string | number) => T | undefined,
 ): (T | undefined)[] | undefined {
   // map<any> to satisfy compiler since it doesn't realize we strip out undefineds in the .filter() call
   return Object.keys(theEnum)
@@ -123,6 +98,7 @@ export function mapEnumByName<T>(
         // if the property is not just a number (because enums in TypeScript will map both ways)
         return callback(p as string, theEnum[p]);
       }
+      return undefined;
     })
     .filter((v: T | undefined) => !!v); // only return elements with values
 }

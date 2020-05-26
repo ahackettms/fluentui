@@ -7,21 +7,21 @@ module.exports = resources.createServeConfig({
   output: {
     filename: 'office-ui-fabric-react.js',
     libraryTarget: 'var',
-    library: 'Fabric'
+    library: 'Fabric',
   },
 
   externals: {
     react: 'React',
-    'react-dom': 'ReactDOM'
+    'react-dom': 'ReactDOM',
   },
 
   resolve: {
     alias: {
-      'office-ui-fabric-react/src': path.resolve(__dirname, '../../packages/office-ui-fabric-react/src'),
-      'office-ui-fabric-react/lib/codepen': path.resolve(__dirname, '../../packages/office-ui-fabric-react/lib/codepen'),
-      'office-ui-fabric-react/lib': path.resolve(__dirname, '../../packages/office-ui-fabric-react/src'),
+      'office-ui-fabric-react$': path.join(__dirname, 'src'),
+      'office-ui-fabric-react/src': path.join(__dirname, 'src'),
+      'office-ui-fabric-react/lib': path.join(__dirname, 'src'),
       'Props.ts.js': 'Props',
-      'Example.tsx.js': 'Example'
-    }
-  }
+      'Example.tsx.js': 'Example',
+    },
+  },
 });

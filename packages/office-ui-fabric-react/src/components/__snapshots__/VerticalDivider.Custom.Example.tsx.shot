@@ -5,7 +5,8 @@ exports[`Component Examples renders VerticalDivider.Custom.Example.tsx correctly
   className=
 
       {
-        background-color: #F4F4F4;
+        background-color: #faf9f8;
+        color: #323130;
         height: 40px;
         padding-bottom: 0;
         padding-left: 0;
@@ -38,15 +39,20 @@ exports[`Component Examples renders VerticalDivider.Custom.Example.tsx correctly
 
         {
           align-items: center;
+          background-color: #F4F4F4;
           display: inline-flex;
-          height: 100%;
+          height: 40px;
+          padding-bottom: 0px;
+          padding-left: 0px;
+          padding-right: 0px;
+          padding-top: 0px;
         }
   >
     <span
       className=
 
           {
-            background-color: #c8c8c8;
+            background-color: pink;
             height: 28px;
             width: 1px;
           }

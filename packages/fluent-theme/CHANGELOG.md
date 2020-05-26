@@ -1,13 +1,240 @@
 # Change Log - @uifabric/fluent-theme
 
-This log was last generated on Mon, 28 Jan 2019 13:35:27 GMT and should not be manually modified.
+This log was last generated on Thu, 07 May 2020 01:06:55 GMT and should not be manually modified.
+
+<!-- Start content -->
+
+## [7.1.70](https://github.com/microsoft/fluentui/tree/@uifabric/fluent-theme_v7.1.70)
+
+Thu, 07 May 2020 01:06:55 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/fluent-theme_v7.1.53..@uifabric/fluent-theme_v7.1.70)
+
+### Patches
+
+- Addressing commonjs imports. ([PR #13031](https://github.com/microsoft/fluentui/pull/13031) by dzearing@microsoft.com)
+
+## [7.1.53](https://github.com/microsoft/fluentui/tree/@uifabric/fluent-theme_v7.1.53)
+
+Thu, 16 Apr 2020 04:01:45 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/fluent-theme_v7.1.43..@uifabric/fluent-theme_v7.1.53)
+
+### Patches
+
+- Readme: Fabric=>Fluent wording updates ([PR #12508](https://github.com/microsoft/fluentui/pull/12508) by elcraig@microsoft.com)
+
+## 7.1.43
+Wed, 25 Mar 2020 12:30:04 GMT
+
+### Patches
+
+- Changing references of Fabric to Fluent (mgodbolt@microsoft.com)
+## 7.1.42
+Mon, 23 Mar 2020 12:28:29 GMT
+
+### Patches
+
+- Replace OfficeDev/office-ui-fabric-react with microsoft/fluentui (elcraig@microsoft.com)
+## 7.1.5
+Fri, 17 Jan 2020 02:32:17 GMT
+
+### Patches
+
+- Update tslib minver to first version containing __spreadArrays helper due to changes in how TS emits spreads. (jagore@microsoft.com)
+## 7.1.4
+Wed, 04 Sep 2019 04:09:58 GMT
+
+### Patches
+
+- fix version file (kchau@microsoft.com)
+## 7.1.3
+Fri, 23 Aug 2019 12:35:28 GMT
+
+### Patches
+
+- Update npmignores, delete unused jest setup files (elcraig@microsoft.com)
+- Fix up readme and package.json descriptions (elcraig@microsoft.com)
+
+## 7.1.2
+Tue, 20 Aug 2019 12:31:26 GMT
+
+### Patches
+
+- Nav: update to latest redlines (phkuo@microsoft.com)
+
+## 7.1.1
+Tue, 13 Aug 2019 12:31:12 GMT
+
+### Patches
+
+- Updating snpashots and styles which use $ syntax. (dzearing@microsoft.com)
+
+## 7.1.0
+Wed, 07 Aug 2019 12:32:28 GMT
+
+### Minor changes
+
+- Updating styles to not use $ syntax. (dzearing@microsoft.com)
+
+## 7.0.4
+Wed, 17 Jul 2019 18:58:57 GMT
+
+### Patches
+
+- Adding @types/react and @types/react-dom to package.json that have peer dependencies on react and react-dom. (makotom@microsoft.com)
+
+## 7.0.3
+Wed, 10 Jul 2019 12:28:00 GMT
+
+### Patches
+
+- Button: Fixing CompoundButton and SplitButton high contrast mode styling. (humbertomakotomorimoto@gmail.com)
+
+## 7.0.2
+Fri, 14 Jun 2019 12:26:30 GMT
+
+### Patches
+
+- Fix missing assets in production build.
+
+## 7.0.1
+Thu, 13 Jun 2019 00:24:48 GMT
+
+### Patches
+
+- Initial release of Fabric 7
+
+## 0.16.11
+Wed, 12 Jun 2019 00:42:26 GMT
+
+### Patches
+
+- Update DatePicker import path
+- Nav, Calendar, and DatePicker move into office-ui-fabric-react
+
+## 0.16.10
+Tue, 21 May 2019 12:20:44 GMT
+
+### Patches
+
+- IconButton: change the background color when in diabled state
+
+## 0.16.9
+Tue, 14 May 2019 07:50:30 GMT
+
+### Patches
+
+- Update Fabric assets link
+
+## 0.16.8
+Tue, 14 May 2019 01:56:43 GMT
+
+### Patches
+
+- Update border colors during rest state for certain components
+
+## 0.16.7
+Tue, 30 Apr 2019 12:31:36 GMT
+
+### Patches
+
+-  Use new getFocusStyle signature
+
+## 0.16.6
+Tue, 23 Apr 2019 12:32:00 GMT
+
+### Patches
+
+- CommandBarButton: Update expanded and expanded hover color
+- Fix selector for ms-Button-icon in CommandBarButton
+
+## 0.16.5
+Mon, 22 Apr 2019 12:32:06 GMT
+
+### Patches
+
+- Update Fluent styles for CommandBar and CommandBarButton
+
+## 0.16.4
+Tue, 02 Apr 2019 00:38:14 GMT
+
+### Patches
+
+- Use ^ ranges instead of >=
+
+## 0.16.3
+Wed, 27 Mar 2019 12:34:02 GMT
+
+### Patches
+
+- IconButton style fixes and removing the SwatchColorPicker styles.
+
+## 0.16.2
+Tue, 19 Mar 2019 12:36:45 GMT
+
+### Patches
+
+- TeachingBubble: fixes bug were the styles for TeachingBubbleContent were not applied properly when not used directly.
+- Fixes the scope name of `ListPeoplePicker` inside of `FluentCustomizations` object.
+
+## 0.16.1
+Fri, 15 Mar 2019 12:34:06 GMT
+
+### Patches
+
+- Breadcrumb: fixed last-child styling
+
+## 0.16.0
+Wed, 27 Feb 2019 01:28:58 GMT
+
+### Minor changes
+
+- Cleans up the `fluent-theme` styles of hard coded values for colors. Replaces the `borderRadius` and `boxShadow` styles with values from theme.
+
+## 0.15.1
+Mon, 25 Feb 2019 13:31:08 GMT
+
+### Patches
+
+- Update DetailsList Fluent styles
+
+## 0.15.0
+Wed, 20 Feb 2019 13:30:29 GMT
+
+### Minor changes
+
+- Panel: adds fluent styles overrides.
+
+### Patches
+
+- Breadcrumb: fixes issue where the last child was not bolded if not clickable to align design toolkit redlines.
+
+## 0.14.2
+Mon, 18 Feb 2019 13:38:30 GMT
+
+### Patches
+
+- Dialog: Adjust right padding of title
+
+## 0.14.1
+Fri, 15 Feb 2019 13:33:05 GMT
+
+### Patches
+
+- Remove unnecessary theme colors
+
+## 0.14.0
+Tue, 12 Feb 2019 13:36:43 GMT
+
+### Minor changes
+
+- Pickers: adds minor adjustments to align to new fluent style patterns.
 
 ## 0.13.4
 Mon, 28 Jan 2019 13:35:27 GMT
 
 ### Patches
 
-- Dropdown: fixes a misalignment of some items in the dropdown. 
+- Dropdown: fixes a misalignment of some items in the dropdown.
 
 ## 0.13.3
 Fri, 25 Jan 2019 13:38:07 GMT
@@ -206,4 +433,3 @@ Fri, 19 Oct 2018 12:29:20 GMT
 ### Patches
 
 - Create new package for housing Fluent customizations.
-

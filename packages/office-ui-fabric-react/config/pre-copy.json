@@ -1,8 +1,5 @@
 {
   "copyTo": {
-    "dist": [
-      "./index.html"
-    ],
     "dist/sass": [
       "office-ui-fabric-core/dist/sass/**/*",
       "./src/common/_highContrast.scss",
@@ -11,10 +8,9 @@
       "./src/common/_themeOverrides.scss",
       "./src/common/_legacyThemePalette.scss",
       "./src/common/_effects.scss",
-      "./src/common/_themeVariables.scss"
+      "./src/common/_themeVariables.scss",
+      "./src/common/ThemingSass.scss"
     ],
-    "dist/css": [
-      "office-ui-fabric-core/dist/css/**/*"
-    ]
+    "dist/css": ["office-ui-fabric-core/dist/css/**/*"]
   }
 }

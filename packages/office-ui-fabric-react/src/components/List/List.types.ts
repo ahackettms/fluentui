@@ -2,6 +2,9 @@ import * as React from 'react';
 import { IRefObject, IRectangle, IRenderFunction } from '../../Utilities';
 import { List } from './List';
 
+/**
+ * {@docCategory List}
+ */
 export const ScrollToMode = {
   /**
    * Does not make any consideration to where in the viewport the item should align to.
@@ -18,16 +21,78 @@ export const ScrollToMode = {
   /**
    * Attempts to scroll the list so the desired item is in the exact center of the viewport.
    */
-  center: 3 as 3
+  center: 3 as 3,
 };
 
+/**
+ * {@docCategory List}
+ */
 export type ScrollToMode = typeof ScrollToMode[keyof typeof ScrollToMode];
 
+/**
+ * Props passed to the render override for the list root.
+ * {@docCategory List}
+ */
+export interface IListOnRenderRootProps<T> {
+  /**
+   * The ref to be applied to the list root.
+   * The `List` uses this element to track scroll position and sizing.
+   */
+  rootRef: React.Ref<HTMLDivElement>;
+  /**
+   * Props to apply to the list root element.
+   */
+  divProps: React.HTMLAttributes<HTMLDivElement>;
+  /**
+   * The active pages to be rendered into the list.
+   * These will have been rendered using `onRenderPage`.
+   */
+  pages: IPage<T>[];
+  /**
+   * The content to be rendered as the list surface element.
+   * This will have been rendered using `onRenderSurface`.
+   */
+  surfaceElement: JSX.Element | null;
+}
+
+/**
+ * Props passed to the render override for the list surface.
+ * {@docCategory List}
+ */
+export interface IListOnRenderSurfaceProps<T> {
+  /**
+   * A ref to be applied to the surface element.
+   * The `List` uses this element to track content size and focus.
+   */
+  surfaceRef: React.Ref<HTMLDivElement>;
+  /**
+   * Props to apply to the list surface element.
+   */
+  divProps: React.HTMLAttributes<HTMLDivElement>;
+  /**
+   * The active pages to be rendered into the list.
+   * These will have been rendered using `onRenderPage`.
+   */
+  pages: IPage<T>[];
+  /**
+   * The content to be rendered representing all active pages.
+   */
+  pageElements: JSX.Element[];
+}
+
+/**
+ * {@docCategory List}
+ */
 export interface IList {
   /**
    * Force the component to update.
    */
   forceUpdate: () => void;
+
+  /**
+   * Get the current height the list and it's pages.
+   */
+  getTotalListHeight?: () => number;
 
   /**
    * Scroll to the given index. By default will bring the page the specified item is on into the view. If a callback
@@ -49,7 +114,10 @@ export interface IList {
   getStartItemIndexInView: () => number;
 }
 
-export interface IListProps extends React.HTMLAttributes<List | HTMLDivElement> {
+/**
+ * {@docCategory List}
+ */
+export interface IListProps<T = any> extends React.HTMLAttributes<List<T> | HTMLDivElement> {
   /**
    * Optional callback to access the IList interface. Use this instead of ref for accessing
    * the public methods and properties of the component.
@@ -60,15 +128,16 @@ export interface IListProps extends React.HTMLAttributes<List | HTMLDivElement> 
   className?: string;
 
   /** Items to render. */
-  items?: any[];
+  items?: T[];
 
   /**
    * Method to call when trying to render an item.
-   * @param item - The the data associated with the cell that is being rendered.
+   * @param item - The data associated with the cell that is being rendered.
    * @param index - The index of the cell being rendered.
-   * @param isScrolling - True if the list is being scrolled. May be useful for rendering a placeholder if your cells are complex.
+   * @param isScrolling - True if the list is being scrolled. May be useful for rendering a placeholder if your cells
+   * are complex.
    */
-  onRenderCell?: (item?: any, index?: number, isScrolling?: boolean) => React.ReactNode;
+  onRenderCell?: (item?: T, index?: number, isScrolling?: boolean) => React.ReactNode;
 
   /**
    * Optional callback invoked when List rendering completed.
@@ -78,16 +147,16 @@ export interface IListProps extends React.HTMLAttributes<List | HTMLDivElement> 
    * To track individual page Add / Remove use onPageAdded / onPageRemoved instead.
    * @param pages - The current array of pages in the List.
    */
-  onPagesUpdated?: (pages: IPage[]) => void;
+  onPagesUpdated?: (pages: IPage<T>[]) => void;
 
   /** Optional callback for monitoring when a page is added. */
-  onPageAdded?: (page: IPage) => void;
+  onPageAdded?: (page: IPage<T>) => void;
 
   /** Optional callback for monitoring when a page is removed. */
-  onPageRemoved?: (page: IPage) => void;
+  onPageRemoved?: (page: IPage<T>) => void;
 
   /** Optional callback to get the item key, to be used on render. */
-  getKey?: (item: any, index?: number) => string;
+  getKey?: (item: T, index?: number) => string;
 
   /**
    * Called by the list to get the specification for a page.
@@ -110,13 +179,13 @@ export interface IListProps extends React.HTMLAttributes<List | HTMLDivElement> 
    * in pixels, which has been seen to cause browser performance issues.
    * In general, use `getPageSpecification` instead.
    */
-  getPageHeight?: (itemIndex?: number, visibleRect?: IRectangle) => number;
+  getPageHeight?: (itemIndex?: number, visibleRect?: IRectangle, itemCount?: number) => number;
 
   /**
    * Method called by the list to derive the page style object. For spacer pages, the list will derive
    * the height and passed in heights will be ignored.
    */
-  getPageStyle?: (page: IPage) => any;
+  getPageStyle?: (page: IPage<T>) => any;
 
   /**
    * In addition to the visible window, how many windowHeights should we render ahead.
@@ -146,10 +215,11 @@ export interface IListProps extends React.HTMLAttributes<List | HTMLDivElement> 
   /**
    * Optional callback to determine whether the list should be rendered in full, or virtualized.
    * Virtualization will add and remove pages of items as the user scrolls them into the visible range.
-   * This benefits larger list scenarios by reducing the DOM on the screen, but can negatively affect performance for smaller lists.
+   * This benefits larger list scenarios by reducing the DOM on the screen, but can negatively affect performance for
+   * smaller lists.
    * The default implementation will virtualize when this callback is not provided.
    */
-  onShouldVirtualize?: (props: IListProps) => boolean;
+  onShouldVirtualize?: (props: IListProps<T>) => boolean;
 
   /**
    * The role to assign to the list root element.
@@ -161,22 +231,55 @@ export interface IListProps extends React.HTMLAttributes<List | HTMLDivElement> 
    * Called when the List will render a page.
    * Override this to control how cells are rendered within a page.
    */
-  onRenderPage?: (pageProps: IPageProps, defaultRender?: IRenderFunction<IPageProps>) => React.ReactNode;
+  onRenderPage?: IRenderFunction<IPageProps<T>>;
+
+  /**
+   * Render override for the element at the root of the `List`.
+   * Use this to apply some final attributes or structure to the content
+   * each time the list is updated with new active pages or items.
+   */
+  onRenderRoot?: IRenderFunction<IListOnRenderRootProps<T>>;
+
+  /**
+   * Render override for the element representing the surface of the `List`.
+   * Use this to alter the structure of the rendered content if necessary on each update.
+   */
+  onRenderSurface?: IRenderFunction<IListOnRenderSurfaceProps<T>>;
+
+  /**
+   * An object which can be passed in as a fresh instance to 'force update' the list.
+   */
+  version?: {};
+
+  /**
+   * Whether to disable scroll state updates. This causes the isScrolling arg in onRenderCell to always be undefined.
+   * This is a performance optimization to let List skip a render cycle by not updating its scrolling state.
+   */
+  ignoreScrollingState?: boolean;
 }
 
-export interface IPage {
+/**
+ * {@docCategory List}
+ */
+export interface IPage<T = any> {
   key: string;
-  items: any[] | undefined;
+  items: T[] | undefined;
   startIndex: number;
   itemCount: number;
-  style: any;
+  style: React.CSSProperties;
   top: number;
   height: number;
   data?: any;
   isSpacer?: boolean;
+  isVisible?: boolean;
 }
 
-export interface IPageProps extends React.HTMLAttributes<HTMLDivElement>, React.ClassAttributes<HTMLDivElement> {
+/**
+ * {@docCategory List}
+ */
+export interface IPageProps<T = any>
+  extends React.HTMLAttributes<HTMLDivElement>,
+    React.ClassAttributes<HTMLDivElement> {
   /**
    * The role being assigned to the rendered page element by the list.
    */
@@ -184,9 +287,12 @@ export interface IPageProps extends React.HTMLAttributes<HTMLDivElement>, React.
   /**
    * The allocation data for the page.
    */
-  page: IPage;
+  page: IPage<T>;
 }
 
+/**
+ * {@docCategory List}
+ */
 export interface IPageSpecification {
   /**
    * The number of items to allocate to the page.

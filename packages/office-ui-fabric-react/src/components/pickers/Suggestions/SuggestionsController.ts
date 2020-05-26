@@ -1,5 +1,8 @@
 import { ISuggestionModel } from './Suggestions.types';
 
+/**
+ * {@docCategory Pickers}
+ */
 export class SuggestionsController<T> {
   public currentIndex: number;
   public currentSuggestion: ISuggestionModel<T> | undefined;
@@ -124,7 +127,7 @@ export class SuggestionsController<T> {
       return {
         item: suggestion,
         selected: false,
-        ariaLabel: (<any>suggestion).name || (<any>suggestion).primaryText
+        ariaLabel: (<any>suggestion).name || (<any>suggestion).primaryText,
       } as ISuggestionModel<T>;
     }
   };

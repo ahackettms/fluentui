@@ -1,5 +1,5 @@
 import { KeyCodes } from './KeyCodes';
-import { getDocument } from './dom';
+import { getDocument } from './dom/getDocument';
 import { getItem, setItem } from './sessionStorage';
 import { setRTL as mergeStylesSetRTL } from '@uifabric/merge-styles';
 
@@ -11,7 +11,10 @@ let _isRTL: boolean | undefined;
 /**
  * Gets the rtl state of the page (returns true if in rtl.)
  */
-export function getRTL(): boolean {
+export function getRTL(theme: { rtl?: boolean } = {}): boolean {
+  if (theme.rtl !== undefined) {
+    return theme.rtl;
+  }
   if (_isRTL === undefined) {
     // Fabric supports persisting the RTL setting between page refreshes via session storage
     let savedRTL = getItem(RTL_LOCAL_STORAGE_KEY);
@@ -22,7 +25,7 @@ export function getRTL(): boolean {
 
     let doc = getDocument();
     if (_isRTL === undefined && doc) {
-      _isRTL = doc.documentElement.getAttribute('dir') === 'rtl';
+      _isRTL = ((doc.body && doc.body.getAttribute('dir')) || doc.documentElement.getAttribute('dir')) === 'rtl';
       mergeStylesSetRTL(_isRTL);
     }
   }
@@ -50,8 +53,8 @@ export function setRTL(isRTL: boolean, persistSetting: boolean = false): void {
 /**
  * Returns the given key, but flips right/left arrows if necessary.
  */
-export function getRTLSafeKeyCode(key: number): number {
-  if (getRTL()) {
+export function getRTLSafeKeyCode(key: number, theme: { rtl?: boolean } = {}): number {
+  if (getRTL(theme)) {
     if (key === KeyCodes.left) {
       key = KeyCodes.right;
     } else if (key === KeyCodes.right) {

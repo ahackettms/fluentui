@@ -2,6 +2,9 @@ import * as React from 'react';
 import { IStyle, ITheme } from '../../Styling';
 import { IBaseProps, IRefObject, IStyleFunctionOrObject } from '../../Utilities';
 
+/**
+ * {@docCategory DocumentCard}
+ */
 export interface IDocumentCard {
   /**
    * Sets focus to the DocumentCard.
@@ -9,6 +12,9 @@ export interface IDocumentCard {
   focus: () => void;
 }
 
+/**
+ * {@docCategory DocumentCard}
+ */
 export interface IDocumentCardProps extends IBaseProps<IDocumentCard>, React.HTMLAttributes<HTMLDivElement> {
   /**
    * Optional callback to access the IDocumentCard interface. Use this instead of ref for accessing
@@ -36,7 +42,8 @@ export interface IDocumentCardProps extends IBaseProps<IDocumentCard>, React.HTM
   /**
    * Aria role assigned to the documentCard (Eg. button, link).
    * Use this to override the default assignment.
-   * @defaultvalue When `onClick` is provided, default role will be 'button'. When `onClickHref` is provided, default role will be 'link'.
+   * @defaultvalue When `onClick` is provided, default role will be 'button'.
+   * When `onClickHref` is provided, default role will be 'link'.
    */
   role?: string;
 
@@ -70,6 +77,9 @@ export interface IDocumentCardProps extends IBaseProps<IDocumentCard>, React.HTM
   className?: string;
 }
 
+/**
+ * {@docCategory DocumentCard}
+ */
 export enum DocumentCardType {
   /**
    * Standard DocumentCard.
@@ -78,9 +88,12 @@ export enum DocumentCardType {
   /**
    * Compact layout. Displays the preview beside the details, rather than above.
    */
-  compact = 1
+  compact = 1,
 }
 
+/**
+ * {@docCategory DocumentCard}
+ */
 export interface IDocumentCardStyleProps {
   /**
    * Accept theme prop.
@@ -103,6 +116,9 @@ export interface IDocumentCardStyleProps {
   compact?: boolean;
 }
 
+/**
+ * {@docCategory DocumentCard}
+ */
 export interface IDocumentCardStyles {
   root: IStyle;
 }

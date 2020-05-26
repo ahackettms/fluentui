@@ -5,7 +5,11 @@ import { IPickerItemProps } from '../../PickerItem.types';
 import { IContextualMenuItem } from '../../../../ContextualMenu';
 import { ValidationState, IBasePickerSuggestionsProps } from '../../BasePicker.types';
 
-/** Common props in between IPeoplePickerItemSelectedProps, IPeoplePickerItemWithMenuProps and IPeoplePickerItemSuggestionProps. */
+/**
+ * Common props in between IPeoplePickerItemSelectedProps, IPeoplePickerItemWithMenuProps and
+ * IPeoplePickerItemSuggestionProps.
+ * {@docCategory PeoplePicker}
+ */
 export interface IPeoplePickerItemSharedProps {
   /** Additional CSS class(es) to apply to the PeoplePickerItem root element. */
   className?: string;
@@ -14,7 +18,10 @@ export interface IPeoplePickerItemSharedProps {
   theme?: ITheme;
 }
 
-/** PeoplePickerItemSelected props interface. Refers to the PeoplePicker items that have been picked already. */
+/**
+ * PeoplePickerItemSelected props interface. Refers to the PeoplePicker items that have been picked already.
+ * {@docCategory PeoplePicker}
+ */
 export interface IPeoplePickerItemSelectedProps
   extends IPickerItemProps<IPersonaProps & { ValidationState: ValidationState }>,
     IPeoplePickerItemSharedProps {
@@ -22,14 +29,20 @@ export interface IPeoplePickerItemSelectedProps
   styles?: IStyleFunctionOrObject<IPeoplePickerItemSelectedStyleProps, IPeoplePickerItemSelectedStyles>;
 }
 
-/** Props needed to construct PeoplePickerItemSelected styles. */
+/**
+ * Props needed to construct PeoplePickerItemSelected styles.
+ * {@docCategory PeoplePicker}
+ */
 export type IPeoplePickerItemSelectedStyleProps = Required<Pick<IPeoplePickerItemSelectedProps, 'theme'>> &
   Pick<IPeoplePickerItemSelectedProps, 'className' | 'selected' | 'disabled'> & {
     /** Whether it's invalid. */
     invalid?: boolean;
   };
 
-/** Represents the stylable areas of the PeoplePickerItemSelected. */
+/**
+ * Represents the stylable areas of the PeoplePickerItemSelected.
+ * {@docCategory PeoplePicker}
+ */
 export interface IPeoplePickerItemSelectedStyles {
   /** Root element of picked PeoplePicker item */
   root: IStyle;
@@ -44,16 +57,22 @@ export interface IPeoplePickerItemSelectedStyles {
   subComponentStyles: IPeoplePickerItemSelectedSubComponentStyles;
 }
 
-/** Styles interface of the SubComponents rendered within PeoplePickerItemSelected. */
+/**
+ * Styles interface of the SubComponents rendered within PeoplePickerItemSelected.
+ * {@docCategory PeoplePicker}
+ */
 export interface IPeoplePickerItemSelectedSubComponentStyles {
   /** Refers to the Persona rendered within the PeoplePickerItemSelected */
   persona: IStyleFunctionOrObject<IPersonaStyleProps, any>;
 
   /** Refers to the PersonaCoin in the Persona rendered within the PeoplePickerItemSelected */
-  personaCoin: IStyleFunctionOrObject<IPersonaCoinStyleProps, any>;
+  personaCoin?: IStyleFunctionOrObject<IPersonaCoinStyleProps, any>;
 }
 
-/** PeoplePickerItemSuggestion props interface. Refers to the PeoplePicker items that are suggested for picking. */
+/**
+ * PeoplePickerItemSuggestion props interface. Refers to the PeoplePicker items that are suggested for picking.
+ * {@docCategory PeoplePicker}
+ */
 export interface IPeoplePickerItemSuggestionProps extends IPeoplePickerItemSharedProps {
   /** Persona props for each suggested for picking PeoplePicker item. */
   personaProps?: IPersonaProps;
@@ -65,29 +84,40 @@ export interface IPeoplePickerItemSuggestionProps extends IPeoplePickerItemShare
   suggestionsProps?: IBasePickerSuggestionsProps;
 
   /**
-   * Flag that controls whether each suggested PeoplePicker item (Persona) is rendered with or without secondary text for compact look.
+   * Flag that controls whether each suggested PeoplePicker item (Persona) is rendered with or without secondary text
+   * for compact look.
    * @defaultvalue false
    */
   compact?: boolean;
 }
 
-/** Props needed to construct PeoplePickerItemSuggestion styles. */
+/**
+ * Props needed to construct PeoplePickerItemSuggestion styles.
+ * {@docCategory PeoplePicker}
+ */
 export type IPeoplePickerItemSuggestionStyleProps = Required<Pick<IPeoplePickerItemSuggestionProps, 'theme'>> &
   Pick<IPeoplePickerItemSuggestionProps, 'className'> & {};
 
-/** Represents the stylable areas of the PeoplePickerItemSuggestion. */
+/**
+ * Represents the stylable areas of the PeoplePickerItemSuggestion.
+ * {@docCategory PeoplePicker}
+ */
 export interface IPeoplePickerItemSuggestionStyles {
   /** Root container element of a suggested PeoplePicker item. */
   root: IStyle;
 
   /** Refers to the element wrapping the Persona of the suggested PeoplePicker item. */
   personaWrapper: IStyle;
+
+  /** SubComponent (Persona, PersonaCoin) styles. */
+  subComponentStyles: IPeoplePickerItemSelectedSubComponentStyles;
 }
 
 /**
  * PeoplePickerItemWithMenu props interface.
  * @deprecated Do not use. Will be removed in Fabric 7.0
  */
+// tslint:disable-next-line:deprecation
 export interface IPeoplePickerItemWithMenuProps extends IPickerItemProps<IPersonaWithMenu> {}
 
 /**

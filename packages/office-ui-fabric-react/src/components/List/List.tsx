@@ -1,16 +1,28 @@
 import * as React from 'react';
 import {
-  BaseComponent,
+  Async,
+  EventGroup,
   IRectangle,
+  IRenderFunction,
   css,
+  divProperties,
   findIndex,
   findScrollableParent,
-  getParent,
-  divProperties,
   getNativeProps,
-  IRenderFunction
+  getParent,
+  getWindow,
+  initializeComponentRef,
 } from '../../Utilities';
-import { IList, IListProps, IPage, IPageProps, ScrollToMode } from './List.types';
+import {
+  IList,
+  IListProps,
+  IPage,
+  IPageProps,
+  ScrollToMode,
+  IListOnRenderSurfaceProps,
+  IListOnRenderRootProps,
+} from './List.types';
+import { composeRenderFunction } from '../../Utilities';
 
 const RESIZE_DELAY = 16;
 const MIN_SCROLL_UPDATE_DELAY = 100;
@@ -25,21 +37,21 @@ const DEFAULT_RENDERED_WINDOWS_AHEAD = 2;
 const PAGE_KEY_PREFIX = 'page-';
 const SPACER_KEY_PREFIX = 'spacer-';
 
-export interface IListState {
-  pages?: IPage[];
+export interface IListState<T = any> {
+  pages?: IPage<T>[];
 
   /** The last versionstamp for  */
   measureVersion?: number;
   isScrolling?: boolean;
 }
 
-interface IPageCacheItem {
-  page: IPage;
+interface IPageCacheItem<T> {
+  page: IPage<T>;
   pageElement?: JSX.Element;
 }
 
-interface IPageCache {
-  [key: string]: IPageCacheItem;
+interface IPageCache<T> {
+  [key: string]: IPageCacheItem<T>;
 }
 
 const EMPTY_RECT = {
@@ -48,7 +60,7 @@ const EMPTY_RECT = {
   left: -1,
   right: -1,
   width: 0,
-  height: 0
+  height: 0,
 };
 
 // Naming expensive measures so that they're named in profiles.
@@ -57,9 +69,9 @@ const _measureSurfaceRect = _measurePageRect;
 const _measureScrollRect = _measurePageRect;
 
 /**
- * The List renders virtualized pages of items. Each page's item count is determined by the getItemCountForPage callback if
- * provided by the caller, or 10 as default. Each page's height is determined by the getPageHeight callback if provided by
- * the caller, or by cached measurements if available, or by a running average, or a default fallback.
+ * The List renders virtualized pages of items. Each page's item count is determined by the getItemCountForPage callback
+ * if provided by the caller, or 10 as default. Each page's height is determined by the getPageHeight callback if
+ * provided by the caller, or by cached measurements if available, or by a running average, or a default fallback.
  *
  * The algorithm for rendering pages works like this:
  *
@@ -72,19 +84,19 @@ const _measureScrollRect = _measurePageRect;
  * we can avoid re-measuring during operations that should not alter heights, like scrolling.
  *
  * To optimize glass rendering performance, onShouldVirtualize can be set. When onShouldVirtualize return false,
- * List will run in fast mode (not virtualized) to render all items without any measurements to improve page load time. And we
- * start doing measurements and rendering in virtualized mode when items grows larger than this threshold.
+ * List will run in fast mode (not virtualized) to render all items without any measurements to improve page load time.
+ * And we start doing measurements and rendering in virtualized mode when items grows larger than this threshold.
  *
  * However, certain operations can make measure data stale. For example, resizing the list, or passing in new props,
  * or forcing an update change cause pages to shrink/grow. When these operations occur, we increment a measureVersion
  * number, which we associate with cached measurements and use to determine if a remeasure should occur.
  */
-export class List extends BaseComponent<IListProps, IListState> implements IList {
+export class List<T = any> extends React.Component<IListProps<T>, IListState<T>> implements IList {
   public static defaultProps = {
     startIndex: 0,
-    onRenderCell: (item: any, index: number, containsFocus: boolean) => <div>{(item && item.name) || ''}</div>,
+    onRenderCell: (item: any, index: number, containsFocus: boolean) => <>{(item && item.name) || ''}</>,
     renderedWindowsAhead: DEFAULT_RENDERED_WINDOWS_AHEAD,
-    renderedWindowsBehind: DEFAULT_RENDERED_WINDOWS_BEHIND
+    renderedWindowsBehind: DEFAULT_RENDERED_WINDOWS_BEHIND,
   };
 
   public refs: {
@@ -93,8 +105,8 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
 
   private _root = React.createRef<HTMLDivElement>();
   private _surface = React.createRef<HTMLDivElement>();
-  private _pageRefs: { [pageKey: string]: React.RefObject<HTMLDivElement> };
-
+  private _async: Async;
+  private _events: EventGroup;
   private _estimatedPageHeight: number;
   private _totalEstimates: number;
   private _cachedPageHeights: {
@@ -108,13 +120,16 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
   private _hasCompletedFirstRender: boolean;
 
   // surface rect relative to window
-  private _surfaceRect: IRectangle;
+  private _surfaceRect: IRectangle | undefined;
 
   // The visible rect that we're required to render given the current list state.
   private _requiredRect: IRectangle | null;
 
   // The visible rect that we're allowed to keep rendered. Pages outside of this rect will be removed.
   private _allowedRect: IRectangle;
+
+  // The rect that is visible to the user
+  private _visibleRect: IRectangle | undefined;
 
   // materialized rect around visible items, relative to surface
   private _materializedRect: IRectangle | null;
@@ -125,16 +140,20 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
   private _measureVersion: number;
   private _scrollHeight: number;
   private _scrollTop: number;
-  private _pageCache: IPageCache;
+  private _pageCache: IPageCache<T>;
 
-  constructor(props: IListProps) {
+  constructor(props: IListProps<T>) {
     super(props);
+
+    initializeComponentRef(this);
 
     this.state = {
       pages: [],
-      isScrolling: false
+      isScrolling: false,
     };
 
+    this._async = new Async(this);
+    this._events = new EventGroup(this);
     this._estimatedPageHeight = 0;
     this._totalEstimates = 0;
     this._requiredWindowsAhead = 0;
@@ -146,22 +165,21 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     // Ensure that scrolls are lazy updated.
     this._onAsyncScroll = this._async.debounce(this._onAsyncScroll, MIN_SCROLL_UPDATE_DELAY, {
       leading: false,
-      maxWait: MAX_SCROLL_UPDATE_DELAY
+      maxWait: MAX_SCROLL_UPDATE_DELAY,
     });
 
     this._onAsyncIdle = this._async.debounce(this._onAsyncIdle, IDLE_DEBOUNCE_DELAY, {
-      leading: false
+      leading: false,
     });
 
     this._onAsyncResize = this._async.debounce(this._onAsyncResize, RESIZE_DELAY, {
-      leading: false
+      leading: false,
     });
 
     this._onScrollingDone = this._async.debounce(this._onScrollingDone, DONE_SCROLLING_WAIT, {
-      leading: false
+      leading: false,
     });
 
-    this._pageRefs = {};
     this._cachedPageHeights = {};
     this._estimatedPageHeight = 0;
     this._focusedIndex = -1;
@@ -179,7 +197,11 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
    * @param measureItem - Optional callback to measure the height of an individual item
    * @param scrollToMode - Optional defines where in the window the item should be positioned to when scrolling
    */
-  public scrollToIndex(index: number, measureItem?: (itemIndex: number) => number, scrollToMode: ScrollToMode = ScrollToMode.auto): void {
+  public scrollToIndex(
+    index: number,
+    measureItem?: (itemIndex: number) => number,
+    scrollToMode: ScrollToMode = ScrollToMode.auto,
+  ): void {
     const startIndex = this.props.startIndex as number;
     const renderCount = this._getRenderCount();
     const endIndex = startIndex + renderCount;
@@ -197,13 +219,13 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
 
       const requestedIndexIsInPage = itemIndex <= index && itemIndex + itemsPerPage > index;
       if (requestedIndexIsInPage) {
-        // We have found the page. If the user provided a way to measure an individual item, we will try to scroll in just
-        // the given item, otherwise we'll only bring the page into view
-        if (measureItem) {
+        // We have found the page. If the user provided a way to measure an individual item, we will try to scroll in
+        // just the given item, otherwise we'll only bring the page into view
+        if (measureItem && this._scrollElement) {
           const scrollRect = _measureScrollRect(this._scrollElement);
           const scrollWindow = {
             top: this._scrollElement.scrollTop,
-            bottom: this._scrollElement.scrollTop + scrollRect.height
+            bottom: this._scrollElement.scrollTop + scrollRect.height,
           };
 
           // Adjust for actual item position within page
@@ -270,7 +292,8 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
   public getStartItemIndexInView(measureItem?: (itemIndex: number) => number): number {
     const pages = this.state.pages || [];
     for (const page of pages) {
-      const isPageVisible = !page.isSpacer && (this._scrollTop || 0) >= page.top && (this._scrollTop || 0) <= page.top + page.height;
+      const isPageVisible =
+        !page.isSpacer && (this._scrollTop || 0) >= page.top && (this._scrollTop || 0) <= page.top + page.height;
       if (isPageVisible) {
         if (!measureItem) {
           const rowHeight = Math.floor(page.height / page.itemCount);
@@ -279,7 +302,10 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
           let totalRowHeight = 0;
           for (let itemIndex = page.startIndex; itemIndex < page.startIndex + page.itemCount; itemIndex++) {
             const rowHeight = measureItem(itemIndex);
-            if (page.top + totalRowHeight <= this._scrollTop && this._scrollTop < page.top + totalRowHeight + rowHeight) {
+            if (
+              page.top + totalRowHeight <= this._scrollTop &&
+              this._scrollTop < page.top + totalRowHeight + rowHeight
+            ) {
               return itemIndex;
             } else {
               totalRowHeight += rowHeight;
@@ -306,11 +332,20 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     }
   }
 
-  public componentWillReceiveProps(newProps: IListProps): void {
+  public componentWillUnmount(): void {
+    this._async.dispose();
+    this._events.dispose();
+
+    delete this._scrollElement;
+  }
+
+  // tslint:disable-next-line function-name
+  public UNSAFE_componentWillReceiveProps(newProps: IListProps<T>): void {
     if (
       newProps.items !== this.props.items ||
       newProps.renderCount !== this.props.renderCount ||
-      newProps.startIndex !== this.props.startIndex
+      newProps.startIndex !== this.props.startIndex ||
+      newProps.version !== this.props.version
     ) {
       // We have received new items so we want to make sure that initially we only render a single window to
       // fill the currently visible rect, and then later render additional windows.
@@ -323,13 +358,17 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     }
   }
 
-  public shouldComponentUpdate(newProps: IListProps, newState: IListState): boolean {
+  public shouldComponentUpdate(newProps: IListProps<T>, newState: IListState<T>): boolean {
     const { pages: oldPages } = this.state;
     const { pages: newPages } = newState;
     let shouldComponentUpdate = false;
 
     // Update if the page stops scrolling
     if (!newState.isScrolling && this.state.isScrolling) {
+      return true;
+    }
+
+    if (newProps.version !== this.props.version) {
       return true;
     }
 
@@ -360,26 +399,52 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     super.forceUpdate();
   }
 
-  public render(): JSX.Element {
-    const { className, role } = this.props;
+  /**
+   * Get the current height the list and it's pages.
+   */
+  public getTotalListHeight(): number {
+    return this._surfaceRect!.height;
+  }
+
+  public render(): JSX.Element | null {
+    const { className, role = 'list', onRenderSurface, onRenderRoot } = this.props;
     const { pages = [] } = this.state;
     const pageElements: JSX.Element[] = [];
-    const divProps = getNativeProps(this.props, divProperties);
+    const divProps = getNativeProps<React.HTMLAttributes<HTMLDivElement>>(this.props, divProperties);
 
     for (const page of pages) {
       pageElements.push(this._renderPage(page));
     }
 
-    return (
-      <div ref={this._root} {...divProps} role={role === undefined ? 'list' : role} className={css('ms-List', className)}>
-        <div ref={this._surface} className={css('ms-List-surface')} role="presentation">
-          {pageElements}
-        </div>
-      </div>
-    );
+    const finalOnRenderSurface = onRenderSurface
+      ? composeRenderFunction(onRenderSurface, this._onRenderSurface)
+      : this._onRenderSurface;
+
+    const finalOnRenderRoot = onRenderRoot
+      ? composeRenderFunction(onRenderRoot, this._onRenderRoot)
+      : this._onRenderRoot;
+
+    return finalOnRenderRoot({
+      rootRef: this._root,
+      pages,
+      surfaceElement: finalOnRenderSurface({
+        surfaceRef: this._surface,
+        pages,
+        pageElements,
+        divProps: {
+          role: 'presentation',
+          className: 'ms-List-surface',
+        },
+      }),
+      divProps: {
+        ...divProps,
+        className: css('ms-List', className),
+        role: pageElements.length > 0 ? role : undefined,
+      },
+    });
   }
 
-  private _shouldVirtualize(props: IListProps = this.props): boolean {
+  private _shouldVirtualize(props: IListProps<T> = this.props): boolean {
     const { onShouldVirtualize } = props;
     return !onShouldVirtualize || onShouldVirtualize(props);
   }
@@ -391,7 +456,7 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     this._pageCache = {};
   }
 
-  private _renderPage(page: IPage): JSX.Element {
+  private _renderPage(page: IPage<T>): JSX.Element {
     const { usePageCache } = this.props;
     let cachedPage;
     // if usePageCache is set and cached page element can be found, just return cached page
@@ -406,18 +471,16 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
 
     const { onRenderPage = this._onRenderPage } = this.props;
 
-    this._pageRefs[page.key] = this._pageRefs[page.key] || React.createRef();
-
     const pageElement = onRenderPage(
       {
         page: page,
-        className: css('ms-List-page'),
+        className: 'ms-List-page',
         key: page.key,
-        ref: this._pageRefs[page.key],
+        ref: page.key,
         style: pageStyle,
-        role: 'presentation'
+        role: 'presentation',
       },
-      this._onRenderPage
+      this._onRenderPage,
     );
 
     // cache the first page for now since it is re-rendered a lot times unnecessarily.
@@ -427,52 +490,81 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     if (usePageCache && page.startIndex === 0) {
       this._pageCache[page.key] = {
         page: page,
-        pageElement: pageElement
+        pageElement: pageElement,
       };
     }
     return pageElement;
   }
 
+  private _onRenderRoot = (props: IListOnRenderRootProps<T>): JSX.Element => {
+    const { rootRef, surfaceElement, divProps } = props;
+
+    return (
+      <div ref={rootRef} {...divProps}>
+        {surfaceElement}
+      </div>
+    );
+  };
+
+  private _onRenderSurface = (props: IListOnRenderSurfaceProps<T>): JSX.Element => {
+    const { surfaceRef, pageElements, divProps } = props;
+
+    return (
+      <div ref={surfaceRef} {...divProps}>
+        {pageElements}
+      </div>
+    );
+  };
+
   /** Generate the style object for the page. */
-  private _getPageStyle(page: IPage): React.StyleHTMLAttributes<HTMLDivElement> {
+  private _getPageStyle(page: IPage<T>): React.StyleHTMLAttributes<HTMLDivElement> {
     const { getPageStyle } = this.props;
 
     return {
       ...(getPageStyle ? getPageStyle(page) : {}),
       ...(!page.items
         ? {
-            height: page.height
+            height: page.height,
           }
-        : {})
+        : {}),
     };
   }
 
-  private _onRenderPage = (pageProps: IPageProps, defaultRender?: IRenderFunction<IPageProps>): any => {
+  private _onRenderPage = (pageProps: IPageProps<T>, defaultRender?: IRenderFunction<IPageProps<T>>): any => {
     const { onRenderCell, role } = this.props;
 
     const {
-      page: { items, startIndex },
+      page: { items = [], startIndex },
       ...divProps
     } = pageProps;
 
     // only assign list item role if no role is assigned
     const cellRole = role === undefined ? 'listitem' : 'presentation';
+    const cells: React.ReactNode[] = [];
 
-    const cells = (items || []).map((item: any, offset: number) => {
-      const index = startIndex + offset;
+    for (let i = 0; i < items.length; i++) {
+      const index = startIndex + i;
+      const item = items[i];
 
-      let itemKey = this.props.getKey ? this.props.getKey(item, index) : item && item.key;
+      let itemKey = this.props.getKey ? this.props.getKey(item, index) : item && (item as any).key;
 
       if (itemKey === null || itemKey === undefined) {
         itemKey = index;
       }
 
-      return (
-        <div role={cellRole} className={css('ms-List-cell')} key={itemKey} data-list-index={index} data-automationid="ListCell">
-          {onRenderCell && onRenderCell(item, index, this.state.isScrolling)}
-        </div>
+      cells.push(
+        <div
+          role={cellRole}
+          className={'ms-List-cell'}
+          key={itemKey}
+          data-list-index={index}
+          data-automationid="ListCell"
+        >
+          {onRenderCell &&
+            onRenderCell(item, index, !this.props.ignoreScrollingState ? this.state.isScrolling : undefined)}
+        </div>,
       );
-    });
+    }
 
     return <div {...divProps}>{cells}</div>;
   };
@@ -498,7 +590,7 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
    * we will call onAsyncIdle which will reset it back to it's correct value.
    */
   private _onScroll(): void {
-    if (!this.state.isScrolling) {
+    if (!this.state.isScrolling && !this.props.ignoreScrollingState) {
       this.setState({ isScrolling: true });
     }
     this._resetRequiredWindows();
@@ -554,14 +646,16 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
    * This function is debounced.
    */
   private _onScrollingDone(): void {
-    this.setState({ isScrolling: false });
+    if (!this.props.ignoreScrollingState) {
+      this.setState({ isScrolling: false });
+    }
   }
 
   private _onAsyncResize(): void {
     this.forceUpdate();
   }
 
-  private _updatePages(props: IListProps = this.props): void {
+  private _updatePages(props: IListProps<T> = this.props): void {
     // console.log('updating pages');
 
     if (!this._requiredRect) {
@@ -574,17 +668,22 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     this._notifyPageChanges(oldListPages, newListState.pages!);
 
     this.setState(newListState, () => {
+      // Multiple updates may have been queued, so the callback will reflect all of them.
+      // Re-fetch the current props and states to avoid using a stale props or state captured in the closure.
+      const finalProps = this.props;
+      const finalState = this.state;
+
       // If we weren't provided with the page height, measure the pages
-      if (!props.getPageHeight) {
+      if (!finalProps.getPageHeight) {
         // If measured version is invalid since we've updated the DOM
-        const heightsChanged = this._updatePageMeasurements(newListState.pages!);
+        const heightsChanged = this._updatePageMeasurements(finalState.pages!);
 
         // On first render, we should re-measure so that we don't get a visual glitch.
         if (heightsChanged) {
           this._materializedRect = null;
           if (!this._hasCompletedFirstRender) {
             this._hasCompletedFirstRender = true;
-            this._updatePages(props);
+            this._updatePages(finalProps);
           } else {
             this._onAsyncScroll();
           }
@@ -598,8 +697,8 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
       }
 
       // Notify the caller that rendering the new pages has completed
-      if (props.onPagesUpdated) {
-        props.onPagesUpdated(this.state.pages as IPage[]);
+      if (finalProps.onPagesUpdated) {
+        finalProps.onPagesUpdated(finalState.pages as IPage<T>[]);
       }
     });
   }
@@ -610,12 +709,12 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
    * @param newPages - The new pages
    * @param props - The props to use
    */
-  private _notifyPageChanges(oldPages: IPage[], newPages: IPage[], props: IListProps = this.props): void {
+  private _notifyPageChanges(oldPages: IPage<T>[], newPages: IPage<T>[], props: IListProps<T> = this.props): void {
     const { onPageAdded, onPageRemoved } = props;
 
     if (onPageAdded || onPageRemoved) {
       const renderedIndexes: {
-        [index: number]: IPage;
+        [index: number]: IPage<T>;
       } = {};
 
       for (const page of oldPages) {
@@ -642,7 +741,7 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     }
   }
 
-  private _updatePageMeasurements(pages: IPage[]): boolean {
+  private _updatePageMeasurements(pages: IPage<T>[]): boolean {
     let heightChanged = false;
 
     // when not in virtualize mode, we render all the items without page measurement
@@ -665,17 +764,21 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
    * Given a page, measure its dimensions, update cache.
    * @returns True if the height has changed.
    */
-  private _measurePage(page: IPage): boolean {
+  private _measurePage(page: IPage<T>): boolean {
     let hasChangedHeight = false;
-    const pageElement = this._pageRefs[page.key].current;
+    const pageElement = this.refs[page.key] as HTMLElement;
     const cachedHeight = this._cachedPageHeights[page.startIndex];
 
     // console.log('   * measure attempt', page.startIndex, cachedHeight);
 
-    if (pageElement && this._shouldVirtualize() && (!cachedHeight || cachedHeight.measureVersion !== this._measureVersion)) {
+    if (
+      pageElement &&
+      this._shouldVirtualize() &&
+      (!cachedHeight || cachedHeight.measureVersion !== this._measureVersion)
+    ) {
       const newClientRect = {
         width: pageElement.clientWidth,
-        height: pageElement.clientHeight
+        height: pageElement.clientHeight,
       };
 
       if (newClientRect.height || newClientRect.width) {
@@ -687,11 +790,11 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
 
         this._cachedPageHeights[page.startIndex] = {
           height: newClientRect.height,
-          measureVersion: this._measureVersion
+          measureVersion: this._measureVersion,
         };
 
         this._estimatedPageHeight = Math.round(
-          (this._estimatedPageHeight * this._totalEstimates + newClientRect.height) / (this._totalEstimates + 1)
+          (this._estimatedPageHeight * this._totalEstimates + newClientRect.height) / (this._totalEstimates + 1),
         );
 
         this._totalEstimates++;
@@ -702,7 +805,7 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
   }
 
   /** Called when a page has been added to the DOM. */
-  private _onPageAdded(page: IPage): void {
+  private _onPageAdded(page: IPage<T>): void {
     const { onPageAdded } = this.props;
 
     // console.log('page added', page.startIndex, this.state.pages.map(page => page.key).join(', '));
@@ -713,7 +816,7 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
   }
 
   /** Called when a page has been removed from the DOM. */
-  private _onPageRemoved(page: IPage): void {
+  private _onPageRemoved(page: IPage<T>): void {
     const { onPageRemoved } = this.props;
 
     // console.log('  --- page removed', page.startIndex, this.state.pages.map(page => page.key).join(', '));
@@ -724,14 +827,14 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
   }
 
   /** Build up the pages that should be rendered. */
-  private _buildPages(props: IListProps): IListState {
+  private _buildPages(props: IListProps<T>): IListState<T> {
     let { renderCount } = props;
     const { items, startIndex, getPageHeight } = props;
 
     renderCount = this._getRenderCount(props);
 
     const materializedRect = { ...EMPTY_RECT };
-    const pages: IPage[] = [];
+    const pages: IPage<T>[] = [];
 
     let itemsPerPage = 1;
     let pageTop = 0;
@@ -757,11 +860,14 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
 
       const pageBottom = pageTop + pageHeight - 1;
 
-      const isPageRendered = findIndex(this.state.pages as IPage[], (page: IPage) => !!page.items && page.startIndex === itemIndex) > -1;
+      const isPageRendered =
+        findIndex(this.state.pages as IPage<T>[], (page: IPage<T>) => !!page.items && page.startIndex === itemIndex) >
+        -1;
       const isPageInAllowedRange = !allowedRect || (pageBottom >= allowedRect.top && pageTop <= allowedRect.bottom!);
       const isPageInRequiredRange =
-        !this._requiredRect || (pageBottom >= this._requiredRect!.top && pageTop <= this._requiredRect!.bottom!);
-      const isPageVisible = (!isFirstRender && (isPageInRequiredRange || (isPageInAllowedRange && isPageRendered))) || !shouldVirtualize;
+        !this._requiredRect || (pageBottom >= this._requiredRect.top && pageTop <= this._requiredRect.bottom!);
+      const isPageVisible =
+        (!isFirstRender && (isPageInRequiredRange || (isPageInAllowedRange && isPageRendered))) || !shouldVirtualize;
       const isPageFocused = focusedIndex >= itemIndex && focusedIndex < itemIndex + itemsPerPage;
       const isFirstPage = itemIndex === startIndex;
 
@@ -777,10 +883,20 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
         }
 
         const itemsInPage = Math.min(itemsPerPage, endIndex - itemIndex);
-        const newPage = this._createPage(key, items!.slice(itemIndex, itemIndex + itemsInPage), itemIndex, undefined, undefined, pageData);
+        const newPage = this._createPage(
+          key,
+          items!.slice(itemIndex, itemIndex + itemsInPage),
+          itemIndex,
+          undefined,
+          undefined,
+          pageData,
+        );
 
         newPage.top = pageTop;
         newPage.height = pageHeight;
+        if (this._visibleRect && this._visibleRect.bottom) {
+          newPage.isVisible = pageBottom >= this._visibleRect.top && pageTop <= this._visibleRect.bottom;
+        }
 
         pages.push(newPage);
 
@@ -791,12 +907,20 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
             height: pageHeight,
             left: allowedRect.left,
             right: allowedRect.right,
-            width: allowedRect.width
+            width: allowedRect.width,
           });
         }
       } else {
         if (!currentSpacer) {
-          currentSpacer = this._createPage(SPACER_KEY_PREFIX + itemIndex, undefined, itemIndex, 0, undefined, pageData, true /*isSpacer*/);
+          currentSpacer = this._createPage(
+            SPACER_KEY_PREFIX + itemIndex,
+            undefined,
+            itemIndex,
+            0,
+            undefined,
+            pageData,
+            true /*isSpacer*/,
+          );
         }
         currentSpacer.height = (currentSpacer.height || 0) + (pageBottom - pageTop) + 1;
         currentSpacer.itemCount += itemsPerPage;
@@ -820,13 +944,13 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     // console.log('materialized: ', materializedRect);
     return {
       pages: pages,
-      measureVersion: this._measureVersion
+      measureVersion: this._measureVersion,
     };
   }
 
   private _getPageSpecification(
     itemIndex: number,
-    visibleRect: IRectangle
+    visibleRect: IRectangle,
   ): {
     // These return values are now no longer optional.
     itemCount: number;
@@ -840,20 +964,20 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
 
       const { itemCount = this._getItemCountForPage(itemIndex, visibleRect) } = pageData;
 
-      const { height = this._getPageHeight(itemIndex, itemCount, visibleRect) } = pageData;
+      const { height = this._getPageHeight(itemIndex, visibleRect, itemCount) } = pageData;
 
       return {
         itemCount: itemCount,
         height: height,
         data: pageData.data,
-        key: pageData.key
+        key: pageData.key,
       };
     } else {
       const itemCount = this._getItemCountForPage(itemIndex, visibleRect);
 
       return {
         itemCount: itemCount,
-        height: this._getPageHeight(itemIndex, itemCount, visibleRect)
+        height: this._getPageHeight(itemIndex, visibleRect, itemCount),
       };
     }
   }
@@ -862,9 +986,9 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
    * Get the pixel height of a give page. Will use the props getPageHeight first, and if not provided, fallback to
    * cached height, or estimated page height, or default page height.
    */
-  private _getPageHeight(itemIndex: number, itemsPerPage: number, visibleRect: IRectangle): number {
+  private _getPageHeight(itemIndex: number, visibleRect: IRectangle, itemsPerPage: number): number {
     if (this.props.getPageHeight) {
-      return this.props.getPageHeight(itemIndex, visibleRect);
+      return this.props.getPageHeight(itemIndex, visibleRect, itemsPerPage);
     } else {
       const cachedHeight = this._cachedPageHeights[itemIndex];
 
@@ -873,7 +997,9 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
   }
 
   private _getItemCountForPage(itemIndex: number, visibileRect: IRectangle): number {
-    const itemsPerPage = this.props.getItemCountForPage ? this.props.getItemCountForPage(itemIndex, visibileRect) : DEFAULT_ITEMS_PER_PAGE;
+    const itemsPerPage = this.props.getItemCountForPage
+      ? this.props.getItemCountForPage(itemIndex, visibileRect)
+      : DEFAULT_ITEMS_PER_PAGE;
 
     return itemsPerPage ? itemsPerPage : DEFAULT_ITEMS_PER_PAGE;
   }
@@ -883,21 +1009,14 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     items: any[] | undefined,
     startIndex: number = -1,
     count: number = items ? items.length : 0,
-    style: any = {},
-    data: any = undefined,
-    isSpacer?: boolean
-  ): IPage {
+    style: React.CSSProperties = {},
+    data?: any,
+    isSpacer?: boolean,
+  ): IPage<T> {
     pageKey = pageKey || PAGE_KEY_PREFIX + startIndex;
     const cachedPage = this._pageCache[pageKey];
     if (cachedPage && cachedPage.page) {
       return cachedPage.page;
-    }
-
-    // Fill undefined cells because array.map will ignore undefined cells.
-    if (items) {
-      for (let i = 0; i < items.length; i++) {
-        items[i] = items[i] || undefined;
-      }
     }
 
     return {
@@ -905,22 +1024,22 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
       startIndex: startIndex,
       itemCount: count,
       items: items,
-      style: style || {},
+      style: style,
       top: 0,
       height: 0,
       data: data,
-      isSpacer: isSpacer || false
+      isSpacer: isSpacer || false,
     };
   }
 
-  private _getRenderCount(props?: IListProps): number {
+  private _getRenderCount(props?: IListProps<T>): number {
     const { items, startIndex, renderCount } = props || this.props;
 
     return renderCount === undefined ? (items ? items.length - startIndex! : 0) : renderCount;
   }
 
   /** Calculate the visible rect within the list where top: 0 and left: 0 is the top/left of the list. */
-  private _updateRenderRects(props?: IListProps, forceUpdate?: boolean): void {
+  private _updateRenderRects(props?: IListProps<T>, forceUpdate?: boolean): void {
     props = props || this.props;
     const { renderedWindowsAhead, renderedWindowsBehind } = props;
     const { pages } = this.state;
@@ -929,7 +1048,7 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
       return;
     }
 
-    let surfaceRect = this._surfaceRect;
+    let surfaceRect = this._surfaceRect || { ...EMPTY_RECT };
     const scrollHeight = this._scrollElement && this._scrollElement.scrollHeight;
     const scrollTop = this._scrollElement ? this._scrollElement.scrollTop : 0;
 
@@ -962,18 +1081,22 @@ export class List extends BaseComponent<IListProps, IListState> implements IList
     // The first time the list gets rendered we need to calculate the rectangle. The width of the list is
     // used to calculate the width of the list items.
     const visibleTop = Math.max(0, -surfaceRect.top);
+    const win = getWindow(this._root.current);
     const visibleRect = {
       top: visibleTop,
       left: surfaceRect.left,
-      bottom: visibleTop + window.innerHeight,
+      bottom: visibleTop + win!.innerHeight,
       right: surfaceRect.right,
       width: surfaceRect.width,
-      height: window.innerHeight
+      height: win!.innerHeight,
     };
 
     // The required/allowed rects are adjusted versions of the visible rect.
     this._requiredRect = _expandRect(visibleRect, this._requiredWindowsBehind, this._requiredWindowsAhead);
     this._allowedRect = _expandRect(visibleRect, renderedWindowsBehind!, renderedWindowsAhead!);
+
+    // store the visible rect for later use.
+    this._visibleRect = visibleRect;
   }
 }
 
@@ -987,7 +1110,7 @@ function _expandRect(rect: IRectangle, pagesBefore: number, pagesAfter: number):
     height: height,
     left: rect.left,
     right: rect.right,
-    width: rect.width
+    width: rect.width,
   };
 }
 
@@ -1003,7 +1126,8 @@ function _isContainedWithin(innerRect: IRectangle, outerRect: IRectangle): boole
 function _mergeRect(targetRect: IRectangle, newRect: IRectangle): IRectangle {
   targetRect.top = newRect.top < targetRect.top || targetRect.top === -1 ? newRect.top : targetRect.top;
   targetRect.left = newRect.left < targetRect.left || targetRect.left === -1 ? newRect.left : targetRect.left;
-  targetRect.bottom = newRect.bottom! > targetRect.bottom! || targetRect.bottom === -1 ? newRect.bottom : targetRect.bottom;
+  targetRect.bottom =
+    newRect.bottom! > targetRect.bottom! || targetRect.bottom === -1 ? newRect.bottom : targetRect.bottom;
   targetRect.right = newRect.right! > targetRect.right! || targetRect.right === -1 ? newRect.right : targetRect.right;
   targetRect.width = targetRect.right! - targetRect.left + 1;
   targetRect.height = targetRect.bottom! - targetRect.top + 1;

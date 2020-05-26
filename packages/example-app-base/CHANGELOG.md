@@ -1,6 +1,676 @@
 # Change Log - @uifabric/example-app-base
 
-This log was last generated on Mon, 28 Jan 2019 13:35:27 GMT and should not be manually modified.
+This log was last generated on Mon, 25 May 2020 12:38:22 GMT and should not be manually modified.
+
+<!-- Start content -->
+
+## [7.12.68](https://github.com/microsoft/fluentui/tree/@uifabric/example-app-base_v7.12.68)
+
+Mon, 25 May 2020 12:38:22 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/example-app-base_v7.12.64..@uifabric/example-app-base_v7.12.68)
+
+### Patches
+
+- Fixed minor typos ([PR #13246](https://github.com/microsoft/fluentui/pull/13246) by xia_tony@hotmail.com)
+
+## [7.12.64](https://github.com/microsoft/fluentui/tree/@uifabric/example-app-base_v7.12.64)
+
+Mon, 18 May 2020 16:49:49 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/example-app-base_v7.12.59..@uifabric/example-app-base_v7.12.64)
+
+### Patches
+
+- Fix demo app ([PR #13204](https://github.com/microsoft/fluentui/pull/13204) by elcraig@microsoft.com)
+
+## [7.12.59](https://github.com/microsoft/fluentui/tree/@uifabric/example-app-base_v7.12.59)
+
+Fri, 15 May 2020 00:07:39 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/example-app-base_v7.12.52..@uifabric/example-app-base_v7.12.59)
+
+### Patches
+
+- cleaned up platform switcher, made room for windows button ([PR #12482](https://github.com/microsoft/fluentui/pull/12482) by mgodbolt@microsoft.com)
+
+## [7.12.52](https://github.com/microsoft/fluentui/tree/@uifabric/example-app-base_v7.12.52)
+
+Thu, 07 May 2020 01:06:55 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/example-app-base_v7.12.46..@uifabric/example-app-base_v7.12.52)
+
+### Patches
+
+- Addressing commonjs imports. ([PR #13031](https://github.com/microsoft/fluentui/pull/13031) by dzearing@microsoft.com)
+
+## [7.12.46](https://github.com/microsoft/fluentui/tree/@uifabric/example-app-base_v7.12.46)
+
+Wed, 29 Apr 2020 12:34:58 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/example-app-base_v7.12.39..@uifabric/example-app-base_v7.12.46)
+
+### Patches
+
+- update MessageBar colors ([PR #12821](https://github.com/microsoft/fluentui/pull/12821) by chrismo@microsoft.com)
+
+## [7.12.39](https://github.com/microsoft/fluentui/tree/@uifabric/example-app-base_v7.12.39)
+
+Mon, 20 Apr 2020 15:55:12 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/example-app-base_v7.12.38..@uifabric/example-app-base_v7.12.39)
+
+### Patches
+
+- guard against window and location not being available ([PR #12769](https://github.com/microsoft/fluentui/pull/12769) by mgodbolt@microsoft.com)
+
+## [7.12.38](https://github.com/microsoft/fluentui/tree/@uifabric/example-app-base_v7.12.38)
+
+Sun, 19 Apr 2020 02:02:09 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/example-app-base_v7.12.34..@uifabric/example-app-base_v7.12.38)
+
+### Patches
+
+- Doc site: disable live code editing until we have a fix for the OOM errors. ([PR #12776](https://github.com/microsoft/fluentui/pull/12776) by dzearing@microsoft.com)
+
+## [7.12.34](https://github.com/microsoft/fluentui/tree/@uifabric/example-app-base_v7.12.34)
+
+Thu, 16 Apr 2020 04:01:45 GMT 
+[Compare changes](https://github.com/microsoft/fluentui/compare/@uifabric/example-app-base_v7.12.32..@uifabric/example-app-base_v7.12.34)
+
+### Patches
+
+- Readme: Recommend Storybook instead; Fabric=>Fluent wording updates ([PR #12508](https://github.com/microsoft/fluentui/pull/12508) by elcraig@microsoft.com)
+
+## 7.12.24
+Wed, 25 Mar 2020 12:30:04 GMT
+
+### Patches
+
+- Changing references of Fabric to Fluent (mgodbolt@microsoft.com)
+## 7.12.23
+Mon, 23 Mar 2020 12:28:29 GMT
+
+### Patches
+
+- Replace OfficeDev/office-ui-fabric-react with microsoft/fluentui (elcraig@microsoft.com)
+## 7.12.18
+Fri, 13 Mar 2020 12:30:22 GMT
+
+### Patches
+
+- new blog announcement, support jsx in message bar, move hig link (mgodbolt@microsoft.com)
+## 7.12.17
+Thu, 12 Mar 2020 12:35:00 GMT
+
+### Patches
+
+- use ms-Fabric--isFocusVisible instead of .is-focusVisible (xgao@microsoft.com)
+## 7.12.0
+Wed, 12 Feb 2020 12:24:27 GMT
+
+### Minor changes
+
+- Replacing deprecated StatelessComponent references with FunctionComponent. (Humberto.Morimoto@microsoft.com)
+## 7.11.5
+Thu, 23 Jan 2020 12:32:26 GMT
+
+### Patches
+
+- Fix export to codepen for fabric 7 (#9450) (xgao@microsoft.com)
+## 7.11.3
+Fri, 17 Jan 2020 02:32:17 GMT
+
+### Patches
+
+- Update tslib minver to first version containing __spreadArrays helper due to changes in how TS emits spreads. (jagore@microsoft.com)
+## 7.11.2
+Thu, 16 Jan 2020 12:28:58 GMT
+
+### Patches
+
+- Upgrade repo to TS3.7. (jagore@microsoft.com)
+- Router: don't render routes without component or getComponent. Also make INavPage.url optional since categories don't have a url. (elcraig@microsoft.com)
+## 7.11.1
+Mon, 13 Jan 2020 12:28:56 GMT
+
+### Patches
+
+- Update focus properly when scrolling to anchors (elcraig@microsoft.com)
+## 7.11.0
+Wed, 08 Jan 2020 17:02:57 GMT
+
+### Minor changes
+
+- Add ExampleCard prop for custom editorSupportedPackages, and add support for ICustomizations in IAppDefinition.customizations for customizing all ExampleCards. (elcraig@microsoft.com)
+- Fix API reference generation bugs and add support for showing all tables on load (elcraig@microsoft.com)
+### Patches
+
+- bumping load-themed-styles to take advantage of es6 version of it (kchau@microsoft.com)
+## 7.10.4
+Mon, 23 Dec 2019 12:34:01 GMT
+
+### Patches
+
+- Fix Link colors inside MessageBar (elcraig@microsoft.com)
+## 7.10.3
+Fri, 13 Dec 2019 12:30:51 GMT
+
+### Patches
+
+- Add missing aria labels on example card dropdowns (elcraig@microsoft.com)
+## 7.10.2
+Thu, 28 Nov 2019 12:32:23 GMT
+
+### Patches
+
+- Update fabric core dependency in other package.json files (v-mare@microsoft.com)
+## 7.10.1
+Wed, 13 Nov 2019 12:33:43 GMT
+
+### Patches
+
+- PlatformPicker: High Contrast support (jdh@microsoft.com)
+- Fix API reference links (elcraig@microsoft.com)
+## 7.10.0
+Tue, 12 Nov 2019 12:32:39 GMT
+
+### Minor changes
+
+- API doc table refactor (elcraig@microsoft.com)
+## 7.9.0
+Wed, 06 Nov 2019 12:34:07 GMT
+
+### Minor changes
+
+- Update API doc generation to handle deprecated messages (elcraig@microsoft.com)
+## 7.8.5
+Fri, 01 Nov 2019 01:02:38 GMT
+
+### Patches
+
+- API table: render enum descriptions as multi-line (elcraig@microsoft.com)
+## 7.8.4
+Fri, 04 Oct 2019 22:19:48 GMT
+
+### Patches
+
+- Use latest tsx-editor APIs (elcraig@microsoft.com)
+## 7.8.3
+Thu, 03 Oct 2019 23:14:46 GMT
+
+### Patches
+
+- Fix a publish issue with example-app-base (odbuild@microsoft.com)
+## 7.8.1
+Thu, 03 Oct 2019 01:14:35 GMT
+
+### Patches
+
+- Editor: add accessibility props and improve preview rendering (elcraig@microsoft.com)
+## 7.8.0
+Tue, 24 Sep 2019 12:35:43 GMT
+
+### Minor changes
+
+- Export to codepen can use in-browser transform and latest edited code (elcraig@microsoft.com)
+## 7.7.0
+Fri, 13 Sep 2019 12:34:39 GMT
+
+### Minor changes
+
+- add accessibility section and add content for modal (mgodbolt@microsoft.com)
+## 7.6.4
+Wed, 04 Sep 2019 04:09:58 GMT
+
+### Patches
+
+- fix version file (kchau@microsoft.com)
+## 7.6.3
+Fri, 30 Aug 2019 12:30:57 GMT
+
+### Patches
+
+- Deprecate example data exports (use `@uifabric/example-data` instead) (elcraig@microsoft.com)
+## 7.6.2
+Mon, 26 Aug 2019 12:30:49 GMT
+
+### Patches
+
+- Move most editor-related logic to EditorWrapper (elcraig@microsoft.com)
+## 7.6.1
+Fri, 23 Aug 2019 12:35:28 GMT
+
+### Patches
+
+- Update npmignores, delete unused jest setup files (elcraig@microsoft.com)
+- Get rid of monaco-editor-webpack-plugin (elcraig@microsoft.com)
+- Fix up readme and package.json descriptions (elcraig@microsoft.com)
+
+## 7.6.0
+Thu, 15 Aug 2019 12:30:43 GMT
+
+### Minor changes
+
+- Rename deprecated React lifecycle functions to prevent development mode warnings in React 16.9. (jagore@microsoft.com)
+
+### Patches
+
+- Fix example issues from Accessibility Insights (elcraig@microsoft.com)
+
+## 7.5.1
+Tue, 13 Aug 2019 12:31:12 GMT
+
+### Patches
+
+- Updated snpashots and styles which use $ syntax. (dzearing@microsoft.com)
+
+## 7.5.0
+Mon, 12 Aug 2019 12:30:25 GMT
+
+### Minor changes
+
+- Adding import scripts check (esteban.230@hotmail.com)
+
+## 7.4.1
+Thu, 08 Aug 2019 12:32:41 GMT
+
+### Patches
+
+- getQueryParam gracefully falls back when window is not defined (jdh@microsoft.com)
+- Add check for monaco global in example card (elcraig@microsoft.com)
+
+## 7.4.0
+Wed, 07 Aug 2019 12:32:28 GMT
+
+### Minor changes
+
+- Updating styles to not use $ syntax. (dzearing@microsoft.com)
+
+## 7.3.0
+Tue, 06 Aug 2019 12:32:07 GMT
+
+### Minor changes
+
+- Tsx-editor: Adding error bar (esteban.230@hotmail.com)
+
+### Patches
+
+- Tsx editor - Code not showing fix (esteban.230@hotmail.com)
+
+## 7.2.1
+Mon, 05 Aug 2019 12:33:41 GMT
+
+### Patches
+
+- updated style to add spinner for loading editor (t-nikaz@microsoft.com)
+
+## 7.2.0
+Fri, 02 Aug 2019 12:33:29 GMT
+
+### Minor changes
+
+- Website changes to work with monaco editor state management (t-nikaz@microsoft.com)
+
+## 7.1.7
+Tue, 30 Jul 2019 12:28:32 GMT
+
+### Patches
+
+- Replace the usage of deprecated Stack props to remove the console warnings. (vibraga@microsoft.com)
+
+## 7.1.6
+Mon, 22 Jul 2019 12:28:42 GMT
+
+### Patches
+
+- Add a way to get settings from query or session storage (elcraig@microsoft.com)
+
+## 7.1.5
+Wed, 17 Jul 2019 18:58:57 GMT
+
+### Patches
+
+- Allowing example title to show completely even when it goes past one line. (Humberto.Morimoto@microsoft.com)
+- Adding @types/react and @types/react-dom to package.json that have peer dependencies on react and react-dom. (makotom@microsoft.com)
+- Fix API reference tables' flash of content on scroll (706967+KevinTCoughlin@users.noreply.github.com)
+
+## 7.1.3
+Mon, 01 Jul 2019 18:51:42 GMT
+
+### Patches
+
+- adds react-app-polyfill
+
+## 7.1.2
+Thu, 27 Jun 2019 18:25:04 GMT
+
+### Patches
+
+- Addressing a variety of problems related to style recalculations.
+
+## 7.1.1
+Thu, 20 Jun 2019 12:27:38 GMT
+
+### Patches
+
+- Renamed instances of "Microsoft UI Fabric" to "UI Fabric"
+
+## 7.1.0
+Wed, 19 Jun 2019 12:27:03 GMT
+
+### Minor changes
+
+- Adds conditional logic to the render of specific regions on the page to enable use of the examples on docs.microsoft portal for OUFR.
+
+## 7.0.4
+Tue, 18 Jun 2019 12:26:19 GMT
+
+### Patches
+
+- ColorPalette: fix missing react code breaking rendering
+
+## 7.0.3
+Fri, 14 Jun 2019 12:26:30 GMT
+
+### Patches
+
+- Fix export to codepen in fabric 7
+- Fix missing assets in production build.
+
+## 7.0.2
+Thu, 13 Jun 2019 00:24:48 GMT
+
+### Patches
+
+- Initial release of Fabric 7
+
+## 7.0.0
+Wed, 12 Jun 2019 00:42:26 GMT
+
+### Breaking changes
+
+- Remove deprecated components; some styling fixes
+
+### Minor changes
+
+- Move Router to example-app-base
+
+### Patches
+
+- Revert example-app-base font changes
+- Update and dedupe React deps.
+- Remove use of deprecated @autobind decorator
+- Nav, Calendar, and DatePicker move into office-ui-fabric-react
+
+## 6.23.1
+Wed, 29 May 2019 12:21:24 GMT
+
+### Patches
+
+- Revert styled perf fixes temporarily.
+
+## 6.23.0
+Wed, 22 May 2019 12:21:34 GMT
+
+### Minor changes
+
+- Addressing a variety of problems related to style recalculations.
+
+### Patches
+
+- Use new fluent styles in ExampleCard; code highlighting cleanup; unused style cleanup
+- Update withPlatform return type
+
+## 6.22.0
+Tue, 21 May 2019 12:20:44 GMT
+
+### Minor changes
+
+- Add createDemoApp
+
+## 6.21.1
+Mon, 20 May 2019 12:22:33 GMT
+
+### Patches
+
+- ApiReferencesTable: use maps and combine if statements
+
+## 6.21.0
+Wed, 15 May 2019 12:31:44 GMT
+
+### Minor changes
+
+- Add randomEntry utility
+
+### Patches
+
+- PlatformContext: improve types, add displayName
+
+## 6.20.1
+Tue, 14 May 2019 07:50:30 GMT
+
+### Patches
+
+- getSiteArea now pulls name from page definition instead of URL
+- Update Fabric assets link
+
+## 6.20.0
+Tue, 14 May 2019 01:56:43 GMT
+
+### Minor changes
+
+- Add `themeSlots` api to ColorPalette.
+- ApiReferencesTable/ApiReferencesTableSet: handle type aliases.
+
+## 6.19.0
+Thu, 09 May 2019 12:35:50 GMT
+
+### Minor changes
+
+- Add SiteMessageBar component and renderSiteMessageBar api to ISiteDefinition
+
+## 6.18.0
+Tue, 07 May 2019 12:34:52 GMT
+
+### Minor changes
+
+- Use kebab case IDs and add more jump link options
+
+### Patches
+
+- Fix UHF header style bugs.
+- Allow regex redirects
+
+## 6.17.4
+Mon, 06 May 2019 19:32:45 GMT
+
+### Patches
+
+- Fix UHF styling conflicts
+
+## 6.17.3
+Mon, 06 May 2019 12:35:11 GMT
+
+### Patches
+
+- Added css reset directly to ul
+
+## 6.17.2
+Mon, 06 May 2019 00:28:08 GMT
+
+### Patches
+
+- Syntax highlighting optimizations
+
+## 6.17.1
+Sun, 05 May 2019 19:59:10 GMT
+
+### Patches
+
+- ApiReferencesTable: only render methods and members tables if not empty
+- Fix footer flashing, sticky nav, sticky side rail
+- Anchor link handling and other bug fixes
+- More EditSection tooltip fixes
+
+## 6.17.0
+Sat, 04 May 2019 00:01:53 GMT
+
+### Minor changes
+
+- Adds shell and bash language support
+- Bug fixes and styling updates for new website
+- Updates for new website
+- Break out of existing customizations when showing example card.
+
+### Patches
+
+- conditionally render Implementation jump link based on presence of jsonDocs
+
+## 6.16.1
+Thu, 02 May 2019 12:36:35 GMT
+
+### Patches
+
+- extractAnchorLink shouldn't return undefined
+
+## 6.16.0
+Wed, 01 May 2019 12:34:24 GMT
+
+### Minor changes
+
+- Start copying new components and deprecating old things
+
+## 6.15.0
+Tue, 30 Apr 2019 12:31:36 GMT
+
+### Minor changes
+
+- add ApiReferencesTable and ApiReferencesTableSet
+
+### Patches
+
+- fix links for fabric demo/pr deploy site
+-  Use new getFocusStyle signature
+
+## 6.14.4
+Fri, 26 Apr 2019 12:35:24 GMT
+
+### Patches
+
+- Deprecate implementation examples
+
+## 6.14.3
+Wed, 24 Apr 2019 12:35:54 GMT
+
+### Patches
+
+- Deprecate component status
+
+## 6.14.2
+Thu, 18 Apr 2019 12:31:50 GMT
+
+### Patches
+
+- reduce the re-export wild card to fix website
+
+## 6.14.1
+Wed, 17 Apr 2019 12:33:35 GMT
+
+### Patches
+
+- Run prettier on all files
+
+## 6.14.0
+Tue, 16 Apr 2019 12:32:59 GMT
+
+### Minor changes
+
+- Convert components to css-in-js
+
+## 6.13.2
+Tue, 02 Apr 2019 12:36:20 GMT
+
+### Patches
+
+- handle TSDoc default value tag
+
+## 6.13.1
+Tue, 02 Apr 2019 00:38:14 GMT
+
+### Patches
+
+- Use ^ ranges instead of >=
+
+## 6.13.0
+Fri, 29 Mar 2019 12:36:45 GMT
+
+### Minor changes
+
+- Code and documentation cleanup
+
+### Patches
+
+- Make CodepenComponent specify SCSS preprocessor
+
+## 6.12.4
+Wed, 27 Mar 2019 12:34:02 GMT
+
+### Patches
+
+- Enable stricter lint and compiler options
+- ExampleCard: Remove dependency on styles from random example, and remove utility CSS classes
+
+## 6.12.3
+Fri, 22 Mar 2019 12:34:41 GMT
+
+### Patches
+
+- Remove ExampleCardComponent now that Stack has been promoted.
+
+## 6.12.2
+Wed, 13 Mar 2019 00:42:29 GMT
+
+### Patches
+
+- FeedbackList: Iterate Github issues collection directly to avoid total_count disparity
+
+## 6.12.1
+Wed, 06 Mar 2019 13:27:18 GMT
+
+### Patches
+
+- Improve autodoc to deal with line breaks in extends clause.
+
+## 6.12.0
+Tue, 05 Mar 2019 04:25:07 GMT
+
+### Minor changes
+
+- remove not null assertion for optional prop
+
+## 6.11.8
+Tue, 26 Feb 2019 22:45:29 GMT
+
+### Patches
+
+- Feedback button: Increase styles specificity to override MWF conflicts.
+
+## 6.11.7
+Mon, 25 Feb 2019 13:31:08 GMT
+
+### Patches
+
+- Tweaking the package json to remove uneeded side effects, which helps with bundling.
+
+## 6.11.6
+Thu, 14 Feb 2019 13:34:54 GMT
+
+### Patches
+
+- fluent folder cover; updated metadata font color; added yellowDark color variable
+- Switch PivotItems to use headerText not linkText
+
+## 6.11.5
+Thu, 31 Jan 2019 20:10:48 GMT
+
+### Patches
+
+- Changes to support Slots Foundation.
 
 ## 6.11.4
 Mon, 28 Jan 2019 13:35:27 GMT
@@ -110,7 +780,7 @@ Mon, 08 Oct 2018 12:24:15 GMT
 
 ### Patches
 
-- Moving tslint/prettier dependencies 
+- Moving tslint/prettier dependencies
 
 ## 6.7.3
 Fri, 21 Sep 2018 14:25:46 GMT
@@ -739,4 +1409,3 @@ Wed, 08 Feb 2017 05:10:53 GMT
 ### Patches
 
 - Adding new package to host all example app base code, which allows us to share common doc website code across many projects.
-

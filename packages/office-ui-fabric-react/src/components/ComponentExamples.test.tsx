@@ -1,17 +1,18 @@
 import * as React from 'react';
 import * as renderer from 'react-test-renderer';
+import chalk from 'chalk';
 import * as glob from 'glob';
 import * as path from 'path';
 
 import { resetIds } from '../Utilities';
 
-import * as DataUtil from '../utilities/exampleData';
+import * as DataUtil from '@uifabric/example-data';
 import * as mergeStylesSerializer from '@uifabric/jest-serializer-merge-styles';
 
 const ReactDOM = require('react-dom');
 
 // Extend Jest Expect to allow us to map each component example to its own snapshot file.
-const snapshotsStateMap = new Map();
+const snapshotsStateMap = new Map<string, ISnapshotState>();
 const jestSnapshot = require('jest-snapshot');
 
 // jest-snapshot currently has no DefinitelyTyped or module defs so type the one object we care about for now here
@@ -21,6 +22,9 @@ interface ISnapshotState {
   matched: number;
   updated: number;
   added: number;
+  getUncheckedCount(): number;
+  removeUncheckedKeys(): void;
+  save(): void;
 }
 
 let globalSnapshotState: ISnapshotState;
@@ -43,17 +47,17 @@ expect.extend({
       // We have to grab global state's _updateSnapshot setting to make sure jest configuration is honored
       snapshotState = new jestSnapshot.SnapshotState(absoluteSnapshotFile, {
         snapshotPath: absoluteSnapshotFile,
-        updateSnapshot: globalSnapshotState._updateSnapshot
+        updateSnapshot: globalSnapshotState._updateSnapshot,
       });
       // and save it to the map for tracking
-      snapshotsStateMap.set(absoluteSnapshotFile, snapshotState);
+      snapshotsStateMap.set(absoluteSnapshotFile, snapshotState!);
     }
 
-    const newThis = Object.assign({}, this, { snapshotState });
+    const newThis = { ...this, snapshotState };
     const patchedToMatchSnapshot = jestSnapshot.toMatchSnapshot.bind(newThis);
 
     return patchedToMatchSnapshot(received);
-  }
+  },
 });
 
 const excludedExampleFiles: string[] = [
@@ -67,6 +71,7 @@ const excludedExampleFiles: string[] = [
   'ExampleHelper.tsx', // Helper file with no actual component
   'GroupedList.Basic.Example.tsx',
   'GroupedList.Custom.Example.tsx',
+  'HoverCard.InstantDismiss.Example.tsx', // https://github.com/microsoft/fluentui/issues/6681
   'List.Basic.Example.tsx',
   'List.Ghosting.Example.tsx',
   'List.Grid.Example.tsx',
@@ -75,8 +80,18 @@ const excludedExampleFiles: string[] = [
   'Picker.CustomResult.Example.tsx',
   'ScrollablePane.Default.Example.tsx',
   'ScrollablePane.DetailsList.Example.tsx',
-  'SelectedPeopleList.Basic.Example.tsx'
+  'SelectedPeopleList.Basic.Example.tsx',
 ];
+const excludedExampleFileRegexes: RegExp[] = [
+  // Snapshots of these examples are worthless since the component isn't open by default
+  /^Panel\./,
+];
+
+function setCacheFullWarning(enabled: boolean) {
+  (window as any).FabricConfig = {
+    enableClassNameCacheFullWarning: enabled,
+  };
+}
 
 declare const global: any;
 
@@ -90,6 +105,7 @@ declare const global: any;
  *       from the example, or add your component to the exclusion list above.
  *    2) If there is some other run-time issue you can either modify the example or add your component
  *       to the exclusion list above.
+ *    3) Only export functions that are React components from your example.
  *
  * In any case, adding your component to the exclusion list is discouraged as this will make regression
  *    harder to catch.
@@ -103,7 +119,7 @@ describe('Component Examples', () => {
   const realToLocaleTimeString = global.Date.prototype.toLocaleTimeString;
   const realToLocaleDateString = global.Date.prototype.toLocaleDateString;
   const constantDate = new Date(Date.UTC(2017, 0, 6, 4, 41, 20));
-  const files: string[] = glob.sync(path.resolve(process.cwd(), 'src/components/**/examples/*Example*.tsx'));
+  const examplePaths: string[] = glob.sync(path.resolve(process.cwd(), 'src/components/**/examples/*Example*.tsx'));
   const createPortal = ReactDOM.createPortal;
 
   beforeAll(() => {
@@ -124,11 +140,11 @@ describe('Component Examples', () => {
     // Prevent random and time elements from failing repeated tests.
     global.Date = class {
       public static now() {
-        return constantDate;
+        return new realDate(constantDate);
       }
 
       constructor() {
-        return constantDate;
+        return new realDate(constantDate);
       }
     };
 
@@ -138,6 +154,10 @@ describe('Component Examples', () => {
     jest.spyOn(Math, 'random').mockImplementation(() => {
       return 0;
     });
+
+    // Enable cache full warning. If warning occurs, the test will fail.
+    // This helps us catch mutating styles which cause cache to always miss.
+    setCacheFullWarning(true);
   });
 
   afterAll(() => {
@@ -167,36 +187,49 @@ describe('Component Examples', () => {
         globalSnapshotState.added += snapshotState.added;
       }
     });
+
+    setCacheFullWarning(false);
   });
 
-  files
-    .filter((componentFile: string) => {
-      return excludedExampleFiles.find(excludedFile => componentFile.endsWith(excludedFile)) === undefined;
-    })
-    .forEach((componentFile: string) => {
-      const componentFileName = componentFile.substring(componentFile.lastIndexOf('/') + 1);
-      it('renders ' + componentFileName + ' correctly', () => {
-        try {
-          const ExampleFile = require(componentFile);
-          Object.keys(ExampleFile).forEach(key => {
-            // Resetting ids by each object creates predictability in generated ids.
-            resetIds();
-            const ComponentUnderTest: React.ComponentClass = ExampleFile[key];
-            const component = renderer.create(<ComponentUnderTest />);
-            const tree = component.toJSON();
-            (expect(tree) as any).toMatchSpecificSnapshot(componentFileName);
-          });
-        } catch (e) {
-          console.warn(
-            'ERROR: ' +
-              e +
-              ', ' +
-              'TEST NOTE: Failure with ' +
-              componentFile +
-              '. ' +
-              'Have you recently added a component? If so, please see notes in ComponentExamples.test.tsx.'
-          );
-        }
-      });
+  for (const examplePath of examplePaths) {
+    const exampleFile = path.basename(examplePath);
+    if (excludedExampleFiles.includes(exampleFile) || excludedExampleFileRegexes.some(r => r.test(exampleFile))) {
+      continue;
+    }
+
+    it(`renders ${exampleFile} correctly`, () => {
+      // Resetting ids for each example creates predictability in generated ids.
+      resetIds();
+
+      const exampleModule = require(examplePath);
+
+      const exampleExportNames = Object.keys(exampleModule);
+      const ComponentUnderTest: React.ComponentType = exampleModule[exampleExportNames[0]];
+      if (exampleExportNames.length > 1 || typeof ComponentUnderTest !== 'function') {
+        throw new Error(
+          'Examples should export exactly one React component, and nothing else.\n' +
+            `Found: ${exampleExportNames.map(exp => `${exp} (${typeof exampleModule[exp]})`).join(', ')}`,
+        );
+      }
+
+      let component: renderer.ReactTestRenderer;
+      try {
+        component = renderer.create(<ComponentUnderTest />);
+      } catch (e) {
+        // Log with console.log so that the console.warn/error overrides from jest-setup.js don't re-throw the
+        // exception in a way that hides the stack/info; and then manually re-throw
+        console.log(
+          chalk.red(
+            `Failure rendering ${exampleExportNames[0]} (from ${examplePath}) as a React component.\n` +
+              'Example files must export exactly one React component, and nothing else.\n' +
+              '(This error may also occur if an exception is thrown while rendering the example component.)',
+          ),
+        );
+        throw e;
+      }
+
+      const tree = component.toJSON();
+      (expect(tree) as any).toMatchSpecificSnapshot(exampleFile);
     });
+  }
 });

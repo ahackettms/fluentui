@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BaseComponent, IBaseProps, createRef } from 'office-ui-fabric-react/lib/Utilities';
+import { IBaseProps, initializeComponentRef } from 'office-ui-fabric-react/lib/Utilities';
 import { PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField, ITextField } from 'office-ui-fabric-react/lib/TextField';
 import * as stylesImport from './Todo.scss';
@@ -41,18 +41,16 @@ export interface ITodoFormState {
  * TextField: https://fabricreact.azurewebsites.net/fabric-react/master/#/examples/textfield
  * Button: https://fabricreact.azurewebsites.net/fabric-react/master/#/examples/button
  */
-export default class TodoForm extends BaseComponent<ITodoFormProps, ITodoFormState> {
-  private _textField = createRef<ITextField>();
+export default class TodoForm extends React.Component<ITodoFormProps, ITodoFormState> {
+  private _textField = React.createRef<ITextField>();
 
   constructor(props: ITodoFormProps) {
     super(props);
 
-    this._onSubmit = this._onSubmit.bind(this);
-    this._onBeforeTextFieldChange = this._onBeforeTextFieldChange.bind(this);
-
+    initializeComponentRef(this);
     this.state = {
       inputValue: '',
-      errorMessage: ''
+      errorMessage: '',
     };
   }
 
@@ -64,7 +62,7 @@ export default class TodoForm extends BaseComponent<ITodoFormProps, ITodoFormSta
           value={this.state.inputValue}
           componentRef={this._textField}
           placeholder={strings.inputBoxPlaceholder}
-          onBeforeChange={this._onBeforeTextFieldChange}
+          onChange={this._onTextFieldChange}
           autoComplete="off"
           errorMessage={this.state.errorMessage}
         />
@@ -85,25 +83,28 @@ export default class TodoForm extends BaseComponent<ITodoFormProps, ITodoFormSta
 
     if (!this._getTitleErrorMessage(textField.value || '')) {
       this.setState({
-        inputValue: ''
+        inputValue: '',
       } as ITodoFormState);
 
       this.props.onSubmit(textField.value || '');
     } else {
       this.setState({
-        errorMessage: this._getTitleErrorMessage(this.state.inputValue)
+        errorMessage: this._getTitleErrorMessage(this.state.inputValue),
       } as ITodoFormState);
 
       textField.focus();
     }
   };
 
-  private _onBeforeTextFieldChange(newValue: string): void {
+  private _onTextFieldChange = (
+    event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>,
+    newValue: string | undefined,
+  ): void => {
     this.setState({
-      inputValue: newValue,
-      errorMessage: ''
+      inputValue: newValue || '',
+      errorMessage: '',
     });
-  }
+  };
 
   private _getTitleErrorMessage(title: string): string {
     if (title.trim() === '') {

@@ -2,32 +2,27 @@ import * as React from 'react';
 import { Async } from './Async';
 import { EventGroup } from './EventGroup';
 import { IDisposable } from './IDisposable';
-import { warnDeprecations, warnMutuallyExclusive, warnConditionallyRequiredProps, ISettingsMap } from './warn';
-import { initializeFocusRects } from './initializeFocusRects';
-import { initializeDir } from './initializeDir';
+import { ISettingsMap } from './warn/warn';
+import { warnConditionallyRequiredProps } from './warn/warnConditionallyRequiredProps';
+import { warnMutuallyExclusive } from './warn/warnMutuallyExclusive';
+import { warnDeprecations } from './warn/warnDeprecations';
 import { IRefObject } from './createRef';
-
-/**
- * BaseProps interface.
- *
- * @public
- */
-// tslint:disable-next-line:no-any
-export interface IBaseProps<T = any> {
-  componentRef?: IRefObject<T>;
-}
+import { IBaseProps } from './BaseComponent.types';
 
 /**
  * BaseComponent class, which provides basic helpers for all components.
  *
  * @public
+ * {@docCategory BaseComponent}
+ *
+ * @deprecated Do not use. We are moving away from class component.
  */
 export class BaseComponent<TProps extends IBaseProps = {}, TState = {}> extends React.Component<TProps, TState> {
   /**
    * @deprecated Use React's error boundaries instead.
    */
   // tslint:disable-next-line:no-any
-  public static onError: ((errorMessage?: string, ex?: any) => void);
+  public static onError: (errorMessage?: string, ex?: any) => void;
 
   /**
    * Controls whether the componentRef prop will be resolved by this component instance. If you are
@@ -53,17 +48,14 @@ export class BaseComponent<TProps extends IBaseProps = {}, TState = {}> extends 
   constructor(props: TProps, context?: any) {
     super(props, context);
 
-    // Ensure basic assumptions about the environment.
-    initializeFocusRects();
-    initializeDir();
-
+    // tslint:disable-next-line:deprecation
     _makeAllSafe(this, BaseComponent.prototype, [
       'componentDidMount',
       'shouldComponentUpdate',
       'getSnapshotBeforeUpdate',
       'render',
       'componentDidUpdate',
-      'componentWillUnmount'
+      'componentWillUnmount',
     ]);
   }
 
@@ -213,11 +205,18 @@ export class BaseComponent<TProps extends IBaseProps = {}, TState = {}> extends 
    * @param conditionalPropName - The name of the prop that the condition is based on.
    * @param condition - Whether the condition is met.
    */
-  protected _warnConditionallyRequiredProps(requiredProps: string[], conditionalPropName: string, condition: boolean): void {
+  protected _warnConditionallyRequiredProps(
+    requiredProps: string[],
+    conditionalPropName: string,
+    condition: boolean,
+  ): void {
     warnConditionallyRequiredProps(this.className, this.props, requiredProps, conditionalPropName, condition);
   }
 
-  private _setComponentRef<TRefInterface>(ref: IRefObject<TRefInterface> | undefined, value: TRefInterface | null): void {
+  private _setComponentRef<TRefInterface>(
+    ref: IRefObject<TRefInterface> | undefined,
+    value: TRefInterface | null,
+  ): void {
     if (!this._skipComponentRefResolution && ref) {
       if (typeof ref === 'function') {
         ref(value);
@@ -236,12 +235,14 @@ export class BaseComponent<TProps extends IBaseProps = {}, TState = {}> extends 
  * ensures that the BaseComponent's methods are called before the subclass's. This ensures that
  * componentWillUnmount in the base is called and that things in the _disposables array are disposed.
  */
+// tslint:disable-next-line:deprecation
 function _makeAllSafe(obj: BaseComponent<{}, {}>, prototype: Object, methodNames: string[]): void {
   for (let i = 0, len = methodNames.length; i < len; i++) {
     _makeSafe(obj, prototype, methodNames[i]);
   }
 }
 
+// tslint:disable-next-line:deprecation
 function _makeSafe(obj: BaseComponent<{}, {}>, prototype: Object, methodName: string): void {
   // tslint:disable:no-any
   let classMethod = (obj as any)[methodName];

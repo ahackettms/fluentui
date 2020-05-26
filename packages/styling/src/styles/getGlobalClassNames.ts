@@ -14,15 +14,15 @@ const _getGlobalClassNames = memoizeFunction(
 
     if (disableGlobalClassNames) {
       // disable global classnames
-      return Object.keys(classNames).reduce((acc: {}, className: string) => {
+      return (Object.keys(classNames) as (keyof T)[]).reduce((acc, className) => {
         acc[className] = styleSheet.getClassName(classNames[className]);
         return acc;
-      }, {});
+      }, {} as Partial<GlobalClassNames<T>>);
     }
 
     // use global classnames
     return classNames;
-  }
+  },
 );
 
 /**
@@ -37,7 +37,10 @@ const _getGlobalClassNames = memoizeFunction(
 export function getGlobalClassNames<T>(
   classNames: GlobalClassNames<T>,
   theme: ITheme,
-  disableGlobalClassNames?: boolean
+  disableGlobalClassNames?: boolean,
 ): Partial<GlobalClassNames<T>> {
-  return _getGlobalClassNames(classNames, disableGlobalClassNames !== undefined ? disableGlobalClassNames : theme.disableGlobalClassNames);
+  return _getGlobalClassNames(
+    classNames,
+    disableGlobalClassNames !== undefined ? disableGlobalClassNames : theme.disableGlobalClassNames,
+  );
 }

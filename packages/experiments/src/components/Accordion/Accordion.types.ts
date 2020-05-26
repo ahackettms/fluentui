@@ -1,5 +1,5 @@
 import { IStyle } from '../../Styling';
-import { IComponent, IHTMLDivSlot, IStyleableComponentProps } from '../../Foundation';
+import { IComponent, IHTMLSlot, IStyleableComponentProps } from '../../Foundation';
 
 export type IAccordionComponent = IComponent<IAccordionProps, IAccordionTokens, IAccordionStyles>;
 
@@ -11,10 +11,12 @@ export type IAccordionTokenReturnType = ReturnType<Extract<IAccordionComponent['
 export type IAccordionStylesReturnType = ReturnType<Extract<IAccordionComponent['styles'], Function>>;
 
 export interface IAccordionSlots {
-  root?: IHTMLDivSlot;
+  root?: IHTMLSlot;
 }
 
-export interface IAccordionProps extends IAccordionSlots, IStyleableComponentProps<IAccordionProps, IAccordionTokens, IAccordionStyles> {
+export interface IAccordionProps
+  extends IAccordionSlots,
+    IStyleableComponentProps<IAccordionProps, IAccordionTokens, IAccordionStyles> {
   collapseItems?: boolean;
 }
 

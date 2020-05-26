@@ -1,54 +1,54 @@
 import { ICheckboxStyleProps, ICheckboxStyles } from 'office-ui-fabric-react/lib/Checkbox';
-import { fluentBorderRadius } from './styleConstants';
-import { NeutralColors } from '../FluentColors';
 
 export const CheckboxStyles = (props: ICheckboxStyleProps): Partial<ICheckboxStyles> => {
   const { disabled, checked, theme } = props;
-  const { semanticColors, palette } = theme;
+  const { semanticColors, palette, effects } = theme;
 
   return {
     checkbox: [
       {
-        borderRadius: fluentBorderRadius,
-        borderColor: palette.neutralPrimary
+        borderRadius: effects.roundedCorner2,
+        borderColor: palette.neutralPrimary,
       },
       !disabled &&
         checked && {
-          borderColor: semanticColors.inputBackgroundChecked // using semanticColor because I am setting a new color above
+          // using semanticColor because of setting a new color above
+          borderColor: semanticColors.inputBackgroundChecked,
         },
       disabled && {
-        borderColor: palette.neutralTertiaryAlt
+        borderColor: palette.neutralTertiaryAlt,
       },
       checked &&
         disabled && {
           background: palette.neutralTertiaryAlt,
-          borderColor: palette.neutralTertiaryAlt
-        }
+          borderColor: palette.neutralTertiaryAlt,
+        },
     ],
     checkmark: {
-      color: semanticColors.inputForegroundChecked // using semanticColor to override original behavior on checked/disabled
+      // using semanticColor to override original behavior on checked/disabled
+      color: semanticColors.inputForegroundChecked,
     },
     root: [
       !disabled && [
         !checked && {
           selectors: {
             ':hover .ms-Checkbox-text': { color: palette.neutralDark },
-            ':hover .ms-Checkbox-checkmark': { color: NeutralColors.gray120 } // color not in the palette or semanticColors
-          }
+            ':hover .ms-Checkbox-checkmark': { color: palette.neutralSecondary },
+          },
         },
         checked && {
           selectors: {
             ':hover .ms-Checkbox-checkbox': {
               background: palette.themeDark,
-              borderColor: palette.themeDark
+              borderColor: palette.themeDark,
             },
             ':focus .ms-Checkbox-checkbox': {
               background: palette.themeDark,
-              borderColor: palette.themeDark
-            }
-          }
-        }
-      ]
-    ]
+              borderColor: palette.themeDark,
+            },
+          },
+        },
+      ],
+    ],
   };
 };

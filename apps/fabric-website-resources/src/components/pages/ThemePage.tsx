@@ -6,7 +6,7 @@ import { ThemePageProps } from 'office-ui-fabric-react/lib/components/Theme/Them
 import {
   IThemePageStyleProps,
   IThemePageStyles,
-  IThemePageState
+  IThemePageState,
 } from 'office-ui-fabric-react/lib/components/Theme/ThemePage.types';
 import { defaultPalette, defaultSemanticColors } from 'office-ui-fabric-react/lib/components/Theme/defaultTheme';
 import { getStyles } from 'office-ui-fabric-react/lib/components/Theme/ThemePage.styles';
@@ -14,6 +14,7 @@ import { Callout } from 'office-ui-fabric-react/lib/Callout';
 import { DetailsList, DetailsListLayoutMode } from 'office-ui-fabric-react/lib/DetailsList';
 import { SelectionMode } from 'office-ui-fabric-react/lib/Selection';
 import { ColorPicker } from 'office-ui-fabric-react/lib/ColorPicker';
+import { IColor } from 'office-ui-fabric-react/lib/utilities/color/interfaces';
 
 const getClassNames = classNamesFunction<IThemePageStyleProps, IThemePageStyles>();
 
@@ -29,7 +30,7 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
 
     this.state = {
       palette: defaultPalette,
-      semanticColors: defaultSemanticColors
+      semanticColors: defaultSemanticColors,
     };
   }
 
@@ -45,13 +46,13 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
           otherSections: [
             {
               title: 'Default Palette',
-              section: this._colorList(palette, 'palette')
+              section: this._colorList(palette, 'palette'),
             },
             {
               title: 'Default Semantic Colors',
-              section: this._colorList(semanticColors, 'semanticColors')
-            }
-          ]
+              section: this._colorList(semanticColors, 'semanticColors'),
+            },
+          ],
         }}
       />
     );
@@ -72,7 +73,7 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
               name: 'Name',
               fieldName: 'name',
               minWidth: 150,
-              maxWidth: 150
+              maxWidth: 150,
             },
             {
               key: 'color',
@@ -88,14 +89,14 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
                   <span className={classNames.swatch} style={{ backgroundColor: item.value }} />
                   <span className={classNames.colorValue}>{item.value}</span>
                 </div>
-              )
+              ),
             },
             {
               key: 'desc',
               name: 'Description',
               fieldName: 'description',
-              minWidth: 90
-            }
+              minWidth: 90,
+            },
           ]}
         />
 
@@ -108,7 +109,7 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
           >
             <ColorPicker
               color={colorPickerProps.value}
-              onColorChanged={this._onColorChanged.bind(this, colorPickerProps.index)}
+              onChange={this._onColorChanged.bind(this, colorPickerProps.index)}
             />
           </Callout>
         )}
@@ -121,13 +122,13 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
       colorPickerProps: {
         targetElement: (ev.currentTarget as HTMLElement).children[0] as HTMLElement,
         value: item.value,
-        index: index
+        index: index,
       },
-      activeList: list
+      activeList: list,
     });
   }
 
-  private _onColorChanged(index: number, newColor: string): void {
+  private _onColorChanged(index: number, ev: any, newColor: IColor): void {
     const { activeList } = this.state;
     const partialPalette: Partial<IPalette> = {};
     const partialSemanticColors: Partial<ISemanticColors> = {};
@@ -135,7 +136,7 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
     if (activeList === 'palette') {
       const palette = [...this.state.palette];
       const paletteColor = palette[index];
-      paletteColor.value = newColor;
+      paletteColor.value = newColor.str;
       palette[index] = paletteColor;
       for (let i = 0; i < palette.length; i++) {
         (palette as any)[palette[i].key] = palette[i].value;
@@ -143,7 +144,7 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
     } else if (activeList === 'semanticColors') {
       const semanticColors = [...this.state.semanticColors];
       const semanticColor = semanticColors[index];
-      semanticColor.value = newColor;
+      semanticColor.value = newColor.str;
       semanticColors[index] = semanticColor;
       for (let i = 0; i < semanticColors.length; i++) {
         (semanticColors as any)[semanticColors[i].key] = semanticColors[i].value;
@@ -161,7 +162,7 @@ export class ThemePage extends React.Component<IThemePageProps, IThemePageState>
 
   private _onPickerDismiss(): void {
     this.setState({
-      colorPickerProps: undefined
+      colorPickerProps: undefined,
     });
   }
 }

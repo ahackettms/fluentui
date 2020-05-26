@@ -1,19 +1,19 @@
 import { getGlobalClassNames, HighContrastSelector } from '../../../Styling';
 import { ISuggestionsItemStyleProps, ISuggestionsItemStyles } from './SuggestionsItem.types';
 
-const GlobalClassNames = {
+export const SuggestionsItemGlobalClassNames = {
   root: 'ms-Suggestions-item',
   itemButton: 'ms-Suggestions-itemButton',
   closeButton: 'ms-Suggestions-closeButton',
-  isSuggested: 'is-suggested'
+  isSuggested: 'is-suggested',
 };
 
 export function getStyles(props: ISuggestionsItemStyleProps): ISuggestionsItemStyles {
   const { className, theme, suggested } = props;
 
-  const { palette } = theme;
+  const { palette, semanticColors } = theme;
 
-  const classNames = getGlobalClassNames(GlobalClassNames, theme);
+  const classNames = getGlobalClassNames(SuggestionsItemGlobalClassNames, theme);
 
   return {
     root: [
@@ -26,30 +26,15 @@ export function getStyles(props: ISuggestionsItemStyleProps): ISuggestionsItemSt
         position: 'relative',
         selectors: {
           '&:hover': {
-            background: palette.neutralLighter
+            background: semanticColors.menuItemBackgroundHovered,
           },
           '&:hover .ms-Suggestions-closeButton': {
-            display: 'block'
-          }
-        }
+            display: 'block',
+          },
+        },
       },
-      suggested && [
-        classNames.isSuggested,
-        {
-          background: palette.neutralLight,
-          selectors: {
-            ':hover': {
-              background: palette.neutralTertiaryAlt
-            },
-            [HighContrastSelector]: {
-              background: 'Highlight',
-              color: 'HighlightText',
-              MsHighContrastAdjust: 'none'
-            }
-          }
-        }
-      ],
-      className
+
+      className,
     ],
     itemButton: [
       classNames.itemButton,
@@ -58,15 +43,43 @@ export function getStyles(props: ISuggestionsItemStyleProps): ISuggestionsItemSt
         padding: 0,
         border: 'none',
         height: '100%',
+        // Force the item button to be collapsible so it can always shrink
+        // to accommodate the close button as a peer in its flex container.
+        minWidth: 0,
+        // Require for IE11 to truncate the component.
+        overflow: 'hidden',
         selectors: {
           [HighContrastSelector]: {
-            color: 'WindowText'
+            color: 'WindowText',
+            selectors: {
+              ':hover': {
+                background: 'Highlight',
+                color: 'HighlightText',
+                MsHighContrastAdjust: 'none',
+              },
+            },
           },
           ':hover': {
-            color: palette.neutralDark
-          }
-        }
-      }
+            color: semanticColors.menuItemTextHovered,
+          },
+        },
+      },
+      suggested && [
+        classNames.isSuggested,
+        {
+          background: semanticColors.menuItemBackgroundPressed,
+          selectors: {
+            ':hover': {
+              background: semanticColors.menuDivider,
+            },
+            [HighContrastSelector]: {
+              background: 'Highlight',
+              color: 'HighlightText',
+              MsHighContrastAdjust: 'none',
+            },
+          },
+        },
+      ],
     ],
     closeButton: [
       classNames.closeButton,
@@ -79,21 +92,21 @@ export function getStyles(props: ISuggestionsItemStyleProps): ISuggestionsItemSt
         selectors: {
           ':hover, :active': {
             background: palette.neutralTertiaryAlt,
-            color: palette.neutralDark
+            color: palette.neutralDark,
           },
           [HighContrastSelector]: {
-            color: 'WindowText'
-          }
-        }
+            color: 'WindowText',
+          },
+        },
       },
       suggested && {
         selectors: {
           ':hover, :active': {
             background: palette.neutralTertiary,
-            color: palette.neutralPrimary
-          }
-        }
-      }
-    ]
+            color: palette.neutralPrimary,
+          },
+        },
+      },
+    ],
   };
 }

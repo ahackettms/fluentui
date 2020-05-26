@@ -1,60 +1,80 @@
 /** @jsx withSlots */
-import { ContextualMenu } from 'office-ui-fabric-react';
-import { withSlots, getSlots } from '../../Foundation';
-import { Stack } from '../../Stack';
-import { Text } from '../../Text';
-import { getNativeProps, buttonProperties } from '../../Utilities';
-import { Icon } from '../../utilities/factoryComponents';
+import { Text, KeytipData } from 'office-ui-fabric-react';
+import { withSlots } from '../../Foundation';
+import { getNativeProps, anchorProperties, buttonProperties } from '../../Utilities';
+import { FontIcon } from '../../utilities/factoryComponents';
 
-import { IButtonComponent, IButtonProps, IButtonSlots, IButtonViewProps } from './Button.types';
+import { IButtonComponent, IButtonViewProps } from './Button.types';
 
-export const ButtonView: IButtonComponent['view'] = props => {
-  const { menu: Menu, children, content, icon, expanded, disabled, onMenuDismiss, menuTarget, ...rest } = props;
+export const ButtonSlots: IButtonComponent['slots'] = props => ({
+  root: !!props.href ? 'a' : 'button',
+  icon: FontIcon,
+  content: Text,
+});
 
-  // TODO: 'href' is anchor property... consider getNativeProps by root type
-  const buttonProps = { ...getNativeProps(rest, buttonProperties) };
+export const ButtonView: IButtonComponent['view'] = (props, slots) => {
+  const {
+    icon,
+    content,
+    children,
+    disabled,
+    onClick,
+    allowDisabledFocus,
+    ariaLabel,
+    keytipProps,
+    buttonRef,
+    ...rest
+  } = props;
 
-  const Slots = getSlots<IButtonProps, IButtonSlots>(props, {
-    root: _deriveRootType(props),
-    stack: Stack,
-    icon: Icon,
-    content: Text,
-    menu: ContextualMenu,
-    menuIcon: Icon
-  });
+  const { htmlType, propertiesType } = _deriveRootType(props);
 
-  return (
-    <Slots.root
-      type="button" // stack doesn't take in native button props
+  const buttonProps = { ...getNativeProps<React.ButtonHTMLAttributes<HTMLButtonElement>>(rest, propertiesType) };
+
+  const _onClick = (ev: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement | HTMLDivElement>) => {
+    if (!disabled && onClick) {
+      onClick(ev);
+
+      if (ev.defaultPrevented) {
+        return;
+      }
+    }
+  };
+
+  const Button = (keytipAttributes?: any): JSX.Element => (
+    <slots.root
+      type={htmlType}
       role="button"
+      onClick={_onClick}
       {...buttonProps}
+      {...keytipAttributes}
+      disabled={disabled && !allowDisabledFocus}
       aria-disabled={disabled}
+      tabIndex={!disabled || allowDisabledFocus ? 0 : undefined}
+      aria-label={ariaLabel}
+      ref={buttonRef}
     >
-      <Slots.stack horizontal as="span" gap={8} verticalAlign="center" horizontalAlign="center" verticalFill>
-        <Slots.icon />
-        <Slots.content />
-        {children}
-        {Menu && (
-          <Stack.Item>
-            <Slots.menuIcon iconName="ChevronDown" />
-          </Stack.Item>
-        )}
-      </Slots.stack>
-      {expanded && Menu && <Slots.menu target={menuTarget} onDismiss={onMenuDismiss} items={[]} />}
-    </Slots.root>
+      {icon && <slots.icon />}
+      {content && <slots.content />}
+      {children}
+    </slots.root>
+  );
+
+  return keytipProps ? (
+    <KeytipData keytipProps={keytipProps} disabled={disabled && !allowDisabledFocus}>
+      {(keytipAttributes: any): JSX.Element => Button(keytipAttributes)}
+    </KeytipData>
+  ) : (
+    Button()
   );
 };
 
-// TODO: test with split button approach.
-//        should split button be another component?
-//        can Button's slots be manipulated to create an HOC split button?
-// {split && (
-// <Slot as='span' userProps={splitContainer}>
-//   <Slot as={Divider} userProps={divider} />
-//   <Slot as={Icon} userProps={menuChevron} />
-// </Slot>
-// )}
+interface IButtonRootType {
+  htmlType: 'link' | 'button';
+  propertiesType: string[];
+}
 
-function _deriveRootType(props: IButtonViewProps): keyof JSX.IntrinsicElements {
-  return !!props.href ? 'a' : 'button';
+function _deriveRootType(props: IButtonViewProps): IButtonRootType {
+  return !!props.href
+    ? { htmlType: 'link', propertiesType: anchorProperties }
+    : { htmlType: 'button', propertiesType: buttonProperties };
 }

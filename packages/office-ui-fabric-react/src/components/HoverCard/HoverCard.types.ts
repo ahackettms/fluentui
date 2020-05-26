@@ -5,10 +5,20 @@ import { IStyle, ITheme } from '../../Styling';
 import { IRefObject, IStyleFunctionOrObject, KeyCodes } from '../../Utilities';
 import { IPlainCardProps } from './PlainCard/PlainCard.types';
 
-export interface IHoverCard {}
+/**
+ * {@docCategory HoverCard}
+ */
+export interface IHoverCard {
+  /**
+   * Public `dismiss` method to be used through `componentRef` of the HoverCard.
+   * Boolean argument controls if the dismiss happens with a timeout delay.
+   */
+  dismiss: (withTimeOut?: boolean) => void;
+}
 
 /**
  * HoverCard component props.
+ * {@docCategory HoverCard}
  */
 export interface IHoverCardProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -110,11 +120,19 @@ export interface IHoverCardProps extends React.HTMLAttributes<HTMLDivElement> {
   styles?: IStyleFunctionOrObject<IHoverCardStyleProps, IHoverCardStyles>;
 
   /**
-   * Optional target element to tag hover card on.
-   * If not provided and using HoverCard as a wrapper, don't set 'data-is-focusable=true' attribute to the root of the wrapped child.
-   * When no target given, HoverCard will use it's root as a target and become the focusable element with a focus listener attached to it.
+   * Optional target element to tag hover card on. If not provided and using HoverCard as a wrapper, don't set the
+   * 'data-is-focusable=true' attribute to the root of the wrapped child.
+   * If no target is given, HoverCard will use its root as a target and become the focusable element with a
+   * focus listener attached to it.
    */
-  target?: HTMLElement | string;
+  target?: HTMLElement | string | null;
+
+  /**
+   * This prop is to separate the target to anchor hover card from the target to attach event listener.
+   * If set, this prop separates the target to anchor the hover card from the target to attach the event listener.
+   * When no `eventListenerTarget` given, HoverCard will use `target` prop or its root to set event listener.
+   */
+  eventListenerTarget?: HTMLElement | string | null;
 
   /**
    * Theme provided by higher order component.
@@ -134,6 +152,9 @@ export interface IHoverCardProps extends React.HTMLAttributes<HTMLDivElement> {
   type?: HoverCardType;
 }
 
+/**
+ * {@docCategory HoverCard}
+ */
 export enum OpenCardMode {
   /**
    * Open card by hover
@@ -143,9 +164,12 @@ export enum OpenCardMode {
   /**
    * Open card by hot key
    */
-  hotKey = 1
+  hotKey = 1,
 }
 
+/**
+ * {@docCategory HoverCard}
+ */
 export enum HoverCardType {
   /**
    * Plain card consisting of one part responsive to the size of content.
@@ -155,9 +179,12 @@ export enum HoverCardType {
   /**
    * File card consisting of two parts: compact and expanded. Has some default sizes if not specified.
    */
-  expanding = 'ExpandingCard'
+  expanding = 'ExpandingCard',
 }
 
+/**
+ * {@docCategory HoverCard}
+ */
 export interface IHoverCardStyleProps {
   /**
    * Theme provided by High-Order Component.
@@ -170,6 +197,9 @@ export interface IHoverCardStyleProps {
   className?: string;
 }
 
+/**
+ * {@docCategory HoverCard}
+ */
 export interface IHoverCardStyles {
   /**
    * Style for the host element in the default enabled, non-toggled state.

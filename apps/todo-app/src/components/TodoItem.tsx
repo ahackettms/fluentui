@@ -39,7 +39,7 @@ export default class TodoItem extends React.Component<ITodoItemProps, {}> {
       styles.todoItem,
       this.props.item.isComplete === true ? styles.isCompleted : '',
       'ms-Grid',
-      'ms-slideDownIn20'
+      'ms-slideDownIn20',
     );
 
     return (
@@ -55,7 +55,7 @@ export default class TodoItem extends React.Component<ITodoItemProps, {}> {
             <Checkbox
               label={this.props.item.title}
               onChange={this._onCheckboxChange}
-              checked={this.props.item.isComplete === true}
+              checked={!!this.props.item.isComplete}
             />
             <IconButton
               className={styles.deleteButton}
@@ -71,10 +71,9 @@ export default class TodoItem extends React.Component<ITodoItemProps, {}> {
   }
 
   private get _ariaLabel(): string {
-    const completeState: string =
-      this.props.item.isComplete === true
-        ? strings.todoItemAriaLabelCheckedState
-        : strings.todoItemAriaLabelUncheckedState;
+    const completeState: string = this.props.item.isComplete
+      ? strings.todoItemAriaLabelCheckedState
+      : strings.todoItemAriaLabelUncheckedState;
     const titleString: string = strings.todoItemAriaLabelTitle + this.props.item.title;
     return `${completeState} ${titleString}`;
   }

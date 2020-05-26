@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { classNamesFunction, BaseComponent, css } from '../../../Utilities';
+import { classNamesFunction, css, initializeComponentRef } from '../../../Utilities';
 import { IProcessedStyleSet } from '../../../Styling';
 import { CommandButton, IconButton } from '../../../Button';
 import { ISuggestionItemProps, ISuggestionsItemStyleProps, ISuggestionsItemStyles } from './SuggestionsItem.types';
@@ -10,7 +10,16 @@ const legacyStyles: any = stylesImport;
 
 const getClassNames = classNamesFunction<ISuggestionsItemStyleProps, ISuggestionsItemStyles>();
 
-export class SuggestionsItem<T> extends BaseComponent<ISuggestionItemProps<T>, {}> {
+/**
+ * {@docCategory Pickers}
+ */
+export class SuggestionsItem<T> extends React.Component<ISuggestionItemProps<T>, {}> {
+  constructor(props: ISuggestionItemProps<T>) {
+    super(props);
+
+    initializeComponentRef(this);
+  }
+
   public render(): JSX.Element {
     const {
       suggestionModel,
@@ -21,7 +30,7 @@ export class SuggestionsItem<T> extends BaseComponent<ISuggestionItemProps<T>, {
       isSelectedOverride,
       removeButtonAriaLabel,
       styles,
-      theme
+      theme,
     } = this.props;
 
     // TODO
@@ -39,19 +48,20 @@ export class SuggestionsItem<T> extends BaseComponent<ISuggestionItemProps<T>, {
       ? getClassNames(styles, {
           theme: theme!,
           className,
-          suggested: suggestionModel.selected || isSelectedOverride
+          suggested: suggestionModel.selected || isSelectedOverride,
         })
       : {
           root: css(
             'ms-Suggestions-item',
             legacyStyles.suggestionsItem,
             {
-              ['is-suggested ' + legacyStyles.suggestionsItemIsSuggested]: suggestionModel.selected || isSelectedOverride
+              ['is-suggested ' + legacyStyles.suggestionsItemIsSuggested]:
+                suggestionModel.selected || isSelectedOverride,
             },
-            className
+            className,
           ),
           itemButton: css('ms-Suggestions-itemButton', legacyStyles.itemButton),
-          closeButton: css('ms-Suggestions-closeButton', legacyStyles.closeButton)
+          closeButton: css('ms-Suggestions-closeButton', legacyStyles.closeButton),
         };
 
     return (

@@ -1,102 +1,116 @@
 import * as React from 'react';
-import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
-import { Layer, LayerHost } from 'office-ui-fabric-react/lib/Layer';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
-import { AnimationClassNames } from 'office-ui-fabric-react/lib/Styling';
-import './Layer.Example.scss';
-import * as exampleStylesImport from 'office-ui-fabric-react/lib/common/_exampleStyles.scss';
-const exampleStyles: any = exampleStylesImport;
+import { Layer, LayerHost } from 'office-ui-fabric-react/lib/Layer';
+import { AnimationClassNames, mergeStyleSets, getTheme } from 'office-ui-fabric-react/lib/Styling';
+import { IToggleStyles } from 'office-ui-fabric-react/lib/Toggle';
+import { useId, useBoolean } from '@uifabric/react-hooks';
 
-export class LayerHostedExample extends React.Component<
-  {},
-  {
-    showLayer: boolean;
-    showLayerNoId: boolean;
-    showHost: boolean;
-  }
-> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      showLayer: false,
-      showLayerNoId: false,
-      showHost: true
-    };
-  }
+export const LayerHostedExample: React.FunctionComponent = () => {
+  const [showLayer, { toggle: toggleShowLayer }] = useBoolean(false);
+  const [showLayerNoId, { toggle: toggleShowLayerNoId }] = useBoolean(false);
+  const [showHost, { toggle: toggleShowHost }] = useBoolean(true);
 
-  public render(): JSX.Element {
-    const { showLayer, showLayerNoId, showHost } = this.state;
-    const content = <div className={'LayerExample-content ' + AnimationClassNames.scaleUpIn100}>This is example layer content.</div>;
+  // Use useId() to ensure that the ID is unique on the page.
+  // (It's also okay to use a plain string without getId() and manually ensure uniqueness.)
+  const layerHostId = useId('layerHost');
 
-    return (
-      <div>
-        <Toggle label="Show host" checked={showHost} onChange={this._onChangeToggle} />
+  const content = <div className={styles.content}>This is example layer content.</div>;
 
-        {showHost && <LayerHost id="layerhost1" className="LayerExample-customHost" />}
+  return (
+    <div className={styles.root}>
+      <Toggle label="Show host" inlineLabel checked={showHost} onChange={toggleShowHost} />
 
-        <p id="foo">
-          In some cases, you may need to contain layered content within an area. Create an instance of a LayerHost along with an id, and
-          provide a hostId on the layer to render it within the specific host. (Note that it's important that you don't include children
-          within the LayerHost. It's meant to contain Layered content only.)
-        </p>
+      {showHost && <LayerHost id={layerHostId} className={styles.customHost} />}
 
-        <Checkbox
-          className={exampleStyles.exampleCheckbox}
-          label="Render the box below in a Layer and target it at hostId=layerhost1"
-          checked={showLayer}
-          onChange={this._onChangeCheckbox}
-        />
+      <p>
+        In some cases, you may need to contain layered content within an area. Create an instance of a LayerHost along
+        with an id, and provide a hostId on the layer to render it within the specific host. (Note that it's important
+        that you don't include children within the LayerHost. It's meant to contain Layered content only.)
+      </p>
 
-        {showLayer ? (
-          <Layer
-            hostId="layerhost1"
-            onLayerDidMount={this._log('didmount')}
-            onLayerWillUnmount={this._log('willunmount')}
-            className={'exampleLayerClassName'}
-          >
-            {content}
-          </Layer>
-        ) : (
-          content
-        )}
+      <Toggle
+        styles={styles.toggle}
+        label={`Render the box below in a Layer and target it at hostId=${layerHostId}`}
+        inlineLabel
+        checked={showLayer}
+        onChange={toggleShowLayer}
+      />
 
-        <div className="LayerExample-nonLayered">I am normally below the content.</div>
+      {showLayer ? (
+        <Layer hostId={layerHostId} onLayerDidMount={logDidMount} onLayerWillUnmount={logWillUnmount}>
+          {content}
+        </Layer>
+      ) : (
+        content
+      )}
 
-        <p>If you do not specify a hostId then the hosted layer will default to being fixed to the page by default.</p>
+      <div className={styles.nonLayered}>I am normally below the content.</div>
 
-        <Checkbox
-          className={exampleStyles.exampleCheckbox}
-          label="Render the box below in a Layer without specifying a host, fixing it to the top of the page"
-          checked={showLayerNoId}
-          onChange={this._onChangeCheckboxNoId}
-        />
+      <p>If you do not specify a hostId, the hosted layer will default to being fixed to the page by default.</p>
 
-        {showLayerNoId ? (
-          <Layer onLayerDidMount={this._log('didmount')} onLayerWillUnmount={this._log('willunmount')}>
-            {content}
-          </Layer>
-        ) : (
-          content
-        )}
-      </div>
-    );
-  }
+      <Toggle
+        styles={styles.toggle}
+        label="Render the box below in a Layer without specifying a host, fixing it to the top of the page"
+        inlineLabel
+        checked={showLayerNoId}
+        onChange={toggleShowLayerNoId}
+      />
 
-  private _log(text: string): () => void {
-    return (): void => {
-      console.log(text);
-    };
-  }
+      {showLayerNoId ? (
+        <Layer onLayerDidMount={logDidMount} onLayerWillUnmount={logWillUnmount}>
+          {content}
+        </Layer>
+      ) : (
+        content
+      )}
+    </div>
+  );
+};
 
-  private _onChangeCheckbox = (ev: React.FormEvent<HTMLElement | HTMLInputElement>, checked: boolean): void => {
-    this.setState({ showLayer: checked });
-  };
+const logDidMount = () => console.log('layer did mount');
+const logWillUnmount = () => console.log('layer will unmount');
 
-  private _onChangeCheckboxNoId = (ev: React.FormEvent<HTMLElement | HTMLInputElement>, checked: boolean): void => {
-    this.setState({ showLayerNoId: checked });
-  };
-
-  private _onChangeToggle = (ev: React.MouseEvent<HTMLElement>, checked: boolean): void => {
-    this.setState({ showHost: checked });
-  };
-}
+const toggleStyles: Partial<IToggleStyles> = {
+  root: { margin: '10px 0' },
+};
+const theme = getTheme();
+const styles = {
+  toggle: toggleStyles,
+  ...mergeStyleSets({
+    root: {
+      selectors: { p: { marginTop: 30 } },
+    },
+    customHost: {
+      height: 100,
+      padding: 20,
+      background: 'rgba(255, 0, 0, 0.2)',
+      border: '1px dashed ' + theme.palette.black,
+      position: 'relative',
+      selectors: {
+        '&:before': {
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          // double quotes required to make the string show up
+          content: '"I am a LayerHost with id=layerhost1"',
+        },
+      },
+    },
+    content: [
+      {
+        backgroundColor: theme.palette.themePrimary,
+        color: theme.palette.white,
+        lineHeight: '50px',
+        padding: '0 20px',
+      },
+      AnimationClassNames.scaleUpIn100,
+    ],
+    nonLayered: {
+      backgroundColor: theme.palette.neutralTertiaryAlt,
+      lineHeight: '50px',
+      padding: '0 20px',
+      margin: '8px 0',
+    },
+  }),
+};

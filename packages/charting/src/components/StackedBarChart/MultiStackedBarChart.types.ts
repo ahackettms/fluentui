@@ -1,6 +1,8 @@
 import { IChartProps } from './index';
 import { IStyle, ITheme } from 'office-ui-fabric-react/lib/Styling';
 import { IStyleFunctionOrObject } from 'office-ui-fabric-react/lib/Utilities';
+import { IOverflowSetProps } from 'office-ui-fabric-react/lib/OverflowSet';
+import { IFocusZoneProps } from '@fluentui/react-focus';
 
 export interface IMultiStackedBarChartProps {
   /**
@@ -35,6 +37,20 @@ export interface IMultiStackedBarChartProps {
   hideRatio?: boolean[];
 
   /**
+   * Do not show the legend at the bottom of chart
+   *
+   * @default false
+   */
+  hideLegend?: boolean;
+
+  /**
+   * Do not show tooltips in chart
+   *
+   * @default false
+   */
+  hideTooltip?: boolean;
+
+  /**
    * Call to provide customized styling that will layer on top of the variant rules.
    */
   styles?: IStyleFunctionOrObject<IMultiStackedBarChartStyleProps, IMultiStackedBarChartStyles>;
@@ -48,6 +64,21 @@ export interface IMultiStackedBarChartProps {
    * If this value is set to true the denominator will not be shown for the ratio above the chart
    */
   hideDenominator?: boolean[];
+
+  /**
+   * overflow props for legend
+   */
+  legendsOverflowProps?: Partial<IOverflowSetProps>;
+
+  /**
+   * text for overflow legends string
+   */
+  legendsOverflowText?: string;
+
+  /**
+   * focus zone props in hover card for legends
+   */
+  focusZonePropsForLegendsInHoverCard?: IFocusZoneProps;
 }
 
 export interface IMultiStackedBarChartStyleProps {

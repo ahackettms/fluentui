@@ -25,15 +25,15 @@ export class DonutChartPage extends React.Component<IComponentDemoPageProps, {}>
           </div>
         }
         propertiesTables={
-          <PropertiesTableSet sources={[require<string>('!raw-loader!@uifabric/charting/src/components/DonutChart/DonutChart.types.ts')]} />
+          <PropertiesTableSet
+            sources={[require<string>('!raw-loader!@uifabric/charting/src/components/DonutChart/DonutChart.types.ts')]}
+          />
         }
-        /* tslint:disable:max-line-length */
         overview={
           <div>
             <p>DonutChart description</p>
           </div>
         }
-        /* tslint:enable:max-line-length */
         bestPractices={<div />}
         dos={
           <div>
@@ -49,7 +49,6 @@ export class DonutChartPage extends React.Component<IComponentDemoPageProps, {}>
             </ul>
           </div>
         }
-        related={<a href="https://dev.office.com/fabric-js/Components/DonutChart/DonutChart.html">Fabric JS</a>}
         isHeaderVisible={this.props.isHeaderVisible}
       />
     );

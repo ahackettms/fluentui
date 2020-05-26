@@ -1,10 +1,11 @@
-// @codepen
-
 import * as React from 'react';
-import { DetailsList, IColumn, IGroup } from 'office-ui-fabric-react/lib/DetailsList';
-
-const GROUP_HEADER_HEIGHT = 40;
-const GROUP_ITEM_HEIGHT = 43;
+import {
+  DetailsHeader,
+  DetailsList,
+  IColumn,
+  IDetailsHeaderProps,
+  IGroup,
+} from 'office-ui-fabric-react/lib/DetailsList';
 
 interface IDetailsListGroupedLargeExampleItem {
   key: string;
@@ -25,7 +26,7 @@ export class DetailsListGroupedLargeExample extends React.Component<{}, {}> {
       this._items.push({
         key: i.toString(),
         name: 'Item ' + i,
-        value: i.toString()
+        value: i.toString(),
       });
     }
 
@@ -35,13 +36,14 @@ export class DetailsListGroupedLargeExample extends React.Component<{}, {}> {
         key: i.toString(),
         name: i.toString(),
         startIndex: i * 100,
-        count: 100
+        count: 100,
+        level: 0,
       });
     }
 
     this._columns = [
       { key: 'name', name: 'Name', fieldName: 'name', minWidth: 100, maxWidth: 200, isResizable: true },
-      { key: 'value', name: 'Value', fieldName: 'value', minWidth: 100, maxWidth: 200, isResizable: true }
+      { key: 'value', name: 'Value', fieldName: 'value', minWidth: 100, maxWidth: 200, isResizable: true },
     ];
   }
 
@@ -51,14 +53,15 @@ export class DetailsListGroupedLargeExample extends React.Component<{}, {}> {
         items={this._items}
         groups={this._groups}
         columns={this._columns}
-        getGroupHeight={this._getGroupHeight}
         ariaLabelForSelectAllCheckbox="Toggle selection for all items"
         ariaLabelForSelectionColumn="Toggle selection"
+        checkButtonAriaLabel="Row checkbox"
+        onRenderDetailsHeader={this._onRenderDetailsHeader}
       />
     );
   }
 
-  private _getGroupHeight = (group: IGroup) => {
-    return GROUP_HEADER_HEIGHT + (group.isCollapsed ? 0 : GROUP_ITEM_HEIGHT * group.count);
-  };
+  private _onRenderDetailsHeader(props: IDetailsHeaderProps) {
+    return <DetailsHeader {...props} ariaLabelForToggleAllGroupsButton={'Toggle selection'} />;
+  }
 }

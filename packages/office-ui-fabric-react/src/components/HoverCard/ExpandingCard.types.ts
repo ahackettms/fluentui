@@ -2,12 +2,17 @@ import { IBaseCardProps, IBaseCardStyles, IBaseCardStyleProps } from './BaseCard
 import { IRenderFunction } from '../../Utilities';
 import { IStyle } from '../../Styling';
 
+/**
+ * {@docCategory HoverCard}
+ */
 export interface IExpandingCard {}
 
 /**
  * ExpandingCard component props.
+ * {@docCategory HoverCard}
  */
-export interface IExpandingCardProps extends IBaseCardProps<IExpandingCard, IExpandingCardStyles, IExpandingCardStyleProps> {
+export interface IExpandingCardProps
+  extends IBaseCardProps<IExpandingCard, IExpandingCardStyles, IExpandingCardStyleProps> {
   /**
    * Height of compact card
    * @defaultvalue 156
@@ -37,6 +42,9 @@ export interface IExpandingCardProps extends IBaseCardProps<IExpandingCard, IExp
   onRenderExpandedCard?: IRenderFunction<any>;
 }
 
+/**
+ * {@docCategory HoverCard}
+ */
 export enum ExpandingCardMode {
   /**
    * To have top compact card only
@@ -46,9 +54,12 @@ export enum ExpandingCardMode {
   /**
    * To have both top compact and bottom expanded card
    */
-  expanded = 1
+  expanded = 1,
 }
 
+/**
+ * {@docCategory HoverCard}
+ */
 export interface IExpandingCardStyleProps extends IBaseCardStyleProps {
   /**
    * Height of the compact section of the card.
@@ -71,6 +82,9 @@ export interface IExpandingCardStyleProps extends IBaseCardStyleProps {
   needsScroll?: boolean;
 }
 
+/**
+ * {@docCategory HoverCard}
+ */
 export interface IExpandingCardStyles extends IBaseCardStyles {
   /**
    * Style for the main card element.

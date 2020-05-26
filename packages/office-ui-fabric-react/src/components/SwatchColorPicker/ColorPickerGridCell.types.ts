@@ -1,6 +1,10 @@
+import * as React from 'react';
 import { IStyle, ITheme } from '../../Styling';
 import { IStyleFunctionOrObject } from '../../Utilities';
 
+/**
+ * {@docCategory SwatchColorPicker}
+ */
 export interface IColorPickerGridCellProps {
   /**
    * Item to render
@@ -8,14 +12,18 @@ export interface IColorPickerGridCellProps {
   item: IColorCellProps;
 
   /**
-   * Arbitrary unique string associated with this option
+   * Used as a PREFIX for the cell's ID (the cell will not have this literal string as its ID).
+   * @deprecated Deprecated due to misleading name. Use `idPrefix` instead.
    */
-  id: string;
+  id?: string;
 
   /**
-   * The label for this item.
-   * Visible text if this item is a header,
-   * tooltip if is this item is normal
+   * Prefix for this cell's ID. Will be required in a future version once `id` is removed.
+   */
+  idPrefix?: string;
+
+  /**
+   * Tooltip and aria label for this item
    */
   label?: string;
 
@@ -35,17 +43,19 @@ export interface IColorPickerGridCellProps {
   theme?: ITheme;
 
   /**
-   * Wheter or not colorOption should be rendered as a circle or square.
+   * True if this cell should be rendered as a circle, false if it should be a square.
+   * @default `true` (render as circle)
    */
   circle?: boolean;
 
   /**
-   * Optional, if the this option should be disabled
+   * Whether this cell should be disabled
+   * @default false
    */
   disabled?: boolean;
 
   /**
-   * Optional, if the cell is currently selected
+   * Whether this cell is currently selected
    */
   selected: boolean;
 
@@ -62,59 +72,45 @@ export interface IColorPickerGridCellProps {
   width?: number;
 
   /**
-   * Width of the border that indicates a selected/hovered cell, in pixels
-   * @defaultvalue 2
+   * Width of the border that indicates a selected/hovered cell, in pixels.
+   * @defaultvalue 2 if `cellWidth` is less than 24; otherwise 4
    */
   borderWidth?: number;
 
   /**
-   * The on click handler
+   * Handler for when a color cell is clicked.
    */
   onClick?: (item: IColorCellProps) => void;
 
-  /**
-   * Optional, the onHover handler
-   */
   onHover?: (item?: IColorCellProps) => void;
 
-  /**
-   * Optional, the onFocus handler
-   */
   onFocus?: (item: IColorCellProps) => void;
 
   /**
-   * Optional styles for the component.
+   * Custom styles for the component.
    */
   styles?: IStyleFunctionOrObject<IColorPickerGridCellStyleProps, IColorPickerGridCellStyles>;
 
   /**
-   * Optional, mouseEnter handler.
-   * @returns true if the event should be processed, false otherwise
+   * Mouse enter handler. Returns true if the event should be processed, false otherwise.
    */
   onMouseEnter?: (ev: React.MouseEvent<HTMLButtonElement>) => boolean;
 
   /**
-   * Optional, mouseMove handler
-   * @returns true if the event should be processed, false otherwise
+   * Mouse move handler. Returns true if the event should be processed, false otherwise.
    */
   onMouseMove?: (ev: React.MouseEvent<HTMLButtonElement>) => boolean;
 
-  /**
-   * Optional, mouseLeave handler
-   */
   onMouseLeave?: (ev: React.MouseEvent<HTMLButtonElement>) => void;
 
-  /**
-   * Optional, onWheel handler
-   */
   onWheel?: (ev: React.MouseEvent<HTMLButtonElement>) => void;
 
-  /**
-   * Optional, onkeydown handler
-   */
   onKeyDown?: (ev: React.KeyboardEvent<HTMLButtonElement>) => void;
 }
 
+/**
+ * {@docCategory SwatchColorPicker}
+ */
 export interface IColorCellProps {
   /**
    * Arbitrary unique string associated with this option
@@ -122,9 +118,7 @@ export interface IColorCellProps {
   id: string;
 
   /**
-   * The label for this item.
-   * Visible text if this item is a header,
-   * tooltip if is this item is normal
+   * Tooltip and aria label for this item
    */
   label?: string;
 
@@ -140,7 +134,7 @@ export interface IColorCellProps {
 }
 
 /**
- * Properties required to build the styles for the color picker component.
+ * {@docCategory SwatchColorPicker}
  */
 export interface IColorPickerGridCellStyleProps {
   /**
@@ -185,7 +179,7 @@ export interface IColorPickerGridCellStyleProps {
 }
 
 /**
- * Styles for the Color Picker Component.
+ * {@docCategory SwatchColorPicker}
  */
 export interface IColorPickerGridCellStyles {
   /**

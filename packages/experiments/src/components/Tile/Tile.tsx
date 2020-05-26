@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ITileProps, TileSize } from './Tile.types';
 import { Check } from 'office-ui-fabric-react/lib/Check';
 import { SELECTION_CHANGE } from 'office-ui-fabric-react/lib/Selection';
-import { ISize, css, BaseComponent, getId } from '../../Utilities';
+import { ISize, css, initializeComponentRef, getId, getNativeProps, divProperties, EventGroup } from '../../Utilities';
 import * as TileStylesModule from './Tile.scss';
 import * as SignalStylesModule from '../signals/Signal.scss';
 import * as CheckStylesModule from 'office-ui-fabric-react/lib/components/Check/Check.scss';
@@ -20,7 +20,7 @@ export const TileLayoutValues = {
   nameplateMargin: 0 as 0,
   largeNameplateActivityHeight: 20 as 20,
   smallNameplateActivityHeight: 20 as 20,
-  foregroundMargin: 16 as 16
+  foregroundMargin: 16 as 16,
 };
 
 export type TileLayoutValues = typeof TileLayoutValues[keyof typeof TileLayoutValues];
@@ -37,22 +37,22 @@ export const TileLayoutSizes: {
     nameplateMargin: number;
     nameplateActivityHeight: number;
     foregroundMargin: number;
-  }
+  };
 } = {
   small: {
     nameplatePadding: TileLayoutValues.nameplatePadding,
     nameplateNameHeight: TileLayoutValues.smallNameplateNameHeight,
     nameplateMargin: TileLayoutValues.nameplateMargin,
     nameplateActivityHeight: TileLayoutValues.smallNameplateActivityHeight,
-    foregroundMargin: TileLayoutValues.foregroundMargin
+    foregroundMargin: TileLayoutValues.foregroundMargin,
   },
   large: {
     nameplatePadding: TileLayoutValues.nameplatePadding,
     nameplateNameHeight: TileLayoutValues.largeNameplateNameHeight,
     nameplateMargin: TileLayoutValues.nameplateMargin,
     nameplateActivityHeight: TileLayoutValues.largeNameplateActivityHeight,
-    foregroundMargin: TileLayoutValues.foregroundMargin
-  }
+    foregroundMargin: TileLayoutValues.foregroundMargin,
+  },
 };
 
 /**
@@ -62,15 +62,18 @@ export const TileLayoutSizes: {
  * @class Tile
  * @extends {React.Component<ITileProps, ITileState>}
  */
-export class Tile extends BaseComponent<ITileProps, ITileState> {
+export class Tile extends React.Component<ITileProps, ITileState> {
   private _nameId: string;
   private _activityId: string;
   private _labelId: string;
   private _descriptionId: string;
+  private _events: EventGroup;
 
   // tslint:disable-next-line:no-any
   constructor(props: ITileProps, context: any) {
     super(props, context);
+
+    initializeComponentRef(this);
 
     this._nameId = getId('Tile-name');
     this._activityId = getId('Tile-activity');
@@ -84,22 +87,26 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
 
     this.state = {
       isSelected: isSelected,
-      isModal: isModal
+      isModal: isModal,
     };
+
+    this._events = new EventGroup(this);
   }
 
-  public componentWillReceiveProps(nextProps: ITileProps): void {
+  // tslint:disable-next-line function-name
+  public UNSAFE_componentWillReceiveProps(nextProps: ITileProps): void {
     const { selection, selectionIndex } = this.props;
 
     const { selection: nextSelection, selectionIndex: nextSelectionIndex = -1 } = nextProps;
 
     if (selection !== nextSelection || selectionIndex !== nextSelectionIndex) {
-      const isSelected = !!nextSelection && nextSelectionIndex > -1 && nextSelection.isIndexSelected(nextSelectionIndex);
+      const isSelected =
+        !!nextSelection && nextSelectionIndex > -1 && nextSelection.isIndexSelected(nextSelectionIndex);
       const isModal = !!nextSelection && nextSelection.isModal && nextSelection.isModal();
 
       this.setState({
         isSelected: isSelected,
-        isModal: isModal
+        isModal: isModal,
       });
     }
   }
@@ -128,6 +135,10 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
     }
   }
 
+  public componentWillUnmount(): void {
+    this._events.dispose();
+  }
+
   public render(): JSX.Element {
     const {
       children,
@@ -150,48 +161,62 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
       descriptionAriaLabel,
       href,
       onClick,
+      download,
+      hrefLang,
+      media,
+      rel,
+      target,
+      isFluentStyling,
+      ariaLabelSelected,
+      nameplateOnlyOnHover,
       ...divProps
     } = this.props;
 
     const { isSelected = false, isModal = false } = this.state;
 
-    const isSelectable = !!selection && selectionIndex > -1;
+    const { isSelectable = !!selection && selectionIndex > -1 } = this.props;
     const isInvokable = (!!href || !!onClick || !!invokeSelection) && !isModal;
-
+    const ariaLabelWithSelectState = isSelected && ariaLabelSelected ? `${ariaLabel}, ${ariaLabelSelected}` : ariaLabel;
     const content = (
       <>
         {ariaLabel ? (
           <span key="label" id={this._labelId} className={css('ms-Tile-label', TileStylesModule.label)}>
-            {ariaLabel}
+            {ariaLabelWithSelectState}
           </span>
         ) : null}
         {background
           ? this._onRenderBackground({
-            background: background,
-            hideBackground
-          })
+              background: background,
+              hideBackground,
+            })
           : null}
         {foreground
           ? this._onRenderForeground({
-            foreground: foreground,
-            hideForeground
-          })
+              foreground: foreground,
+              hideForeground,
+            })
           : null}
         {itemName || itemActivity
           ? this._onRenderNameplate({
-            name: itemName,
-            activity: itemActivity
-          })
+              name: itemName,
+              activity: itemActivity,
+              onlyOnHover: !!nameplateOnlyOnHover,
+            })
           : null}
       </>
     );
 
-    const LinkAs = href ? 'a' : 'button';
+    const LinkAs = href ? 'a' : onClick ? 'button' : 'span';
 
     const link = (
       <LinkAs
         href={href}
         onClick={onClick}
+        download={download}
+        hrefLang={hrefLang}
+        media={media}
+        target={target}
+        rel={rel === undefined ? (href && target ? 'noopener' : undefined) : rel}
         ref={this.props.linkRef}
         data-selection-invoke={isInvokable && selectionIndex > -1 ? true : undefined}
         className={css('ms-Tile-link', TileStyles.link)}
@@ -203,9 +228,9 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
     return (
       <div
         aria-selected={isSelected}
-        {...divProps}
+        {...getNativeProps(divProps, divProperties)}
         aria-labelledby={ariaLabel ? this._labelId : this._nameId}
-        aria-describedby={descriptionAriaLabel ? this._descriptionId : this._activityId}
+        aria-describedby={ariaLabelWithSelectState ? this._descriptionId : this._activityId}
         className={css('ms-Tile', className, TileStyles.tile, {
           [`ms-Tile--isSmall ${TileStyles.isSmall}`]: tileSize === 'small',
           [`ms-Tile--isLarge ${TileStyles.isLarge}`]: tileSize === 'large',
@@ -219,7 +244,8 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
           [`ms-Tile--invokable ${TileStyles.invokable}`]: isInvokable,
           [`ms-Tile--uninvokable ${TileStyles.uninvokable}`]: !isInvokable,
           [`ms-Tile--isDisabled ${TileStyles.disabled}`]: !isSelectable && !isInvokable,
-          [`ms-Tile--showCheck ${TileStyles.showCheck}`]: isModal
+          [`ms-Tile--showCheck ${TileStyles.showCheck}`]: isModal,
+          [`ms-Tile--isFluentStyling ${TileStyles.isFluentStyling}`]: isFluentStyling,
         })}
         data-is-focusable={true}
         data-is-sub-focuszone={true}
@@ -228,14 +254,18 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
       >
         {link}
         {descriptionAriaLabel ? (
-          <span key="description" id={this._descriptionId} className={css('ms-Tile-description', TileStylesModule.description)}>
+          <span
+            key="description"
+            id={this._descriptionId}
+            className={css('ms-Tile-description', TileStylesModule.description)}
+          >
             {descriptionAriaLabel}
           </span>
         ) : null}
         {isSelectable
           ? this._onRenderCheck({
-            isSelected: isSelected
-          })
+              isSelected: isSelected,
+            })
           : null}
       </div>
     );
@@ -243,62 +273,79 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
 
   private _onRenderBackground({
     background,
-    hideBackground
+    hideBackground,
   }: {
-    background: React.ReactNode | React.ReactNode[];
+    background: ITileProps['background'];
     hideBackground: boolean;
-  }): JSX.Element {
-    return (
+  }): JSX.Element | null {
+    const finalBackground =
+      typeof background === 'function' ? background(getTileLayoutFromProps(this.props)) : background;
+
+    return finalBackground ? (
       <span
         key="background"
         className={css('ms-Tile-background', TileStyles.background, {
-          [`ms-Tile-background--hide ${TileStyles.backgroundHide}`]: hideBackground
+          [`ms-Tile-background--hide ${TileStyles.backgroundHide}`]: hideBackground,
         })}
       >
-        {background}
+        {finalBackground}
       </span>
-    );
+    ) : null;
   }
 
   private _onRenderForeground({
     foreground,
-    hideForeground
+    hideForeground,
   }: {
-    foreground: React.ReactNode | React.ReactNode[];
+    foreground: ITileProps['foreground'];
     hideForeground: boolean;
-  }): JSX.Element {
-    return (
+  }): JSX.Element | null {
+    const finalForeground =
+      typeof foreground === 'function' ? foreground(getTileLayoutFromProps(this.props)) : foreground;
+
+    return finalForeground ? (
       <span key="foreground" role="presentation" className={css('ms-Tile-aboveNameplate', TileStyles.aboveNameplate)}>
         <span role="presentation" className={css('ms-Tile-content', TileStyles.content)}>
           <span
             role="presentation"
             className={css('ms-Tile-foreground', TileStyles.foreground, {
-              [`ms-Tile-foreground--hide ${TileStyles.foregroundHide}`]: hideForeground
+              [`ms-Tile-foreground--hide ${TileStyles.foregroundHide}`]: hideForeground,
             })}
           >
-            {foreground}
+            {finalForeground}
           </span>
         </span>
       </span>
-    );
+    ) : null;
   }
 
   private _onRenderNameplate({
     name,
-    activity
+    activity,
+    onlyOnHover,
   }: {
-    name: React.ReactNode | React.ReactNode[];
-    activity: React.ReactNode | React.ReactNode[];
+    name: React.ReactNode;
+    activity: React.ReactNode;
+    onlyOnHover: boolean;
   }): JSX.Element {
     return (
-      <span key="nameplate" className={css('ms-Tile-nameplate', TileStyles.nameplate)}>
+      <span
+        key="nameplate"
+        className={css('ms-Tile-nameplate', TileStyles.nameplate, { [TileStyles.onlyOnHover]: onlyOnHover })}
+      >
         {name ? (
-          <span id={this._nameId} className={css('ms-Tile-name', TileStyles.name)}>
+          <span
+            id={this._nameId}
+            className={css('ms-Tile-name', TileStyles.name, { [TileStyles.onlyOnHover]: onlyOnHover })}
+          >
             {name}
           </span>
         ) : null}
         {activity ? (
-          <span id={this._activityId} className={css('ms-Tile-activity', TileStyles.activity)}>
+          <span
+            id={this._activityId}
+            className={css('ms-Tile-activity', TileStyles.activity, { [TileStyles.onlyOnHover]: onlyOnHover })}
+          >
             {activity}
           </span>
         ) : null}
@@ -315,7 +362,7 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
         role="checkbox"
         aria-label={toggleSelectionAriaLabel}
         className={css('ms-Tile-check', TileStyles.check, CheckStyles.checkHost, {
-          [CheckStyles.hostShowCheck]: this.state.isModal
+          [CheckStyles.hostShowCheck]: this.state.isModal,
         })}
         data-selection-toggle={true}
         aria-checked={isSelected}
@@ -333,7 +380,7 @@ export class Tile extends BaseComponent<ITileProps, ITileState> {
 
     this.setState({
       isSelected: isSelected,
-      isModal: isModal
+      isModal: isModal,
     });
   };
 }
@@ -346,6 +393,10 @@ export interface ITileLayout {
 export function getTileLayout(tileElement: JSX.Element): ITileLayout {
   const tileProps: ITileProps = tileElement.props;
 
+  return getTileLayoutFromProps(tileProps);
+}
+
+function getTileLayoutFromProps(tileProps: ITileProps): ITileLayout {
   const { contentSize, tileSize = 'large' } = tileProps;
 
   if (!contentSize) {
@@ -354,7 +405,13 @@ export function getTileLayout(tileElement: JSX.Element): ITileLayout {
 
   const width = contentSize.width;
 
-  const { nameplatePadding, nameplateMargin, nameplateActivityHeight, nameplateNameHeight, foregroundMargin } = TileLayoutSizes[tileSize];
+  const {
+    nameplatePadding,
+    nameplateMargin,
+    nameplateActivityHeight,
+    nameplateNameHeight,
+    foregroundMargin,
+  } = TileLayoutSizes[tileSize];
 
   let nameplateHeight = 0;
 
@@ -371,9 +428,9 @@ export function getTileLayout(tileElement: JSX.Element): ITileLayout {
   return {
     foregroundSize: {
       width: width - foregroundMargin * 2,
-      height: contentSize.height - foregroundMargin - nameplateHeight
+      height: contentSize.height - foregroundMargin - nameplateHeight,
     },
-    backgroundSize: contentSize
+    backgroundSize: contentSize,
   };
 }
 

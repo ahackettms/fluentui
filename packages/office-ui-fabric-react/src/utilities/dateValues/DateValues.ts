@@ -1,5 +1,6 @@
 /**
  * The days of the week
+ * {@docCategory DayOfWeek}
  */
 export enum DayOfWeek {
   Sunday = 0,
@@ -8,11 +9,12 @@ export enum DayOfWeek {
   Wednesday = 3,
   Thursday = 4,
   Friday = 5,
-  Saturday = 6
+  Saturday = 6,
 }
 
 /**
  * The months
+ * {@docCategory MonthOfYear}
  */
 export enum MonthOfYear {
   January = 0,
@@ -26,24 +28,26 @@ export enum MonthOfYear {
   September = 8,
   October = 9,
   November = 10,
-  December = 11
+  December = 11,
 }
 
 /**
  * First week of the year settings types
+ * {@docCategory FirstWeekOfYear}
  */
 export enum FirstWeekOfYear {
   FirstDay = 0,
   FirstFullWeek = 1,
-  FirstFourDayWeek = 2
+  FirstFourDayWeek = 2,
 }
 
 /**
  * The supported date range types
+ * {@docCategory DateRangeType}
  */
 export enum DateRangeType {
   Day = 0,
   Week = 1,
   Month = 2,
-  WorkWeek = 3
+  WorkWeek = 3,
 }

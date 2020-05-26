@@ -8,7 +8,7 @@ const pureOptions: IDropdownOption[] = [
   { key: 'D', text: 'Option d' },
   { key: 'E', text: 'Option e' },
   { key: 'F', text: 'Option f' },
-  { key: 'G', text: 'Option g' }
+  { key: 'G', text: 'Option g' },
 ];
 
 const mixedOptions: IDropdownOption[] = [
@@ -24,7 +24,7 @@ const mixedOptions: IDropdownOption[] = [
   { key: 'G', text: 'Option g' },
   { key: 'H', text: 'Option h' },
   { key: 'I', text: 'Option i' },
-  { key: 'J', text: 'Option j' }
+  { key: 'J', text: 'Option j' },
 ];
 
 describe('DropdownSizePosCache', () => {
@@ -64,5 +64,13 @@ describe('DropdownSizePosCache', () => {
     cache.updateOptions(pureOptions);
     expect(cache.optionSetSize).toBe(7);
     expect(cache.positionInSet(3)).toBe(4);
+  });
+
+  it('will respect hidden flag', () => {
+    const optionsWithHidden: IDropdownOption[] = [...pureOptions, { key: 'K', text: 'Option k', hidden: true }];
+    const cache: DropdownSizePosCache = new DropdownSizePosCache();
+    cache.updateOptions(optionsWithHidden);
+
+    expect(cache.optionSetSize).toBe(optionsWithHidden.length - 1);
   });
 });

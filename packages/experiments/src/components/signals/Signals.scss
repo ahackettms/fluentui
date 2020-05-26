@@ -1,4 +1,3 @@
-
 @import '~office-ui-fabric-react/src/common/common';
 
 /*
@@ -171,9 +170,17 @@ i.emailed {
 }
 
 .bookmarkOutline {
-  color: $ms-color-black;
+  color: $ms-color-neutralSecondary;
 }
 
 .bookmarkFilled {
-  color: $ms-color-black;
+  color: $ms-color-neutralSecondary;
+}
+
+.needsRepublishing {
+  color: $ms-color-yellowDark;
+}
+
+.itemScheduled {
+  color: $ms-color-neutralSecondary;
 }

@@ -1,6 +1,3 @@
-// tslint:disable-next-line:no-any
-declare const process: { [key: string]: any };
-
 import { IStyle } from './IStyle';
 
 export const InjectionMode = {
@@ -17,10 +14,20 @@ export const InjectionMode = {
   /**
    * Appends rules using appendChild.
    */
-  appendChild: 2 as 2
+  appendChild: 2 as 2,
 };
 
 export type InjectionMode = typeof InjectionMode[keyof typeof InjectionMode];
+
+/**
+ * CSP settings for the stylesheet
+ */
+export interface ICSPSettings {
+  /**
+   * Nonce to inject into script tag
+   */
+  nonce?: string;
+}
 
 /**
  * Stylesheet config.
@@ -40,20 +47,51 @@ export interface IStyleSheetConfig {
   defaultPrefix?: string;
 
   /**
+   * Defines the default direction of rules for auto-rtlifying things.
+   * While typically this is represented as a DIR attribute in the markup,
+   * the DIR is not enough to control whether padding goes on the left or
+   * right. Use this to set the default direction when rules are registered.
+   */
+  rtl?: boolean;
+
+  /**
    * Default 'namespace' to attach before the className.
    */
   namespace?: string;
 
   /**
+   * CSP settings
+   */
+  cspSettings?: ICSPSettings;
+
+  /**
    * Callback executed when a rule is inserted.
    */
   onInsertRule?: (rule: string) => void;
+
+  /**
+   * Initial value for classnames cache. Key is serialized css rules associated with a classname.
+   */
+  classNameCache?: { [key: string]: string };
 }
 
 const STYLESHEET_SETTING = '__stylesheet__';
+/**
+ * MSIE 11 doesn't cascade styles based on DOM ordering, but rather on the order that each style node
+ * is created. As such, to maintain consistent priority, IE11 should reuse a single style node.
+ */
+const REUSE_STYLE_NODE = typeof navigator !== 'undefined' && /rv:11.0/.test(navigator.userAgent);
 
 // tslint:disable-next-line:no-any
-const _fileScopedGlobal: { [key: string]: any } = {};
+let _global: { [key: string]: any } = {};
+
+// Grab window.
+try {
+  _global = window;
+} catch {
+  /* leave as blank object */
+}
+
 let _stylesheet: Stylesheet;
 
 /**
@@ -81,15 +119,13 @@ export class Stylesheet {
    * Gets the singleton instance.
    */
   public static getInstance(): Stylesheet {
-    // tslint:disable-next-line:no-any
-    const global: any = typeof window !== 'undefined' ? window : typeof process !== 'undefined' ? process : _fileScopedGlobal;
-    _stylesheet = global[STYLESHEET_SETTING] as Stylesheet;
+    _stylesheet = _global[STYLESHEET_SETTING] as Stylesheet;
 
     if (!_stylesheet || (_stylesheet._lastStyleElement && _stylesheet._lastStyleElement.ownerDocument !== document)) {
       // tslint:disable-next-line:no-string-literal
-      const fabricConfig = (global && global['FabricConfig']) || {};
+      const fabricConfig = (_global && _global['FabricConfig']) || {};
 
-      _stylesheet = global[STYLESHEET_SETTING] = new Stylesheet(fabricConfig.mergeStyles);
+      _stylesheet = _global[STYLESHEET_SETTING] = new Stylesheet(fabricConfig.mergeStyles);
     }
 
     return _stylesheet;
@@ -100,8 +136,11 @@ export class Stylesheet {
       injectionMode: InjectionMode.insertNode,
       defaultPrefix: 'css',
       namespace: undefined,
-      ...config
+      cspSettings: undefined,
+      ...config,
     };
+
+    this._keyToClassName = this._config.classNameCache || {};
   }
 
   /**
@@ -110,7 +149,7 @@ export class Stylesheet {
   public setConfig(config?: IStyleSheetConfig): void {
     this._config = {
       ...this._config,
-      ...config
+      ...config,
     };
   }
 
@@ -143,7 +182,7 @@ export class Stylesheet {
     this._keyToClassName[key] = className;
     this._classNameToArgs[className] = {
       args,
-      rules
+      rules,
     };
   }
 
@@ -153,6 +192,13 @@ export class Stylesheet {
    */
   public classNameFromKey(key: string): string | undefined {
     return this._keyToClassName[key];
+  }
+
+  /**
+   * Gets all classnames cache with the stylesheet.
+   */
+  public getClassNameCache(): { [key: string]: string } {
+    return this._keyToClassName;
   }
 
   /**
@@ -219,7 +265,9 @@ export class Stylesheet {
    * using InsertionMode.none.
    */
   public getRules(includePreservedRules?: boolean): string {
-    return (includePreservedRules ? this._preservedRules.join('') : '') + this._rules.join('') + this._rulesToInsert.join('');
+    return (
+      (includePreservedRules ? this._preservedRules.join('') : '') + this._rules.join('') + this._rulesToInsert.join('')
+    );
   }
 
   /**
@@ -245,27 +293,51 @@ export class Stylesheet {
     if (!this._styleElement && typeof document !== 'undefined') {
       this._styleElement = this._createStyleElement();
 
-      // Reset the style element on the next frame.
-      window.requestAnimationFrame(() => {
-        this._styleElement = undefined;
-      });
+      if (!REUSE_STYLE_NODE) {
+        // Reset the style element on the next frame.
+        window.requestAnimationFrame(() => {
+          this._styleElement = undefined;
+        });
+      }
     }
     return this._styleElement;
   }
 
   private _createStyleElement(): HTMLStyleElement {
+    const head: HTMLHeadElement = document.head;
     const styleElement = document.createElement('style');
 
     styleElement.setAttribute('data-merge-styles', 'true');
-    styleElement.type = 'text/css';
 
-    if (this._lastStyleElement && this._lastStyleElement.nextElementSibling) {
-      document.head!.insertBefore(styleElement, this._lastStyleElement.nextElementSibling);
+    const { cspSettings } = this._config;
+    if (cspSettings) {
+      if (cspSettings.nonce) {
+        styleElement.setAttribute('nonce', cspSettings.nonce);
+      }
+    }
+    if (this._lastStyleElement) {
+      // If the `nextElementSibling` is null, then the insertBefore will act as a regular append.
+      // https://developer.mozilla.org/en-US/docs/Web/API/Node/insertBefore#Syntax
+      head!.insertBefore(styleElement, this._lastStyleElement.nextElementSibling);
     } else {
-      document.head!.appendChild(styleElement);
+      const placeholderStyleTag: Element | null = this._findPlaceholderStyleTag();
+
+      if (placeholderStyleTag) {
+        head!.insertBefore(styleElement, placeholderStyleTag.nextElementSibling);
+      } else {
+        head!.insertBefore(styleElement, head.childNodes[0]);
+      }
     }
     this._lastStyleElement = styleElement;
 
     return styleElement;
+  }
+
+  private _findPlaceholderStyleTag(): Element | null {
+    const head: HTMLHeadElement = document.head;
+    if (head) {
+      return head.querySelector('style[data-merge-styles]');
+    }
+    return null;
   }
 }

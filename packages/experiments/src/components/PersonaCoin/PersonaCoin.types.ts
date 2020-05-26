@@ -1,10 +1,16 @@
 import { ImageLoadState, IBaseProps } from 'office-ui-fabric-react';
-import { IComponentStyles, IHTMLDivSlot, ISlotProp, IComponent, IStyleableComponentProps } from '../../Foundation';
+import { IComponentStyles, IHTMLSlot, ISlotProp, IComponent, IStyleableComponentProps } from '../../Foundation';
 import { IPersonaPresenceSlot } from '../../utilities/factoryComponents.types';
 import { IPersonaCoinImageSlot } from './PersonaCoinImage/PersonaCoinImage.types';
 import { IPersonaCoinSize10Slot } from './PersonaCoinSize10/PersonaCoinSize10';
+import { IPersonaCoinInitialsSlot } from './PersonaCoinInitials/PersonaCoinInitials';
 
-export type IPersonaCoinComponent = IComponent<IPersonaCoinProps, IPersonaCoinTokens, IPersonaCoinStyles, IPersonaCoinViewProps>;
+export type IPersonaCoinComponent = IComponent<
+  IPersonaCoinProps,
+  IPersonaCoinTokens,
+  IPersonaCoinStyles,
+  IPersonaCoinViewProps
+>;
 
 // These types are redundant with IPersonaCoinComponent but are needed until TS function
 // return widening issue is resolved:
@@ -13,13 +19,13 @@ export type IPersonaCoinComponent = IComponent<IPersonaCoinProps, IPersonaCoinTo
 export type IPersonaCoinTokenReturnType = ReturnType<Extract<IPersonaCoinComponent['tokens'], Function>>;
 export type IPersonaCoinStylesReturnType = ReturnType<Extract<IPersonaCoinComponent['styles'], Function>>;
 
-export type IPersonaCoinSlot = ISlotProp<IPersonaCoinProps> | string;
+export type IPersonaCoinSlot = ISlotProp<IPersonaCoinProps, string>;
 
 export interface IPersonaCoinSlots {
   /**
    * Slot for the root element.
    */
-  root?: IHTMLDivSlot;
+  root?: IHTMLSlot;
 
   /**
    * Slot for the image element
@@ -29,7 +35,7 @@ export interface IPersonaCoinSlots {
   /**
    * Slot for the initials element
    */
-  initials?: IPersonaCoinSlot;
+  initials?: IPersonaCoinInitialsSlot;
 
   /**
    * Slot for the presence element

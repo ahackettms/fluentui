@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { ISuggestionModel } from '../../Pickers';
-import { IPersonaProps } from '../../Persona';
-import { ISuggestionsHeaderFooterProps } from './Suggestions/Suggestions.types';
+import { ISuggestionsControlProps } from './Suggestions/Suggestions.types';
 import { SuggestionsStore } from './Suggestions/SuggestionsStore';
 import { IRefObject } from '../../Utilities';
+import { ISuggestionItemProps } from '../pickers/Suggestions/SuggestionsItem.types';
+import { ICalloutProps } from '../Callout/Callout.types';
 
 export interface IBaseFloatingPicker {
   /** Whether the suggestions are shown */
@@ -53,12 +54,11 @@ export interface IBaseFloatingPickerProps<T> extends React.ClassAttributes<any> 
   /**
    * Function that specifies how an individual suggestion item will appear.
    */
-  // tslint:disable-next-line:no-any
-  onRenderSuggestionsItem?: (props: T, itemProps: any) => JSX.Element;
+  onRenderSuggestionsItem?: (props: T, itemProps: ISuggestionItemProps<T>) => JSX.Element;
   /**
    * A callback for what should happen when a person types text into the input.
    * Returns the already selected items so the resolver can filter them out.
-   * If used in conjunction with resolveDelay this will ony kick off after the delay throttle.
+   * If used in conjunction with resolveDelay this will only kick off after the delay throttle.
    * Return null if using as a controlled component
    */
   onResolveSuggestions: (filter: string, selectedItems?: T[]) => T[] | PromiseLike<T[]> | null;
@@ -88,10 +88,16 @@ export interface IBaseFloatingPickerProps<T> extends React.ClassAttributes<any> 
    * The properties that will get passed to the Suggestions component.
    */
   pickerSuggestionsProps?: IBaseFloatingPickerSuggestionProps;
+
   /**
-   * A callback for when a persona is removed from the suggestion list
+   * The properties that will get passed to the Callout component.
    */
-  onRemoveSuggestion?: (item: IPersonaProps) => void;
+  pickerCalloutProps?: ICalloutProps;
+
+  /**
+   * A callback for when an item is removed from the suggestion list
+   */
+  onRemoveSuggestion?: (item: T) => void;
   /**
    * A function used to validate if raw text entered into the well can be added
    */
@@ -112,8 +118,8 @@ export interface IBaseFloatingPickerProps<T> extends React.ClassAttributes<any> 
   showForceResolve?: () => boolean;
 
   /**
-   * The items that the base picker should currently display as selected. If this is provided then the picker will act as a controlled
-   * component.
+   * The items that the base picker should currently display as selected.
+   * If this is provided then the picker will act as a controlled component.
    */
   selectedItems?: T[];
 
@@ -143,18 +149,10 @@ export interface IBaseFloatingPickerProps<T> extends React.ClassAttributes<any> 
   suggestionItems?: T[];
 }
 
-export interface IBaseFloatingPickerSuggestionProps {
-  /**
-   * Whether or not the first selectable item in the suggestions list should be selected
-   */
-  shouldSelectFirstItem?: () => boolean;
-
-  /**
-   * The header items props
-   */
-  headerItemsProps?: ISuggestionsHeaderFooterProps[];
-  /**
-   * The footer items props
-   */
-  footerItemsProps?: ISuggestionsHeaderFooterProps[];
-}
+/**
+ * Props which are passed on to the inner Suggestions component
+ */
+export type IBaseFloatingPickerSuggestionProps = Pick<
+  ISuggestionsControlProps<any>,
+  'shouldSelectFirstItem' | 'headerItemsProps' | 'footerItemsProps' | 'showRemoveButtons'
+>;

@@ -1,52 +1,65 @@
 import * as React from 'react';
 import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
 import { FocusZone, FocusZoneDirection, FocusZoneTabbableElements } from 'office-ui-fabric-react/lib/FocusZone';
-import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import './FocusZone.Tabbable.Example.scss';
+import { TextField, ITextFieldStyles } from 'office-ui-fabric-react/lib/TextField';
+import { Stack } from 'office-ui-fabric-react/lib/Stack';
 
-const alertClicked = (): void => {
-  alert('Clicked');
+const textFieldStyles: Partial<ITextFieldStyles> = { root: { width: 200 } };
+const menuProps = {
+  items: [
+    {
+      key: 'emailMessage',
+      text: 'Email message',
+      iconProps: { iconName: 'Mail' },
+    },
+    {
+      key: 'calendarEvent',
+      text: 'Calendar event',
+      iconProps: { iconName: 'Calendar' },
+    },
+  ],
+};
+export const FocusZoneTabbableExample: React.FunctionComponent = () => {
+  const tokens = { childrenGap: 20 };
+  return (
+    <Stack tokens={tokens} horizontalAlign="start">
+      <FocusZone
+        direction={FocusZoneDirection.horizontal}
+        handleTabKey={FocusZoneTabbableElements.all}
+        isCircularNavigation={true}
+      >
+        <Stack tokens={tokens} horizontal verticalAlign="center">
+          <span>Circular Tabbable FocusZone: </span>
+          <DefaultButton>Button 1</DefaultButton>
+          <DefaultButton>Button 2</DefaultButton>
+          <TextField placeholder="FocusZone TextField" styles={textFieldStyles} ariaLabel="FocusZone TextField" />
+          <DefaultButton>Button 3</DefaultButton>
+          <DefaultButton
+            text="Create account"
+            split={true}
+            onClick={alertClicked}
+            splitButtonAriaLabel="See 2 sample options"
+            menuProps={menuProps}
+          />
+        </Stack>
+      </FocusZone>
+      <FocusZone
+        direction={FocusZoneDirection.horizontal}
+        handleTabKey={FocusZoneTabbableElements.inputOnly}
+        isCircularNavigation={false}
+      >
+        <Stack tokens={tokens} horizontal verticalAlign="center">
+          <span>Input Only FocusZone: </span>
+          <DefaultButton>Button 1</DefaultButton>
+          <DefaultButton>Button 2</DefaultButton>
+          <TextField placeholder="FocusZone TextField" styles={textFieldStyles} ariaLabel="FocusZone TextField" />
+          <DefaultButton>Button 3</DefaultButton>
+        </Stack>
+      </FocusZone>
+    </Stack>
+  );
 };
 
-export const FocusZoneTabbableExample = () => (
-  <div className="ms-FocusZoneTabbableExample">
-    <div className="ms-Row">
-      <FocusZone direction={FocusZoneDirection.horizontal} handleTabKey={FocusZoneTabbableElements.all} isCircularNavigation={true}>
-        <span>Circular Tabbable FocusZone: </span>
-        <DefaultButton>Button 1</DefaultButton>
-        <DefaultButton>Button 2</DefaultButton>
-        <TextField value="FocusZone TextField" className="ms-FocusZoneTabbableExample-textField" />
-        <DefaultButton>Button 3</DefaultButton>
-        <DefaultButton
-          text="Create account"
-          split={true}
-          onClick={alertClicked}
-          splitButtonAriaLabel={'See 2 sample options'}
-          menuProps={{
-            items: [
-              {
-                key: 'emailMessage',
-                text: 'Email message',
-                iconProps: { iconName: 'Mail' }
-              },
-              {
-                key: 'calendarEvent',
-                text: 'Calendar event',
-                iconProps: { iconName: 'Calendar' }
-              }
-            ]
-          }}
-        />
-      </FocusZone>
-    </div>
-    <div className="ms-Row">
-      <FocusZone direction={FocusZoneDirection.horizontal} handleTabKey={FocusZoneTabbableElements.inputOnly} isCircularNavigation={false}>
-        <span>Input Only FocusZone: </span>
-        <DefaultButton>Button 1</DefaultButton>
-        <DefaultButton>Button 2</DefaultButton>
-        <TextField value="FocusZone TextField" className="ms-FocusZoneTabbableExample-textField" />
-        <DefaultButton>Button 3</DefaultButton>
-      </FocusZone>
-    </div>
-  </div>
-);
+function alertClicked(): void {
+  alert('Clicked');
+}

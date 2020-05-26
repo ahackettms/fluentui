@@ -1,9 +1,18 @@
 import * as React from 'react';
-import { BaseComponent } from '../../../Utilities';
+import { initializeComponentRef, shallowCompare } from '../../../Utilities';
 import { IContextualMenuItemWrapperProps } from './ContextualMenuItemWrapper.types';
 import { IContextualMenuItem } from '../../../ContextualMenu';
 
-export class ContextualMenuItemWrapper extends BaseComponent<IContextualMenuItemWrapperProps, {}> {
+export class ContextualMenuItemWrapper extends React.Component<IContextualMenuItemWrapperProps> {
+  constructor(props: IContextualMenuItemWrapperProps) {
+    super(props);
+    initializeComponentRef(this);
+  }
+
+  public shouldComponentUpdate(newProps: IContextualMenuItemWrapperProps): boolean {
+    return !shallowCompare(newProps, this.props);
+  }
+
   protected _onItemMouseEnter = (ev: React.MouseEvent<HTMLElement>): void => {
     const { item, onItemMouseEnter } = this.props;
     if (onItemMouseEnter) {

@@ -1,11 +1,15 @@
+import * as React from 'react';
 import { styled } from '../../Utilities';
 import { DocumentCardPreviewBase } from './DocumentCardPreview.base';
 import { getStyles } from './DocumentCardPreview.styles';
-import { IDocumentCardPreviewProps, IDocumentCardPreviewStyleProps, IDocumentCardPreviewStyles } from './DocumentCardPreview.types';
+import {
+  IDocumentCardPreviewProps,
+  IDocumentCardPreviewStyleProps,
+  IDocumentCardPreviewStyles,
+} from './DocumentCardPreview.types';
 
-export const DocumentCardPreview = styled<IDocumentCardPreviewProps, IDocumentCardPreviewStyleProps, IDocumentCardPreviewStyles>(
-  DocumentCardPreviewBase,
-  getStyles,
-  undefined,
-  { scope: 'DocumentCardPreview' }
-);
+export const DocumentCardPreview: React.FunctionComponent<IDocumentCardPreviewProps> = styled<
+  IDocumentCardPreviewProps,
+  IDocumentCardPreviewStyleProps,
+  IDocumentCardPreviewStyles
+>(DocumentCardPreviewBase, getStyles, undefined, { scope: 'DocumentCardPreview' });

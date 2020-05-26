@@ -1,9 +1,13 @@
+import * as React from 'react';
 import { IStyle, ITheme } from '../../Styling';
 import { IPositioningContainerProps } from './PositioningContainer/PositioningContainer.types';
 import { IRefObject, IStyleFunctionOrObject } from '../../Utilities';
 import { CoachmarkBase } from './Coachmark.base';
 import { ITeachingBubble } from '../../TeachingBubble';
 
+/**
+ * {@docCategory Coachmark}
+ */
 export interface ICoachmark {
   /**
    * Forces the Coachmark to dismiss
@@ -11,7 +15,10 @@ export interface ICoachmark {
   dismiss?: (ev?: any) => void;
 }
 
-/** Coachmark component props */
+/**
+ * Coachmark component props
+ * {@docCategory Coachmark}
+ */
 export interface ICoachmarkProps extends React.ClassAttributes<CoachmarkBase> {
   /**
    * Optional callback to access the ICoachmark interface. Use this instead of ref for accessing
@@ -171,6 +178,13 @@ export interface ICoachmarkProps extends React.ClassAttributes<CoachmarkBase> {
   preventDismissOnLostFocus?: boolean;
 
   /**
+   * If true then the Coachmark beak (arrow pointing towards target) will always be visible as long as
+   * Coachmark is visible
+   * @defaultvalue false
+   */
+  persistentBeak?: boolean;
+
+  /**
    * If true then focus will not be set to the Coachmark when it mounts. Useful in cases where focus on coachmark
    * is causing other components in page to dismiss upon losing focus.
    * @defaultvalue false
@@ -188,7 +202,10 @@ export interface ICoachmarkProps extends React.ClassAttributes<CoachmarkBase> {
   theme?: ITheme;
 }
 
-/** The props needed to construct styles. */
+/**
+ * The props needed to construct styles.
+ * {@docCategory Coachmark}
+ */
 export interface ICoachmarkStyleProps {
   /**
    * ClassName to provide on the root style area.
@@ -274,7 +291,10 @@ export interface ICoachmarkStyleProps {
   delayBeforeCoachmarkAnimation?: string;
 }
 
-/** Represents the stylable areas of the control. */
+/**
+ * Represents the stylable areas of the control.
+ * {@docCategory Coachmark}
+ */
 export interface ICoachmarkStyles {
   /**
    * Style for the root element in the default enabled/unchecked state.
@@ -329,5 +349,8 @@ export interface ICoachmarkStyles {
   ariaContainer?: IStyle;
 }
 
-/** @deprecated */
+/**
+ * @deprecated No longer used.
+ * {@docCategory Coachmark}
+ */
 export type ICoachmarkTypes = ICoachmarkProps;

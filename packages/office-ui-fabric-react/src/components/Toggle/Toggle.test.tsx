@@ -12,7 +12,7 @@ describe('Toggle', () => {
       component
         .find('.ms-Toggle-label')
         .first()
-        .text()
+        .text(),
     ).toEqual('Label');
   });
 
@@ -22,14 +22,26 @@ describe('Toggle', () => {
     expect(tree).toMatchSnapshot();
   });
 
-  it('renders toggle correctly with inline label', () => {
+  it('renders toggle correctly with inline label (string)', () => {
     const component = renderer.create(<Toggle label="Label" inlineLabel={true} />);
+    const tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('renders toggle correctly with inline label (JSX Element)', () => {
+    const component = renderer.create(<Toggle label={<p>Label</p>} inlineLabel={true} />);
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   it('renders toggle correctly with inline label and on/off text provided', () => {
     const component = renderer.create(<Toggle label="Label" inlineLabel={true} onText="On" offText="Off" />);
+    const tree = component.toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('renders hidden toggle correctly', () => {
+    const component = renderer.create(<Toggle hidden />);
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   });
@@ -42,7 +54,7 @@ describe('Toggle', () => {
         .find('button')
         .first()
         .getDOMNode()
-        .getAttribute('aria-label')
+        .getAttribute('aria-label'),
     ).toEqual('AriaLabel');
   });
 
@@ -59,7 +71,7 @@ describe('Toggle', () => {
         .find('button')
         .first()
         .getDOMNode()
-        .getAttribute('aria-checked')
+        .getAttribute('aria-checked'),
     ).toEqual('false');
 
     component
@@ -74,7 +86,7 @@ describe('Toggle', () => {
         .find('button')
         .first()
         .getDOMNode()
-        .getAttribute('aria-checked')
+        .getAttribute('aria-checked'),
     ).toEqual('true');
   });
 
@@ -86,7 +98,7 @@ describe('Toggle', () => {
         .find('button')
         .first()
         .getDOMNode()
-        .getAttribute('aria-checked')
+        .getAttribute('aria-checked'),
     ).toEqual('false');
 
     component
@@ -100,7 +112,7 @@ describe('Toggle', () => {
         .find('button')
         .first()
         .getDOMNode()
-        .getAttribute('aria-checked')
+        .getAttribute('aria-checked'),
     ).toEqual('false');
   });
 
@@ -128,12 +140,62 @@ describe('Toggle', () => {
           componentRef={ref => (component = ref)}
           label="Label"
         />
-      </form>
+      </form>,
     );
     const button: any = wrapper.find('button');
     // simulate to change toggle state
     button.simulate('click');
     expect((component as React.Component<any, any>).state.checked).toEqual(true);
     expect(onSubmit.called).toEqual(false);
+  });
+
+  describe('aria-labelledby', () => {
+    it('has no aria-labelledby attribute if ariaLabel is provided', () => {
+      const component = mount(<Toggle label="Label" ariaLabel="AriaLabel" />);
+
+      expect(
+        component
+          .find('button')
+          .first()
+          .getDOMNode()
+          .getAttribute('aria-labelledby'),
+      ).toBeNull();
+    });
+
+    it('is labelled by the label element if no aria labels are provided', () => {
+      const component = mount(<Toggle label="Label" id="ToggleId" />);
+
+      expect(
+        component
+          .find('button')
+          .first()
+          .getDOMNode()
+          .getAttribute('aria-labelledby'),
+      ).toBe('ToggleId-label');
+    });
+
+    it('is labelled by the state text element if no aria labels are provided and no label is provided', () => {
+      const component = mount(<Toggle onText="On" offText="Off" id="ToggleId" />);
+
+      expect(
+        component
+          .find('button')
+          .first()
+          .getDOMNode()
+          .getAttribute('aria-labelledby'),
+      ).toBe('ToggleId-stateText');
+    });
+
+    it('is labelled by the state text element if no aria labels are provided and no label is provided', () => {
+      const component = mount(<Toggle onText="On" offText="Off" id="ToggleId" />);
+
+      expect(
+        component
+          .find('button')
+          .first()
+          .getDOMNode()
+          .getAttribute('aria-labelledby'),
+      ).toBe('ToggleId-stateText');
+    });
   });
 });

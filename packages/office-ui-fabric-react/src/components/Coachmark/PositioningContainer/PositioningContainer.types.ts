@@ -1,9 +1,15 @@
 import { DirectionalHint } from '../../../common/DirectionalHint';
-import { IRefObject, IBaseProps, IPoint, IRectangle } from '../../../Utilities';
+import { IRefObject, IBaseProps, Point, IRectangle } from '../../../Utilities';
 import { IPositionedData } from '../../../utilities/positioning';
 
+/**
+ * {@docCategory Coachmark}
+ */
 export interface IPositioningContainer {}
 
+/**
+ * {@docCategory Coachmark}
+ */
 export interface IPositioningContainerProps extends IBaseProps<IPositioningContainer> {
   /**
    * All props for your component are to be defined here.
@@ -14,7 +20,7 @@ export interface IPositioningContainerProps extends IBaseProps<IPositioningConta
    * It can be either an HTMLElement a querySelector string of a valid HTMLElement
    * or a MouseEvent. If MouseEvent is given then the origin point of the event will be used.
    */
-  target?: HTMLElement | string | MouseEvent | IPoint | null;
+  target?: HTMLElement | string | MouseEvent | Point | null;
 
   /**
    * How the element should be positioned
@@ -69,7 +75,7 @@ export interface IPositioningContainerProps extends IBaseProps<IPositioningConta
    * Deprecated, use `target` instead.
    * @deprecated Use `target` instead.
    */
-  targetPoint?: IPoint;
+  targetPoint?: Point;
 
   /**
    * If true then the onClose will not not dismiss on scroll
@@ -162,5 +168,8 @@ export interface IPositioningContainerProps extends IBaseProps<IPositioningConta
   positioningContainerMaxHeight?: number;
 }
 
-/** @deprecated Use `IPositioningContainerProps` */
+/**
+ * @deprecated Use `IPositioningContainerProps`
+ * {@docCategory Coachmark}
+ */
 export type IPositioningContainerTypes = IPositioningContainerProps;

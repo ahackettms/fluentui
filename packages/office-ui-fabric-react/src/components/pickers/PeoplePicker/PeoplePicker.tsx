@@ -7,7 +7,7 @@ import {
   IBasePickerSuggestionsProps,
   ValidationState,
   IBasePickerStyleProps,
-  IBasePickerStyles
+  IBasePickerStyles,
 } from '../BasePicker.types';
 import { PeoplePickerItem } from './PeoplePickerItems/PeoplePickerItem';
 import { IPersonaProps } from '../../../Persona';
@@ -15,15 +15,25 @@ import { PeoplePickerItemSuggestion } from './PeoplePickerItems/PeoplePickerItem
 import { IPeoplePickerItemSelectedProps } from './PeoplePickerItems/PeoplePickerItem.types';
 import { getStyles } from '../BasePicker.styles';
 
-/** PeoplePicker props interface which renders Personas as items. */
+/**
+ * PeoplePicker props interface which renders Personas as items.
+ * {@docCategory PeoplePicker}
+ * */
 export interface IPeoplePickerProps extends IBasePickerProps<IPersonaProps> {}
 
+/**
+ * {@docCategory PeoplePicker}
+ */
 export class BasePeoplePicker extends BasePicker<IPersonaProps, IPeoplePickerProps> {}
 
+/**
+ * {@docCategory PeoplePicker}
+ */
 export class MemberListPeoplePicker extends BasePickerListBelow<IPersonaProps, IPeoplePickerProps> {}
 
 /**
  * Standard People Picker.
+ * {@docCategory PeoplePicker}
  */
 export class NormalPeoplePickerBase extends BasePeoplePicker {
   /** Default props for NormalPeoplePicker. */
@@ -32,12 +42,13 @@ export class NormalPeoplePickerBase extends BasePeoplePicker {
     onRenderSuggestionsItem: (personaProps: IPersonaProps, suggestionsProps?: IBasePickerSuggestionsProps) => (
       <PeoplePickerItemSuggestion personaProps={personaProps} suggestionsProps={suggestionsProps} />
     ),
-    createGenericItem: createGenericItem
+    createGenericItem: createGenericItem,
   };
 }
 
 /**
  * Compact layout. It uses personas without secondary text when displaying search results.
+ * {@docCategory PeoplePicker}
  */
 export class CompactPeoplePickerBase extends BasePeoplePicker {
   /** Default props for CompactPeoplePicker. */
@@ -46,12 +57,13 @@ export class CompactPeoplePickerBase extends BasePeoplePicker {
     onRenderSuggestionsItem: (personaProps: IPersonaProps, suggestionsProps?: IBasePickerSuggestionsProps) => (
       <PeoplePickerItemSuggestion personaProps={personaProps} suggestionsProps={suggestionsProps} compact={true} />
     ),
-    createGenericItem: createGenericItem
+    createGenericItem: createGenericItem,
   };
 }
 
 /**
  * MemberList layout. The selected people show up below the search box.
+ * {@docCategory PeoplePicker}
  */
 export class ListPeoplePickerBase extends MemberListPeoplePicker {
   /** Default props for ListPeoplePicker. */
@@ -60,22 +72,31 @@ export class ListPeoplePickerBase extends MemberListPeoplePicker {
     onRenderSuggestionsItem: (personaProps: IPersonaProps, suggestionsProps?: IBasePickerSuggestionsProps) => (
       <PeoplePickerItemSuggestion personaProps={personaProps} suggestionsProps={suggestionsProps} />
     ),
-    createGenericItem: createGenericItem
+    createGenericItem: createGenericItem,
   };
 }
 
+/**
+ * {@docCategory PeoplePicker}
+ */
 export interface IGenericItem {
   primaryText: string;
   imageInitials: string;
   ValidationState: ValidationState;
 }
 
-export function createGenericItem(name: string, currentValidationState: ValidationState): IGenericItem & { key: React.Key } {
+/**
+ * {@docCategory PeoplePicker}
+ */
+export function createGenericItem(
+  name: string,
+  currentValidationState: ValidationState,
+): IGenericItem & { key: React.Key } {
   const personaToConvert = {
     key: name,
     primaryText: name,
     imageInitials: '!',
-    ValidationState: currentValidationState
+    ValidationState: currentValidationState,
   };
 
   if (currentValidationState !== ValidationState.warning) {
@@ -90,8 +111,8 @@ export const NormalPeoplePicker = styled<IPeoplePickerProps, IBasePickerStylePro
   getStyles,
   undefined,
   {
-    scope: 'NormalPeoplePicker'
-  }
+    scope: 'NormalPeoplePicker',
+  },
 );
 
 export const CompactPeoplePicker = styled<IPeoplePickerProps, IBasePickerStyleProps, IBasePickerStyles>(
@@ -99,8 +120,8 @@ export const CompactPeoplePicker = styled<IPeoplePickerProps, IBasePickerStylePr
   getStyles,
   undefined,
   {
-    scope: 'CompactPeoplePicker'
-  }
+    scope: 'CompactPeoplePicker',
+  },
 );
 
 export const ListPeoplePicker = styled<IPeoplePickerProps, IBasePickerStyleProps, IBasePickerStyles>(
@@ -108,6 +129,6 @@ export const ListPeoplePicker = styled<IPeoplePickerProps, IBasePickerStyleProps
   getStyles,
   undefined,
   {
-    scope: 'ListPeoplePickerBase'
-  }
+    scope: 'ListPeoplePickerBase',
+  },
 );

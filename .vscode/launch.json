@@ -8,13 +8,32 @@
       "program": "${workspaceRoot}/scripts/debug-test.js",
       "cwd": "${fileDirname}",
       "stopOnEntry": false,
-      "args": ["-i"],
+      "args": ["-i", "--watch"],
       "runtimeExecutable": null,
-      "runtimeArgs": ["--nolazy", "--debug"],
+      "runtimeArgs": ["--nolazy", "--inspect"],
       "env": {
         "NODE_ENV": "development"
       },
-      "sourceMaps": true
+      "sourceMaps": true,
+      "outputCapture": "std",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug current open test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/scripts/debug-test.js",
+      "cwd": "${fileDirname}",
+      "stopOnEntry": false,
+      "args": ["-i", "--testPathPattern=\\b${fileBasenameNoExtension}", "--watch"],
+      "runtimeExecutable": null,
+      "runtimeArgs": ["--nolazy", "--inspect"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "sourceMaps": true,
+      "outputCapture": "std",
+      "console": "integratedTerminal"
     },
     {
       "name": "Run server",
@@ -35,7 +54,7 @@
       "name": "Build fabric",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/scripts/just.js",
+      "program": "${workspaceRoot}/scripts/just-scripts.js",
       "cwd": "${workspaceRoot}/packages/office-ui-fabric-react",
       "stopOnEntry": false,
       "args": ["ts"],
@@ -50,7 +69,7 @@
       "name": "Debug build Production",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/scripts/just.js",
+      "program": "${workspaceRoot}/scripts/just-scripts.js",
       "stopOnEntry": false,
       "args": ["tslint"],
       "cwd": "${workspaceRoot}/packages/styling",
@@ -64,7 +83,7 @@
       "name": "Debug build Dogfood",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/scripts/just.js",
+      "program": "${workspaceRoot}/scripts/just-scripts.js",
       "stopOnEntry": false,
       "args": ["webpack", "--", "--production", "--dogfood"],
       "cwd": "${workspaceRoot}/apps/fabric-website",
@@ -80,12 +99,18 @@
       "request": "launch",
       // scripts/start.js generates this script path and launches a subprocess (which is harder
       // to debug), so in the launch configuration we start the script directly instead.
-      "program": "${workspaceRoot}/scripts/node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+      "program": "${workspaceRoot}/node_modules/webpack-dev-server/bin/webpack-dev-server.js",
       "stopOnEntry": true,
       "cwd": "${workspaceRoot}/apps/fabric-website",
       "runtimeExecutable": null,
       // Use the config file for fabric-website, plus command line options used in start.js
-      "args": ["--nolazy", "--debug", "--config", "${workspaceRoot}/apps/fabric-website/webpack.serve.config.js", "--open"],
+      "args": [
+        "--nolazy",
+        "--debug",
+        "--config",
+        "${workspaceRoot}/apps/fabric-website/webpack.serve.config.js",
+        "--open"
+      ],
       "env": {
         "NODE_ENV": "development"
       }
@@ -95,8 +120,8 @@
       "type": "node",
       "request": "launch",
       "program": "${workspaceRoot}/apps/ssr-tests/node_modules/mocha/bin/_mocha",
-      "stopOnEntry": true,
-      "args": ["--debug", "dist/test-bundle.js"],
+      "stopOnEntry": false,
+      "args": ["--debug", "dist/ssr-tests.js"],
       "cwd": "${workspaceRoot}/apps/ssr-tests",
       "runtimeExecutable": null,
       "runtimeArgs": ["--nolazy", "--debug"],
@@ -106,11 +131,11 @@
       "sourceMaps": false
     },
     {
-      "name": "Debug add new component",
+      "name": "Debug lint imports",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/scripts/create-component.js",
-      "cwd": "${workspaceRoot}",
+      "program": "${workspaceRoot}/scripts/tasks/lint-imports.js",
+      "cwd": "${workspaceRoot}/packages/office-ui-fabric-react",
       "stopOnEntry": false,
       "args": ["--name", "TestComponentName"],
       "runtimeExecutable": null,
@@ -121,19 +146,60 @@
       "sourceMaps": true
     },
     {
-      "name": "Debug lint imports",
+      "name": "Debug update release notes",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/scripts/lint-imports.js",
-      "cwd": "${workspaceRoot}/packages/charting/src",
+      "protocol": "inspector",
+      "cwd": "${workspaceRoot}",
+      "args": [
+        "${workspaceRoot}/scripts/updateReleaseNotes/index.ts",
+        "--token",
+        // For local testing, generate a personal access token (https://github.com/settings/tokens)
+        // and replace "your token here" with the token. DO NOT COMMIT YOUR TOKEN!
+        "your token here",
+        "--patch",
+        "--age",
+        "10"
+      ],
+      "runtimeArgs": ["--nolazy", "--debug", "-r", "${workspaceRoot}/scripts/ts-node-register"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug page json generator",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/packages/api-docs/lib/generatePageJsonFiles.js",
+      "cwd": "${workspaceRoot}/packages/api-docs",
       "stopOnEntry": false,
-      "args": ["--name", "TestComponentName"],
       "runtimeExecutable": null,
       "runtimeArgs": ["--nolazy", "--debug"],
       "env": {
         "NODE_ENV": "development"
       },
-      "sourceMaps": true
+      "sourceMaps": true,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug gulp task",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceRoot}/node_modules/gulp/bin/gulp.js",
+      "stopOnEntry": false,
+      "runtimeArgs": ["--nolazy", "--debug"],
+      // You can change the task name and cwd locally as needed
+      "args": ["build"],
+      "cwd": "${workspaceRoot}/packages/fluentui/react-northstar",
+      "env": {
+        "NODE_ENV": "development",
+        // This is used in scripts/babel/index.js to enable sourcemaps
+        "DEBUG": "1"
+      },
+      "sourceMaps": true,
+      "console": "integratedTerminal"
     }
   ]
 }

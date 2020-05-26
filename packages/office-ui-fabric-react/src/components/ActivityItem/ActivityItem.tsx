@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { BaseComponent } from '../../Utilities';
 import { IActivityItemProps } from './ActivityItem.types';
 import { IActivityItemClassNames, getClassNames } from './ActivityItem.classNames';
 import { getStyles } from './ActivityItem.styles';
@@ -7,7 +6,10 @@ import { PersonaSize, PersonaCoin, IPersonaSharedProps, IPersonaCoinProps } from
 
 type OptionalReactKey = { key?: React.Key };
 
-export class ActivityItem extends BaseComponent<IActivityItemProps, {}> {
+/**
+ * {@docCategory ActivityItem}
+ */
+export class ActivityItem extends React.Component<IActivityItemProps, {}> {
   constructor(props: IActivityItemProps) {
     super(props);
   }
@@ -19,7 +21,7 @@ export class ActivityItem extends BaseComponent<IActivityItemProps, {}> {
       onRenderComments = this._onRenderComments,
       onRenderTimeStamp = this._onRenderTimeStamp,
       animateBeaconSignal,
-      isCompact
+      isCompact,
     } = this.props;
 
     const classNames = this._getClassNames(this.props);
@@ -53,6 +55,7 @@ export class ActivityItem extends BaseComponent<IActivityItemProps, {}> {
   private _onRenderActivityDescription = (props: IActivityItemProps): JSX.Element | null => {
     const classNames = this._getClassNames(props);
 
+    // tslint:disable-next-line:deprecation
     const activityDescription = props.activityDescription || props.activityDescriptionText;
 
     if (activityDescription) {
@@ -65,6 +68,7 @@ export class ActivityItem extends BaseComponent<IActivityItemProps, {}> {
   private _onRenderComments = (props: IActivityItemProps): JSX.Element | null => {
     const classNames = this._getClassNames(props);
 
+    // tslint:disable-next-line:deprecation
     const comments = props.comments || props.commentText;
 
     if (!props.isCompact && comments) {
@@ -100,7 +104,7 @@ export class ActivityItem extends BaseComponent<IActivityItemProps, {}> {
           display: 'inline-block',
           width: '10px',
           minWidth: '10px',
-          overflow: 'visible'
+          overflow: 'visible',
         };
       }
       activityPersonas
@@ -112,9 +116,10 @@ export class ActivityItem extends BaseComponent<IActivityItemProps, {}> {
               // tslint:disable-next-line:no-string-literal
               key={person['key'] ? person['key'] : index}
               className={classNames.activityPersona}
+              // tslint:disable-next-line:deprecation
               size={showSize16Personas ? PersonaSize.size16 : PersonaSize.size32}
               style={style}
-            />
+            />,
           );
         });
       personaElement = <div className={classNames.personaContainer}>{personaList}</div>;
@@ -124,10 +129,17 @@ export class ActivityItem extends BaseComponent<IActivityItemProps, {}> {
 
   private _getClassNames(props: IActivityItemProps): IActivityItemClassNames {
     return getClassNames(
-      getStyles(undefined, props.styles, props.animateBeaconSignal, props.beaconColorOne, props.beaconColorTwo, props.isCompact),
+      getStyles(
+        undefined,
+        props.styles,
+        props.animateBeaconSignal,
+        props.beaconColorOne,
+        props.beaconColorTwo,
+        props.isCompact,
+      ),
       props.className!,
       props.activityPersonas!,
-      props.isCompact!
+      props.isCompact!,
     );
   }
 }

@@ -4,7 +4,6 @@ import Screener from 'screener-storybook/src/screener';
 import { storiesOf } from '@storybook/react';
 import { FabricDecorator } from '../utilities';
 import { Nav, INavLink } from 'office-ui-fabric-react/lib/Nav';
-import { IconNames } from 'office-ui-fabric-react/lib/Icons';
 
 const links: INavLink[] = [
   {
@@ -13,45 +12,79 @@ const links: INavLink[] = [
     links: [
       {
         name: 'Activity',
-        icon: IconNames.Upload,
+        icon: 'Upload',
         url: 'http://msn.com',
-        key: 'key1'
+        key: 'key1',
       },
       {
         name: 'News',
         url: 'http://msn.com',
-        key: 'key2'
-      }
+        key: 'key2',
+      },
     ],
-    isExpanded: true
+    isExpanded: true,
   },
   {
     name: 'Documents',
-    icon: IconNames.Accept,
+    icon: 'Accept',
     url: 'http://example.com',
-    key: 'key3'
+    key: 'key3',
   },
   {
     name: 'Pages',
     url: 'http://msn.com',
-    key: 'key4'
+    key: 'key4',
   },
   {
     name: 'Notebook',
     url: 'http://msn.com',
-    key: 'key5'
+    key: 'key5',
   },
   {
     name: 'Long Name Test for elipse',
     url: 'http://msn.com',
-    key: 'key6'
+    key: 'key6',
   },
   {
     name: 'Edit',
     url: 'http://cnn.com',
-    icon: IconNames.Edit,
-    key: 'key8'
-  }
+    icon: 'Edit',
+    key: 'key8',
+  },
+];
+
+const disabledLinks: INavLink[] = [
+  {
+    name: 'Home',
+    url: 'http://example.com',
+    disabled: true,
+    links: [
+      {
+        name: 'Activity',
+        url: 'http://msn.com',
+        key: 'key1',
+      },
+      {
+        name: 'MSN',
+        url: 'http://msn.com',
+        key: 'key2',
+        disabled: true,
+      },
+    ],
+    isExpanded: true,
+  },
+  {
+    name: 'Documents',
+    url: 'http://example.com',
+    key: 'key3',
+  },
+  {
+    name: 'Unavailable Item',
+    url: 'http://cnn.com',
+    icon: 'News',
+    disabled: true,
+    key: 'key4',
+  },
 ];
 
 storiesOf('Nav', module)
@@ -74,13 +107,17 @@ storiesOf('Nav', module)
     'Root',
     () => (
       <div style={{ width: '208px' }}>
-        <Nav
-          groups={[{ links: links }]}
-          expandedStateText={'expanded'}
-          collapsedStateText={'collapsed'}
-          selectedKey={'key3'}
-        />
+        <Nav groups={[{ links: links }]} selectedKey="key3" />
       </div>
     ),
-    { rtl: true }
+    { rtl: true },
+  )
+  .addStory(
+    'Disabled',
+    () => (
+      <div style={{ width: '208px' }}>
+        <Nav groups={[{ links: disabledLinks }]} selectedKey="key3" />
+      </div>
+    ),
+    { rtl: true },
   );

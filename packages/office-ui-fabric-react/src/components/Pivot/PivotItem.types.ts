@@ -1,7 +1,11 @@
 import * as React from 'react';
-import { IRefObject, IRenderFunction } from '../../Utilities';
+import { IButtonProps } from '../../Button';
 import { IKeytipProps } from '../../Keytip';
+import { IRefObject, IRenderFunction } from '../../Utilities';
 
+/**
+ * {@docCategory Pivot}
+ */
 export interface IPivotItemProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Gets the component ref.
@@ -20,9 +24,10 @@ export interface IPivotItemProps extends React.HTMLAttributes<HTMLDivElement> {
   headerText?: string;
 
   /**
-   * Props for the header command button supporting native props - data-* and aria-* - for each pivot header/link element
+   * Props for the header command button. This provides a way to pass in native props, such as data-* and aria-*,
+   * for each pivot header/link element.
    */
-  headerButtonProps?: { [key: string]: string | number | boolean };
+  headerButtonProps?: IButtonProps & { [key: string]: string | number | boolean };
 
   /**
    * An required key to uniquely identify a pivot item.
@@ -39,11 +44,11 @@ export interface IPivotItemProps extends React.HTMLAttributes<HTMLDivElement> {
   ariaLabel?: string;
 
   /**
-   * An optional item count that gets displayed just after the linkText(itemCount)
+   * Defines an optional item count displayed in parentheses just after the `linkText`.
    *
-   * Example: completed(4)
+   * Examples: completed (4), Unread (99+)
    */
-  itemCount?: number;
+  itemCount?: number | string;
 
   /**
    * An optional icon to show next to the pivot link.

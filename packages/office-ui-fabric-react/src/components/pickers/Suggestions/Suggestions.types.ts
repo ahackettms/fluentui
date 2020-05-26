@@ -4,8 +4,12 @@ import { IRefObject, IRenderFunction, KeyCodes, IStyleFunctionOrObject } from '.
 import { IPersonaProps } from '../../Persona/Persona.types';
 import { IStyle, ITheme } from '../../../Styling';
 import { ISpinnerStyleProps } from '../../Spinner/Spinner.types';
+import { ISuggestionItemProps } from './SuggestionsItem.types';
 
-/** Suggestions component. */
+/**
+ * Suggestions component.
+ * {@docCategory Pickers}
+ */
 export interface ISuggestions<T> {
   /** Execute the action selected. Can be SearchMore or ForceResolve actions. */
   executeSelectedAction: () => void;
@@ -32,7 +36,9 @@ export interface ISuggestions<T> {
 /**
  * Suggestions props interface. Refers to the entire container holding all the suggestions.
  * Type T is the type of the items that are displayed.
+ * {@docCategory Pickers}
  */
+// tslint:disable-next-line:deprecation
 export interface ISuggestionsProps<T> extends React.Props<any> {
   /**
    * Optional callback to access the ISuggestions interface. Use this instead of ref for accessing
@@ -43,7 +49,7 @@ export interface ISuggestionsProps<T> extends React.Props<any> {
   /**
    * How the suggestion should look in the suggestion list.
    */
-  onRenderSuggestion?: (props: T, suggestionItemProps: T) => JSX.Element;
+  onRenderSuggestion: (props: T, suggestionItemProps: ISuggestionItemProps<T>) => JSX.Element;
 
   /**
    * What should occur when a suggestion is clicked
@@ -107,6 +113,8 @@ export interface ISuggestionsProps<T> extends React.Props<any> {
 
   /**
    * The text that should appear if there is a search error.
+   *
+   * @deprecated Use noResultsFoundText instead.
    */
   searchErrorText?: string;
 
@@ -153,8 +161,10 @@ export interface ISuggestionsProps<T> extends React.Props<any> {
 
   /**
    * Function to fire when one of the optional remove buttons on a suggestion is clicked.
+   *
+   * TODO (adjective-object) remove IPersonaprops before the next major version bump
    */
-  onSuggestionRemove?: (ev?: React.MouseEvent<HTMLElement>, item?: IPersonaProps, index?: number) => void;
+  onSuggestionRemove?: (ev?: React.MouseEvent<HTMLElement>, item?: T | IPersonaProps, index?: number) => void;
 
   /**
    * Indicates if the text in resultsFooter or resultsFooterFull should be shown at the end of the suggestion list.
@@ -209,13 +219,16 @@ export interface ISuggestionsProps<T> extends React.Props<any> {
   suggestionsListId?: string;
 
   /** Call to provide customized styling that will layer on top of the variant rules. */
-  styles?: IStyleFunctionOrObject<{}, {}>;
+  styles?: IStyleFunctionOrObject<any, any>;
 
   /** Theme provided by High-Order Component. */
   theme?: ITheme;
 }
 
-/** The props needed to construct Suggestions styles. */
+/**
+ * The props needed to construct Suggestions styles.
+ * {@docCategory Pickers}
+ */
 export type ISuggestionsStyleProps = Required<Pick<ISuggestionsProps<any>, 'theme'>> &
   Pick<ISuggestionsProps<any>, 'className' | 'suggestionsClassName'> & {
     /** Whether the forceResolve actionButton is selected. */
@@ -225,7 +238,10 @@ export type ISuggestionsStyleProps = Required<Pick<ISuggestionsProps<any>, 'them
     searchForMoreButtonSelected?: boolean;
   };
 
-/** Represents the stylable areas of the Suggestions. */
+/**
+ * Represents the stylable areas of the Suggestions.
+ * {@docCategory Pickers}
+ */
 export interface ISuggestionsStyles {
   /** Root element of the suggestions outer wrapper. */
   root: IStyle;
@@ -252,7 +268,10 @@ export interface ISuggestionsStyles {
   subComponentStyles: ISuggestionsSubComponentStyles;
 }
 
-/** Styles interface of the SubComponents rendered within PeoplePickerItemSelected. */
+/**
+ * Styles interface of the SubComponents rendered within PeoplePickerItemSelected.
+ * {@docCategory Pickers}
+ */
 export interface ISuggestionsSubComponentStyles {
   /** Refers to the Spinner rendered within the Suggestions when searching or loading suggestions. */
   spinner: IStyleFunctionOrObject<ISpinnerStyleProps, any>;
@@ -261,6 +280,7 @@ export interface ISuggestionsSubComponentStyles {
 /**
  * SuggestionModel interface.
  * Type T is the type of the item that is suggested (Persona, Tag or any other custom picker).
+ * {@docCategory Pickers}
  */
 export interface ISuggestionModel<T> {
   /** The suggested item of the type T */
@@ -273,7 +293,10 @@ export interface ISuggestionModel<T> {
   ariaLabel?: string;
 }
 
-/** Enum to help identify which suggestions action button is selected. */
+/**
+ * Enum to help identify which suggestions action button is selected.
+ * {@docCategory Pickers}
+ */
 export enum SuggestionActionType {
   /** None of the actions is selected. */
   none,
@@ -282,5 +305,5 @@ export enum SuggestionActionType {
   forceResolve,
 
   /** SearchMore action is selected. */
-  searchMore
+  searchMore,
 }

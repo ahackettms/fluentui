@@ -5,8 +5,16 @@ import { ResponsiveMode } from '../../utilities/decorators/withResponsiveMode';
 import { IStyle, ITheme } from '../../Styling';
 import { IRefObject, IStyleFunctionOrObject } from '../../Utilities';
 
+export { ResponsiveMode }; // Exported because the type is an optional prop and not exported otherwise.
+
+/**
+ * {@docCategory Dialog}
+ */
 export interface IDialogContent {}
 
+/**
+ * {@docCategory Dialog}
+ */
 export interface IDialogContentProps extends React.ClassAttributes<DialogContentBase> {
   /**
    * Optional callback to access the IDialogContent interface. Use this instead of ref for accessing
@@ -45,7 +53,7 @@ export interface IDialogContentProps extends React.ClassAttributes<DialogContent
   className?: string;
 
   /**
-   * A callback function for when the Dialog is dismissed from the close button or light dismiss, before the animation completes.
+   * Callback for when the Dialog is dismissed from the close button or light dismiss, before the animation completes.
    */
   onDismiss?: (ev?: React.MouseEvent<HTMLButtonElement>) => any;
 
@@ -61,13 +69,20 @@ export interface IDialogContentProps extends React.ClassAttributes<DialogContent
 
   /**
    * The Id for title container
+   *
+   * @deprecated use the `id` attribute in `titleProps` instead.
    */
   titleId?: string;
 
   /**
    * The title text to display at the top of the dialog.
    */
-  title?: string;
+  title?: string | JSX.Element;
+
+  /**
+   * The props for title container.
+   */
+  titleProps?: React.HTMLAttributes<HTMLDivElement>;
 
   /**
    * Responsive mode passed in from decorator.
@@ -85,17 +100,28 @@ export interface IDialogContentProps extends React.ClassAttributes<DialogContent
    * @defaultvalue DialogType.normal
    */
   type?: DialogType;
+
+  /**
+   * The classname for when the header is draggable
+   */
+  draggableHeaderClassName?: string;
 }
 
+/**
+ * {@docCategory Dialog}
+ */
 export enum DialogType {
   /** Standard dialog */
   normal = 0,
   /** Dialog with large header banner */
   largeHeader = 1,
   /** Dialog with an 'x' close button in the upper-right corner */
-  close = 2
+  close = 2,
 }
 
+/**
+ * {@docCategory Dialog}
+ */
 export interface IDialogContentStyleProps {
   /**
    * Accept theme prop.
@@ -115,8 +141,16 @@ export interface IDialogContentStyleProps {
    * Is inside a multiline wrapper
    */
   isMultiline?: boolean;
+
+  /**
+   * The classname for when the header is draggable
+   */
+  draggableHeaderClassName?: string;
 }
 
+/**
+ * {@docCategory Dialog}
+ */
 export interface IDialogContentStyles {
   /**
    * Style for the content element.

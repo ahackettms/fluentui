@@ -2,6 +2,7 @@
  * Simulated enum for keycodes. These will get inlined by uglify when used much like an enum
  *
  * @public
+ * {@docCategory KeyCodes}
  */
 export const KeyCodes = {
   backspace: 8 as 8,
@@ -102,6 +103,6 @@ export const KeyCodes = {
   openBracket: 219 as 219,
   backSlash: 220 as 220,
   closeBracket: 221 as 221,
-  singleQuote: 222 as 222
+  singleQuote: 222 as 222,
 };
 export type KeyCodes = number;

@@ -1,42 +1,87 @@
-// @codepen
-
 import * as React from 'react';
-import { ColorPicker, Toggle } from 'office-ui-fabric-react/lib/index';
+import {
+  ColorPicker,
+  ChoiceGroup,
+  IChoiceGroupOption,
+  Toggle,
+  getColorFromString,
+  IColor,
+  IColorPickerStyles,
+  IColorPickerProps,
+  updateA,
+} from 'office-ui-fabric-react/lib/index';
+import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
+import { useConstCallback } from '@uifabric/react-hooks';
 
-export interface IBasicColorPickerExampleState {
-  color: string;
-  alphaSliderHidden: boolean;
-}
+const white = getColorFromString('#ffffff')!;
 
-export class ColorPickerBasicExample extends React.Component<{}, IBasicColorPickerExampleState> {
-  constructor(props: {}) {
-    super(props);
+export const ColorPickerBasicExample: React.FunctionComponent = () => {
+  const [color, setColor] = React.useState(white);
+  const [showPreview, setShowPreview] = React.useState(true);
+  const [alphaType, setAlphaType] = React.useState<IColorPickerProps['alphaType']>('alpha');
 
-    this.state = {
-      color: '#ffffff',
-      alphaSliderHidden: false
-    };
-  }
+  const updateColor = useConstCallback((ev: any, colorObj: IColor) => setColor(colorObj));
+  const onShowPreviewClick = useConstCallback((ev: any, checked?: boolean) => setShowPreview(!!checked));
+  const onAlphaTypeChange = React.useCallback(
+    (ev: any, option: IChoiceGroupOption = alphaOptions[0]) => {
+      if (option.key === 'none') {
+        // If hiding the alpha slider, remove transparency from the color
+        setColor(updateA(color, 100));
+      }
+      setAlphaType(option.key as IColorPickerProps['alphaType']);
+    },
+    [color],
+  );
 
-  public render(): JSX.Element {
-    const { color, alphaSliderHidden } = this.state;
-    return (
-      <div style={{ display: 'flex' }}>
-        <ColorPicker color={color} onColorChanged={this._updateColor} alphaSliderHidden={alphaSliderHidden} />
+  return (
+    <div className={classNames.wrapper}>
+      <ColorPicker
+        color={color}
+        onChange={updateColor}
+        alphaType={alphaType}
+        showPreview={showPreview}
+        styles={colorPickerStyles}
+        // The ColorPicker provides default English strings for visible text.
+        // If your app is localized, you MUST provide the `strings` prop with localized strings.
+        strings={{
+          // By default, the sliders will use the text field labels as their aria labels.
+          // If you'd like to provide more detailed instructions, you can use these props.
+          alphaAriaLabel: 'Alpha slider: Use left and right arrow keys to change value, hold shift for a larger jump',
+          transparencyAriaLabel:
+            'Transparency slider: Use left and right arrow keys to change value, hold shift for a larger jump',
+          hueAriaLabel: 'Hue slider: Use left and right arrow keys to change value, hold shift for a larger jump',
+        }}
+      />
 
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ backgroundColor: color, width: 100, height: 100, margin: 16, border: '1px solid #c8c6c4' }} />
-          <Toggle label="Hide alpha slider" onChange={this._onHideAlphaClick} checked={alphaSliderHidden} />
-        </div>
+      <div className={classNames.column2}>
+        <Toggle label="Show preview box" onChange={onShowPreviewClick} checked={showPreview} />
+        <ChoiceGroup
+          label="Alpha slider type"
+          options={alphaOptions}
+          defaultSelectedKey={alphaOptions[0].key}
+          onChange={onAlphaTypeChange}
+        />
       </div>
-    );
-  }
+    </div>
+  );
+};
 
-  private _updateColor = (color: string): void => {
-    this.setState({ color: color });
-  };
+const alphaOptions: IChoiceGroupOption[] = [
+  { key: 'alpha', text: 'Alpha' },
+  { key: 'transparency', text: 'Transparency' },
+  { key: 'none', text: 'None' },
+];
 
-  private _onHideAlphaClick = (ev: React.MouseEvent<HTMLElement>, checked?: boolean) => {
-    this.setState({ alphaSliderHidden: !!checked });
-  };
-}
+const classNames = mergeStyleSets({
+  wrapper: { display: 'flex' },
+  column2: { marginLeft: 10 },
+});
+
+const colorPickerStyles: Partial<IColorPickerStyles> = {
+  panel: { padding: 12 },
+  root: {
+    maxWidth: 352,
+    minWidth: 352,
+  },
+  colorRectangle: { height: 268 },
+};

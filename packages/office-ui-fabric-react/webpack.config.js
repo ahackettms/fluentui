@@ -6,7 +6,7 @@ const BUNDLE_NAME = 'office-ui-fabric-react';
 const IS_PRODUCTION = process.argv.indexOf('--production') > -1;
 
 let entry = {
-  [BUNDLE_NAME]: './lib/index.bundle.js'
+  [BUNDLE_NAME]: './lib/index.bundle.js',
 };
 
 function createConfig(config, onlyProduction) {
@@ -18,47 +18,48 @@ function createConfig(config, onlyProduction) {
 
       externals: [
         {
-          react: 'React'
+          react: 'React',
         },
         {
-          'react-dom': 'ReactDOM'
-        }
+          'react-dom': 'ReactDOM',
+        },
       ],
 
       resolve: {
         alias: {
+          'office-ui-fabric-react$': path.join(__dirname, 'lib'),
           'office-ui-fabric-react/src': path.join(__dirname, 'src'),
           'office-ui-fabric-react/lib': path.join(__dirname, 'lib'),
           'Props.ts.js': 'Props',
-          'Example.tsx.js': 'Example'
-        }
+          'Example.tsx.js': 'Example',
+        },
       },
 
-      ...config
+      ...config,
     },
-    onlyProduction
+    onlyProduction,
   );
 }
 
 module.exports = [
-  createConfig(
+  ...createConfig(
     {
       output: {
         libraryTarget: 'var',
-        library: 'Fabric'
-      }
+        library: 'Fabric',
+      },
     },
-    false
+    false,
   ),
-  createConfig(
+  ...createConfig(
     {
       plugins: [new ManifestServicePlugin()],
       output: {
         libraryTarget: 'umd',
         library: 'Fabric',
-        filename: `${BUNDLE_NAME}.umd.js`
-      }
+        filename: `${BUNDLE_NAME}.umd.js`,
+      },
     },
-    true
-  )
+    true,
+  ),
 ];

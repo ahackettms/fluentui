@@ -1,31 +1,33 @@
 import * as React from 'react';
-import { Dropdown } from 'office-ui-fabric-react/lib/Dropdown';
-import { BaseComponent } from 'office-ui-fabric-react/lib/Utilities';
-import './Dropdown.Basic.Example.scss';
+import { Dropdown, IDropdownStyles } from 'office-ui-fabric-react/lib/Dropdown';
+import { IStackTokens, Stack } from 'office-ui-fabric-react/lib/Stack';
+import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
+import { useBoolean } from '@uifabric/react-hooks';
 
-export class DropdownErrorExample extends BaseComponent<{}, {}> {
-  constructor(props: {}) {
-    super(props);
-  }
+const dropdownStyles: Partial<IDropdownStyles> = { dropdown: { width: 300 }, root: { height: 100 } };
 
-  public render(): JSX.Element {
-    return (
-      <div className="docs-DropdownExample">
-        <Dropdown
-          placeholder="Select an Option"
-          label="Error message example:"
-          id="Errormessagedrop1"
-          ariaLabel="Error message dropdown example"
-          options={[
-            { key: 'A', text: 'Option a' },
-            { key: 'B', text: 'Option b' },
-            { key: 'C', text: 'Option c' },
-            { key: 'D', text: 'Option d' },
-            { key: 'E', text: 'Option e' }
-          ]}
-          errorMessage="Error message"
-        />
-      </div>
-    );
-  }
-}
+const stackTokens: IStackTokens = { childrenGap: 30 };
+
+const DropdownErrorExampleOptions = [
+  { key: 'A', text: 'Option a' },
+  { key: 'B', text: 'Option b' },
+  { key: 'C', text: 'Option c' },
+  { key: 'D', text: 'Option d' },
+  { key: 'E', text: 'Option e' },
+];
+
+export const DropdownErrorExample: React.FunctionComponent = () => {
+  const [showError, { toggle: toggleShowError }] = useBoolean(false);
+  return (
+    <Stack horizontal tokens={stackTokens} verticalAlign="start">
+      <Toggle label="Show error message" onText="Yes" offText="No" checked={showError} onChange={toggleShowError} />
+      <Dropdown
+        placeholder="Select an option"
+        label="Dropdown with error message"
+        options={DropdownErrorExampleOptions}
+        errorMessage={showError ? 'This dropdown has an error' : undefined}
+        styles={dropdownStyles}
+      />
+    </Stack>
+  );
+};

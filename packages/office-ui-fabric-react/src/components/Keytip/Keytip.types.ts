@@ -1,16 +1,11 @@
 import { ICalloutProps } from '../../Callout';
 import { IStyle, ITheme } from '../../Styling';
-import { IRefObject, IStyleFunctionOrObject, IPoint } from '../../Utilities';
+import { IStyleFunctionOrObject, Point } from '../../Utilities';
 
-export interface IKeytip {}
-
+/**
+ * {@docCategory Keytips}
+ */
 export interface IKeytipProps {
-  /**
-   * Optional callback to access the Keytip component. Use this instead of ref for accessing
-   * the public methods and properties of the component.
-   */
-  componentRef?: IRefObject<IKeytip>;
-
   /**
    * Content to put inside the keytip
    */
@@ -70,11 +65,11 @@ export interface IKeytipProps {
    * Offset x and y for the keytip, added from the top-left corner
    * By default the keytip will be anchored to the bottom-center of the element
    */
-  offset?: IPoint;
+  offset?: Point;
 
   /**
-   * Whether or not this keytip will have children keytips that are dynamically created (DOM is generated on keytip activation)
-   * Common cases are a Pivot or Modal
+   * Whether or not this keytip will have children keytips that are dynamically created (DOM is generated on
+   * keytip activation). Common cases are a Pivot or Modal.
    */
   hasDynamicChildren?: boolean;
 
@@ -87,6 +82,7 @@ export interface IKeytipProps {
 
 /**
  * Props to style Keytip component
+ * {@docCategory Keytips}
  */
 export interface IKeytipStyleProps {
   /**
@@ -105,6 +101,9 @@ export interface IKeytipStyleProps {
   visible?: boolean;
 }
 
+/**
+ * {@docCategory Keytips}
+ */
 export interface IKeytipStyles {
   /**
    * Style for the div container surrounding the keytip content.

@@ -8,7 +8,7 @@ const GlobalClassNames = {
   tbody: 'ms-MarkdownTable-tbody',
   tr: 'ms-MarkdownTable-tr',
   td: 'ms-MarkdownTable-td',
-  th: 'ms-MarkdownTable-th'
+  th: 'ms-MarkdownTable-th',
 };
 
 const cellStyles: IStyle = {
@@ -18,13 +18,13 @@ const cellStyles: IStyle = {
 
   selectors: {
     '&:first-of-type': {
-      paddingLeft: 0
+      paddingLeft: 0,
     },
 
     '&[style*="text-align"] .ms-mdImage img': {
-      display: 'inline-block'
-    }
-  }
+      display: 'inline-block',
+    },
+  },
 };
 
 export const getStyles = (props: IMarkdownTableStyleProps): IMarkdownTableStyles => {
@@ -35,7 +35,16 @@ export const getStyles = (props: IMarkdownTableStyleProps): IMarkdownTableStyles
   const classNames = getGlobalClassNames(GlobalClassNames, theme);
 
   return {
-    root: [classNames.root, className],
+    root: [
+      classNames.root,
+      className,
+      {
+        width: '100%',
+        overflowX: 'auto',
+        marginBottom: 20,
+        // TODO: add background gradient styles (see Page.module.scss)
+      },
+    ],
 
     table: [
       classNames.root,
@@ -46,47 +55,47 @@ export const getStyles = (props: IMarkdownTableStyleProps): IMarkdownTableStyles
 
         selectors: {
           '.ms-mdImage img': {
-            maxWidth: '100%'
-          }
-        }
-      }
+            maxWidth: '100%',
+          },
+        },
+      },
     ],
 
     tr: [
       classNames.tr,
       {
-        borderBottom: `1px solid ${palette.neutralTertiary}`
-      }
+        borderBottom: `1px solid ${palette.neutralTertiary}`,
+      },
     ],
 
     thead: [
       classNames.thead,
       {
         selectors: {
-          $tr: {
-            borderColor: palette.neutralPrimary
-          }
-        }
-      }
+          [`.${classNames.tr}`]: {
+            borderColor: palette.neutralPrimary,
+          },
+        },
+      },
     ],
 
     tbody: [
       classNames.tbody,
       {
         selectors: {
-          '$tr:last-of-type': {
-            borderBottom: 'none'
-          }
-        }
-      }
+          [`.${classNames.tr}:last-of-type`]: {
+            borderBottom: 'none',
+          },
+        },
+      },
     ],
 
     td: [
       classNames.td,
       {
         color: palette.neutralSecondary,
-        ...cellStyles
-      }
+        ...cellStyles,
+      },
     ],
 
     th: [
@@ -96,8 +105,8 @@ export const getStyles = (props: IMarkdownTableStyleProps): IMarkdownTableStyles
         color: palette.neutralPrimary,
         whiteSpace: 'nowrap',
         textAlign: 'left',
-        ...cellStyles
-      }
-    ]
+        ...cellStyles,
+      },
+    ],
   };
 };
